@@ -1,10 +1,27 @@
+<script setup lang="ts">
+const { user, logout } = useAuth()
+</script>
+
 <template>
   <div class="mx-auto max-w-4xl px-6 py-12">
-    <h1 class="text-4xl font-bold text-brand mb-4">
-      Teste do Tailwind
-    </h1>
+    <!-- Header com info do usuário -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-4xl font-bold text-brand mb-2">
+          Dashboard AFAAS
+        </h1>
+        <p class="text-text-muted">
+          Bem-vindo, {{ user?.email || 'Usuário' }}!
+        </p>
+      </div>
+      
+      <BaseButton variant="outline" @click="logout">
+        Sair
+      </BaseButton>
+    </div>
+
     <p class="text-text-muted mb-8">
-      Validando classes utilitárias e tokens semânticos configurados.
+      Sistema de gerenciamento de atendimentos AFAAS.
     </p>
 
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

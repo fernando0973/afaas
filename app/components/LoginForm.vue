@@ -5,12 +5,13 @@
       <p class="text-text-muted">Entre com suas credenciais para acessar o sistema</p>
     </div>
 
-    <form class="space-y-5">
+    <form @submit.prevent="handleLogin" class="space-y-5">
       <BaseInput
         v-model="email"
         type="email"
         label="E-mail"
         placeholder="seu@email.com"
+        :error="errors.email"
         required
       >
         <template #prefix>
@@ -23,6 +24,7 @@
         type="password"
         label="Senha"
         placeholder="Digite sua senha"
+        :error="errors.password"
         required
       >
         <template #prefix>
@@ -36,8 +38,10 @@
           variant="primary"
           size="lg"
           full-width
+          :loading="loading"
+          :disabled="loading"
         >
-          Entrar
+          {{ loading ? 'Entrando...' : 'Entrar' }}
         </BaseButton>
       </div>
     </form>
@@ -47,7 +51,60 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
+const errors = ref({
+  email: '',
+  password: ''
+})
+
+const toast = useToast()
+const { login } = useAuth()
+
+const loading = ref(false)
+
+const validateForm = () => {
+  errors.value = { email: '', password: '' }
+  let isValid = true
+
+  if (!email.value) {
+    errors.value.email = 'E-mail é obrigatório'
+    isValid = false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    errors.value.email = 'E-mail inválido'
+    isValid = false
+  }
+
+  if (!password.value) {
+    errors.value.password = 'Senha é obrigatória'
+    isValid = false
+  } else if (password.value.length < 6) {
+    errors.value.password = 'Senha deve ter no mínimo 6 caracteres'
+    isValid = false
+  }
+
+  return isValid
+}
+
+const handleLogin = async () => {
+  if (!validateForm()) {
+    toast.warning('Por favor, corrija os erros no formulário')
+    return
+  }
+
+  loading.value = true
+  
+  const result = await login(email.value, password.value)
+
+  if (result.success) {
+    toast.success('Login realizado com sucesso!')
+    // O redirecionamento já é feito no composable useAuth
+  } else {
+    toast.error(result.error || 'Erro ao fazer login. Verifique suas credenciais.')
+  }
+  
+  loading.value = false
+}
 </script>

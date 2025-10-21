@@ -22,7 +22,7 @@
     <div class="hidden lg:flex flex-1 items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 p-12">
       <div class="max-w-lg w-full">
         <img 
-          src="~/assets/images/AFAAS_Completo.svg" 
+          src="~/assets/images/AFAAS_Logo_Completo.svg" 
           alt="AFAAS - Associação Filantrópica de Apoio Alternativo à Saúde" 
           class="w-full h-auto"
         />
@@ -30,3 +30,10 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+// Desabilita o layout padrão para a página de login
+definePageMeta({
+  layout: false
+})
+</script>

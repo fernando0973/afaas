@@ -94,17 +94,27 @@ const handleLogin = async () => {
     return
   }
 
+  // Evita múltiplos cliques
+  if (loading.value) {
+    return
+  }
+
   loading.value = true
   
-  const result = await login(email.value, password.value)
+  try {
+    const result = await login(email.value, password.value)
 
-  if (result.success) {
-    toast.success('Login realizado com sucesso!')
-    // O redirecionamento já é feito no composable useAuth
-  } else {
-    toast.error(result.error || 'Erro ao fazer login. Verifique suas credenciais.')
+    if (result.success) {
+      toast.success('Login realizado com sucesso!')
+      // O redirecionamento já é feito no composable useAuth
+    } else {
+      toast.error(result.error || 'Erro ao fazer login. Verifique suas credenciais.')
+    }
+  } catch (error) {
+    console.error('Erro no login:', error)
+    toast.error('Erro inesperado durante o login.')
+  } finally {
+    loading.value = false
   }
-  
-  loading.value = false
 }
 </script>

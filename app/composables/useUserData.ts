@@ -4,8 +4,11 @@
 export const useUserData = () => {
   const { user } = useAuth()
   
-  // Estado local como fallback
+  // Estado local como fallback - SSR safe
   const fallbackName = computed(() => {
+    // No servidor, sempre retorna valor padrão
+    if (!process.client) return 'Usuário'
+    
     if (!user.value) return 'Usuário'
     
     if (user.value.user_metadata?.full_name) {
@@ -44,7 +47,11 @@ export const useUserData = () => {
     return storeData.value?.userName || fallbackName.value
   })
   
-  const isAuthenticated = computed(() => !!user.value)
+  const isAuthenticated = computed(() => {
+    // No servidor, assumir não autenticado para evitar hidratação
+    if (!process.client) return false
+    return !!user.value
+  })
   
   // Função para carregar dados do store
   const loadUserProfile = async () => {

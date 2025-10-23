@@ -1,6 +1,10 @@
 export const useAuth = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
+  
+  // Cache para resultado da verificação de admin
+  const adminCheckCache = ref<{ isAdmin: boolean; timestamp: number } | null>(null)
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos
 
   // Verifica se o usuário é válido
   const isValidUser = (user: any) => {
@@ -125,6 +129,69 @@ export const useAuth = () => {
     }
   }
 
+  // Função para alterar a senha do usuário
+  const updatePassword = async (newPassword: string) => {
+    try {
+      if (!user.value) {
+        return { success: false, error: 'Usuário não autenticado' }
+      }
+
+      if (!newPassword || newPassword.length < 6) {
+        return { success: false, error: 'Nova senha deve ter pelo menos 6 caracteres' }
+      }
+
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+      
+      if (error) throw error
+      
+      return { success: true, user: data.user }
+    } catch (error: any) {
+      console.error('Erro ao atualizar senha:', error.message)
+      return { success: false, error: error.message }
+    }
+  }
+
+  // Função para verificar se o usuário é admin via RPC
+  const checkIsAdmin = async (useCache = true) => {
+    try {
+      if (!user.value) {
+        return { success: false, isAdmin: false, error: 'Usuário não autenticado' }
+      }
+
+      // Verificar cache se solicitado
+      if (useCache && adminCheckCache.value) {
+        const now = Date.now()
+        if (now - adminCheckCache.value.timestamp < CACHE_DURATION) {
+          return { success: true, isAdmin: adminCheckCache.value.isAdmin }
+        }
+      }
+
+      // Usar any para contornar limitações de tipagem da RPC
+      const { data, error } = await (supabase as any).rpc('afaas_isadmin')
+      
+      if (error) {
+        console.error('Erro ao verificar se usuário é admin:', error.message)
+        return { success: false, isAdmin: false, error: error.message }
+      }
+      
+      // A RPC retorna {"isadmin": true/false}
+      const isAdmin = data?.isadmin === true
+      
+      // Atualizar cache
+      adminCheckCache.value = {
+        isAdmin,
+        timestamp: Date.now()
+      }
+      
+      return { success: true, isAdmin }
+    } catch (error: any) {
+      console.error('Erro ao verificar se usuário é admin:', error.message)
+      return { success: false, isAdmin: false, error: error.message }
+    }
+  }
+
   return {
     user,
     isAuthenticated,
@@ -133,6 +200,8 @@ export const useAuth = () => {
     logout,
     checkSession,
     getUserDisplayName,
-    updateUserProfile
+    updateUserProfile,
+    updatePassword,
+    checkIsAdmin
   }
 }

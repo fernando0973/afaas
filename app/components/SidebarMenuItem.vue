@@ -30,7 +30,9 @@ import {
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
+  ShieldCheckIcon,
+  AcademicCapIcon
 } from '@heroicons/vue/24/outline'
 import { IconLeaf } from '@tabler/icons-vue'
 
@@ -58,7 +60,9 @@ const iconMap = {
   ClipboardDocumentListIcon,
   IconLeaf,
   Cog6ToothIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
+  ShieldCheckIcon,
+  AcademicCapIcon
 }
 
 const iconComponent = computed(() => iconMap[props.icon as keyof typeof iconMap])

@@ -1,4 +1,7 @@
 export default defineNuxtRouteMiddleware((to) => {
+  // No servidor, permitir acesso para evitar problemas de hidratação
+  if (process.server) return
+  
   const user = useSupabaseUser()
   
   // Se não há usuário logado e não está tentando acessar a página de login

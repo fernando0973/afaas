@@ -19,6 +19,11 @@
 const route = useRoute()
 
 const pageInfo = computed(() => {
+  // No servidor, não tenta computar informações específicas de rota
+  if (!process.client) {
+    return { title: 'AFAAS', description: 'Sistema de atendimentos' }
+  }
+  
   const path = route.path
   
   switch (path) {
@@ -38,6 +43,8 @@ const pageInfo = computed(() => {
       return { title: 'Configurações', description: 'Configurações do sistema' }
     case '/ajuda':
       return { title: 'Ajuda', description: 'Central de ajuda e suporte' }
+    case '/profile':
+      return { title: 'Perfil', description: 'Gerenciamento do perfil do usuário' }
     default:
       return { title: 'AFAAS', description: 'Sistema de atendimentos' }
   }

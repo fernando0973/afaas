@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { computed, ref, useSlots } from 'vue'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
+import { useUniqueId } from '~/composables/useUniqueId'
 
 interface Props {
   modelValue?: string | number
@@ -91,7 +92,9 @@ const slots = useSlots()
 const isFocused = ref(false)
 const showPassword = ref(false)
 
-const inputId = computed(() => props.id || `input-${Math.random().toString(36).substr(2, 9)}`)
+// Use SSR-safe ID generation
+const generatedId = useUniqueId('input')
+const inputId = computed(() => props.id || generatedId.value)
 
 const computedType = computed(() => {
   if (props.type === 'password' && showPassword.value) {

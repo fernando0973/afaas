@@ -99,6 +99,26 @@
       />
       
       <SidebarMenuItem 
+        icon="AcademicCapIcon"
+        :label="isCollapsed ? '' : 'Especialidades'"
+        :active="$route.path === '/especialidades'"
+        :collapsed="isCollapsed"
+        @click="navigateTo('/especialidades')"
+      />
+      
+      <!-- Botão Administração - apenas para admins -->
+      <ClientOnly>
+        <SidebarMenuItem 
+          v-if="isAdmin"
+          icon="ShieldCheckIcon"
+          :label="isCollapsed ? '' : 'Administração'"
+          :active="$route.path === '/admin'"
+          :collapsed="isCollapsed"
+          @click="navigateTo('/admin')"
+        />
+      </ClientOnly>
+      
+      <SidebarMenuItem 
         icon="Cog6ToothIcon"
         :label="isCollapsed ? '' : 'Configurações'"
         :active="$route.path === '/configuracoes'"
@@ -131,7 +151,12 @@
             </div>
             <div class="flex-1 text-left">
               <p class="font-medium text-neutral-900">Configurações</p>
-              <p class="text-sm text-neutral-500">{{ userName }}</p>
+              <ClientOnly>
+                <p class="text-sm text-neutral-500">{{ userName }}</p>
+                <template #fallback>
+                  <p class="text-sm text-neutral-500">Carregando...</p>
+                </template>
+              </ClientOnly>
             </div>
           </button>
         </div>
@@ -150,58 +175,16 @@
     </footer>
     
     <!-- Dropdown de configurações -->
-    <ClientOnly>
-      <div v-if="showConfigDropdown && !isCollapsed" class="config-dropdown absolute bottom-20 left-4 z-50 w-56">
-        <div class="bg-white rounded-lg shadow-lg border border-neutral-200 py-2">
-          <!-- Opção Perfil -->
-          <button 
-            @click="handleProfile"
-            class="w-full flex items-center px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
-          >
-            <UserIcon class="w-5 h-5 text-neutral-600 mr-3" />
-            <span class="text-sm font-medium text-neutral-900">Perfil</span>
-          </button>
-          
-          <!-- Separador -->
-          <div class="border-t border-neutral-100 my-1"></div>
-          
-          <!-- Opção Sair -->
-          <button 
-            @click="handleDropdownLogout"
-            class="w-full flex items-center px-4 py-3 text-left hover:bg-red-50 transition-colors group"
-          >
-            <ArrowRightOnRectangleIcon class="w-5 h-5 text-neutral-600 group-hover:text-red-600 mr-3 transition-colors" />
-            <span class="text-sm font-medium text-neutral-900 group-hover:text-red-600 transition-colors">Sair</span>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Dropdown quando colapsado -->
-      <div v-if="showConfigDropdown && isCollapsed" class="config-dropdown absolute bottom-20 left-2 z-50">
-        <div class="bg-white rounded-lg shadow-lg border border-neutral-200 py-2 min-w-40">
-          <!-- Opção Perfil -->
-          <button 
-            @click="handleProfile"
-            class="w-full flex items-center px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
-          >
-            <UserIcon class="w-5 h-5 text-neutral-600 mr-3" />
-            <span class="text-sm font-medium text-neutral-900">Perfil</span>
-          </button>
-          
-          <!-- Separador -->
-          <div class="border-t border-neutral-100 my-1"></div>
-          
-          <!-- Opção Sair -->
-          <button 
-            @click="handleDropdownLogout"
-            class="w-full flex items-center px-4 py-3 text-left hover:bg-red-50 transition-colors group"
-          >
-            <ArrowRightOnRectangleIcon class="w-5 h-5 text-neutral-600 group-hover:text-red-600 mr-3 transition-colors" />
-            <span class="text-sm font-medium text-neutral-900 group-hover:text-red-600 transition-colors">Sair</span>
-          </button>
-        </div>
-      </div>
-    </ClientOnly>
+    <DropdownMenu
+      :show="showConfigDropdown"
+      :items="dropdownItems"
+      :position="isCollapsed ? 'custom' : 'bottom-left'"
+      :custom-position="isCollapsed ? { bottom: '5rem', left: '0.5rem' } : undefined"
+      :width="isCollapsed ? 'auto' : 'md'"
+      trigger-class=".config-button"
+      @close="closeDropdown"
+      @item-click="handleDropdownItemClick"
+    />
     
     <!-- Modal de edição de nome -->
     <ClientOnly>
@@ -254,10 +237,13 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
   ChevronLeftIcon,
-  PencilIcon
+  PencilIcon,
+  ShieldCheckIcon,
+  AcademicCapIcon
 } from '@heroicons/vue/24/outline'
 import { IconLeaf } from '@tabler/icons-vue'
 import { useUserStore } from '~/stores/useUserStore'
+import type { DropdownItem } from '../types/dropdown'
 
 // Estado do sidebar - inicialização segura para SSR
 const isCollapsed = ref(false)
@@ -274,22 +260,57 @@ const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const { logout } = useAuth()
+const { logout, checkIsAdmin } = useAuth()
 const { userName, loadUserProfile } = useUserData()
 
-// Carrega dados do perfil após o componente montar
-onMounted(async () => {
-  if (process.client) {
-    // Aguarda um pouco para garantir que tudo está pronto
-    await nextTick()
-    await loadUserProfile()
-  }
-})
+// Estado reativo para controlar se é admin
+const isAdmin = ref(false)
 
-// Fechar dropdown quando clicar fora - apenas no client
-onMounted(() => {
+// Definir os itens do dropdown
+const dropdownItems: DropdownItem[] = [
+  {
+    type: 'item',
+    label: 'Perfil',
+    icon: 'UserIcon',
+    action: () => handleProfile()
+  },
+  {
+    type: 'divider'
+  },
+  {
+    type: 'item',
+    label: 'Sair',
+    icon: 'ArrowRightOnRectangleIcon',
+    action: () => handleDropdownLogout(),
+    variant: 'danger'
+  }
+]
+
+// Função para verificar se usuário é admin
+const checkAdminStatus = async () => {
+  if (!process.client) return
+  
+  try {
+    const result = await checkIsAdmin()
+    isAdmin.value = result.success && result.isAdmin
+  } catch (error) {
+    console.error('Erro ao verificar status de admin:', error)
+    isAdmin.value = false
+  }
+}
+
+// Inicialização do componente - SSR safe
+onMounted(async () => {
   if (!process.client) return
 
+  // Carrega dados do perfil
+  await nextTick()
+  await loadUserProfile()
+  
+  // Verifica status de admin
+  await checkAdminStatus()
+
+  // Configurar click outside para dropdown
   const handleClickOutside = (event: Event) => {
     const target = event.target as HTMLElement
     if (showConfigDropdown.value && !target.closest('.config-dropdown') && !target.closest('.config-button')) {
@@ -333,14 +354,19 @@ const closeDropdown = () => {
 
 // Função para lidar com perfil
 const handleProfile = () => {
-  // TODO: Implementar navegação para página de perfil
-  console.log('Perfil clicado')
-  closeDropdown()
+  navigateTo('/profile')
 }
 
-// Função para lidar com logout
+// Função para lidar com logout do dropdown
 const handleDropdownLogout = async () => {
   await logout()
+}
+
+// Função para lidar com clique em item do dropdown
+const handleDropdownItemClick = (item: DropdownItem) => {
+  if (item.action && typeof item.action === 'function') {
+    item.action()
+  }
   closeDropdown()
 }
 </script>

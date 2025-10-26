@@ -1,14 +1,15 @@
 <template>
-  <div class="flex flex-col h-full border-r border-neutral-100 last:border-r-0">
+  <div class="flex flex-col h-full bg-neutral-200 rounded-b-lg">
     <!-- Área dos slots de agendamento com posicionamento absoluto -->
     <div class="relative flex-1 overflow-hidden">
       <AgendamentoSlot
-        v-for="agendamento in agendamentosDoDia"
+        v-for="(agendamento, index) in agendamentosDoDia"
         :key="agendamento.id"
         :data-inicio="agendamento.dataInicio"
         :data-fim="agendamento.dataFim"
         :titulo="agendamento.titulo"
         :descricao="agendamento.descricao"
+        :cor-index="index"
         :style="calcularPosicaoAgendamento(agendamento)"
         class="absolute left-1 right-1"
       />
@@ -84,50 +85,59 @@ const calcularPosicaoAgendamento = (agendamento: AgendamentoMock) => {
 const agendamentosDoDia = computed(() => {
   if (!props.data) return []
   
-  // Criar agendamentos mocados simples baseados no dia da semana
-  const diaDaSemana = props.data.getDay() // 0=domingo, 1=segunda...
+  // Verificar se a data está no período específico de 26/10/2025 a 01/11/2025
+  const dataAtual = props.data
+  const inicioSemana = new Date(2025, 9, 26) // 26/10/2025 (mês é 0-indexado, outubro = 9)
+  const fimSemana = new Date(2025, 10, 1)   // 01/11/2025 (novembro = 10)
+  
+  // Se a data não estiver no período específico, retornar array vazio
+  if (dataAtual < inicioSemana || dataAtual > fimSemana) {
+    return []
+  }
+  
   const ano = props.data.getFullYear()
   const mes = props.data.getMonth()
   const dia = props.data.getDate()
   
-  // Dados diferentes para cada dia da semana - agora com horários e durações variadas
-  const mockData = [
-    // Domingo (0)
-    [
-      { titulo: 'João Silva', descricao: 'Consulta de rotina', horaInicio: 9, duracaoHoras: 1 },
+  // Agendamentos específicos para cada data no período 26/10 a 01/11/2025
+  const agendamentosPorData: { [key: string]: any[] } = {
+    // 26/10/2025 - Sábado
+    '2025-9-26': [
+      { titulo: 'José Martins', descricao: 'Consulta de rotina', horaInicio: 8.5, duracaoHoras: 1.5 },
+      { titulo: 'Ana Costa', descricao: 'Check-up geral completo', horaInicio: 15, duracaoHoras: 2.5 }
+    ],
+    // 27/10/2025 - Domingo  
+    '2025-9-27': [
+      { titulo: 'João Silva', descricao: 'Consulta de rotina', horaInicio: 9, duracaoHoras: 1.5 },
       { titulo: 'Maria Santos', descricao: 'Revisão de tratamento', horaInicio: 14, duracaoHoras: 2 }
     ],
-    // Segunda (1) 
-    [
+    // 28/10/2025 - Segunda
+    '2025-9-28': [
       { titulo: 'Pedro Costa', descricao: 'Primeira consulta', horaInicio: 8, duracaoHoras: 1.5 },
-      { titulo: 'Ana Paula', descricao: 'Acompanhamento mensal', horaInicio: 16, duracaoHoras: 1 }
+      { titulo: 'Ana Paula', descricao: 'Acompanhamento mensal', horaInicio: 16, duracaoHoras: 1.5 }
     ],
-    // Terça (2)
-    [
+    // 29/10/2025 - Terça
+    '2025-9-29': [
       { titulo: 'Carlos Oliveira', descricao: 'Consulta de urgência', horaInicio: 10, duracaoHoras: 2 }
     ],
-    // Quarta (3)
-    [
-      { titulo: 'Lucia Ferreira', descricao: 'Exame de rotina', horaInicio: 11, duracaoHoras: 1 },
+    // 30/10/2025 - Quarta
+    '2025-9-30': [
+      { titulo: 'Lucia Ferreira', descricao: 'Exame de rotina', horaInicio: 11, duracaoHoras: 1.5 },
       { titulo: 'Roberto Lima', descricao: 'Consulta de retorno', horaInicio: 15, duracaoHoras: 1.5 }
     ],
-    // Quinta (4)
-    [
+    // 31/10/2025 - Quinta
+    '2025-9-31': [
       { titulo: 'Sandra Alves', descricao: 'Acompanhamento semanal', horaInicio: 9, duracaoHoras: 2 }
     ],
-    // Sexta (5)
-    [
-      { titulo: 'Miguel Souza', descricao: 'Consulta preventiva', horaInicio: 13, duracaoHoras: 1 },
-      { titulo: 'Fernanda Cruz', descricao: 'Avaliação especializada', horaInicio: 18, duracaoHoras: 2.5 }
-    ],
-    // Sábado (6)
-    [
-      { titulo: 'José Martins', descricao: 'Consulta de rotina', horaInicio: 8.5, duracaoHoras: 1 },
-      { titulo: 'Ana Costa', descricao: 'Check-up geral', horaInicio: 15, duracaoHoras: 3 }
+    // 01/11/2025 - Sexta
+    '2025-10-1': [
+      { titulo: 'Miguel Souza', descricao: 'Consulta preventiva', horaInicio: 13, duracaoHoras: 1.5 },
+      { titulo: 'Fernanda Cruz', descricao: 'Avaliação especializada', horaInicio: 18, duracaoHoras: 2 }
     ]
-  ]
+  }
   
-  const agendamentosDoDia = mockData[diaDaSemana] || []
+  const chaveData = `${ano}-${mes}-${dia}`
+  const agendamentosDoDia = agendamentosPorData[chaveData] || []
   
   const resultado = agendamentosDoDia.map((agendamento, index) => {
     const horaInicioDecimal = agendamento.horaInicio
@@ -140,7 +150,7 @@ const agendamentosDoDia = computed(() => {
     const minutosFim = (horaFimDecimal % 1) * 60
     
     return {
-      id: `${dia}-${diaDaSemana}-${index}`,
+      id: `${ano}-${mes}-${dia}-${index}`,
       dataInicio: new Date(ano, mes, dia, horas, minutos),
       dataFim: new Date(ano, mes, dia, horasFim, minutosFim),
       titulo: agendamento.titulo,
@@ -149,7 +159,7 @@ const agendamentosDoDia = computed(() => {
   })
   
   // Debug
-  console.log(`Dia ${formatarDataCompleta(props.data)} (${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][diaDaSemana]}):`, resultado.length, 'agendamentos')
+  console.log(`Dia ${formatarDataCompleta(props.data)}:`, resultado.length, 'agendamentos')
   
   return resultado
 })

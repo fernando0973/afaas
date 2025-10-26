@@ -27,16 +27,8 @@ useHead({
 </script>
 
 <template>
-  <div class="h-screen flex flex-col overflow-hidden">
-    <!-- Cabeçalho da página -->
-    <header class="px-6 py-2 flex-shrink-0">
-      <h1 class="text-xl font-semibold text-neutral-900">Agendamentos</h1>
-    </header>
-
-    <!-- Conteúdo principal -->
-    <main class="px-6 pb-6 flex-1 overflow-hidden">
-      <!-- Componente principal de gerenciamento -->
-      <AgendamentoManager />
-    </main>
+  <div class="h-screen overflow-hidden">
+    <!-- Componente principal de gerenciamento ocupando toda a tela -->
+    <AgendamentoManager />
   </div>
 </template>

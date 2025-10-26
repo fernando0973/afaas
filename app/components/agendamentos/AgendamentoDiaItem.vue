@@ -1,12 +1,18 @@
 <template>
-  <div class="text-center p-2 rounded border border-neutral-200 hover:border-blue-300 transition-colors cursor-pointer">
-    <!-- Número do dia -->
-    <div class="text-lg font-semibold text-neutral-800">
-      {{ formatarNumeroDia(data) }}
+  <div class="overflow-hidden transition-all cursor-pointer hover:shadow-md bg-neutral-200 rounded-t-lg">
+    <!-- Cabeçalho com número do dia -->
+    <div class="px-3 py-1.5">
+      <!-- Número do dia -->
+      <div class="text-lg font-bold text-center text-neutral-700">
+        {{ formatarNumeroDia(data) }}
+      </div>
     </div>
-    <!-- Dia da semana abreviado -->
-    <div class="text-xs text-neutral-500 mt-1">
-      {{ formatarDiaSemana(data) }}
+    
+    <!-- Corpo com dia da semana -->
+    <div class="px-3 pb-2">
+      <div class="text-xs text-neutral-600 text-center font-medium">
+        {{ formatarDiaSemana(data).toUpperCase() }}
+      </div>
     </div>
   </div>
 </template>

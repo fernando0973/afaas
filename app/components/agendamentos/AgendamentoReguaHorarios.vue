@@ -4,11 +4,13 @@
     <div 
       v-for="(horario, index) in horarios" 
       :key="horario"
-      class="relative flex-1 px-2 text-xs text-neutral-700 border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+      class="relative flex-1 border-b border-neutral-200 last:border-b-0"
     >
       <!-- Horário alinhado ao topo da janela -->
       <div class="absolute top-0 left-0 right-0 flex items-start justify-center pt-1">
-        {{ horario }}
+        <span class="text-xs font-medium text-neutral-600">
+          {{ horario }}
+        </span>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center space-y-3">
+  <div class="flex flex-col items-center space-y-3 p-4">
     <!-- Primeira linha: período da semana centralizado -->
     <div class="flex items-center justify-center space-x-2">
       <CalendarIcon class="w-5 h-5 text-blue-600" />
@@ -13,7 +13,7 @@
       <!-- Botão voltar semana -->
       <button
         @click="agendamentoStore.voltarSemana()"
-        class="flex items-center space-x-1 px-3 py-2 text-neutral-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-neutral-200 hover:border-blue-200"
+        class="flex items-center space-x-1 px-3 py-2 text-neutral-700 bg-neutral-200 hover:bg-neutral-300 rounded-lg transition-all duration-200 border border-neutral-300 hover:border-neutral-400"
         title="Semana anterior"
       >
         <ChevronLeftIcon class="w-4 h-4" />
@@ -23,7 +23,7 @@
       <!-- Botão avançar semana -->
       <button
         @click="agendamentoStore.avancarSemana()"
-        class="flex items-center space-x-1 px-3 py-2 text-neutral-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-neutral-200 hover:border-blue-200"
+        class="flex items-center space-x-1 px-3 py-2 text-neutral-700 bg-neutral-200 hover:bg-neutral-300 rounded-lg transition-all duration-200 border border-neutral-300 hover:border-neutral-400"
         title="Próxima semana"
       >
         <span class="text-sm font-medium">Próxima</span>

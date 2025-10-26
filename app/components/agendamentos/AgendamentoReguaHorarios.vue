@@ -1,0 +1,37 @@
+<template>
+  <div class="flex flex-col h-full">
+    <!-- Lista de horários -->
+    <div 
+      v-for="(horario, index) in horarios" 
+      :key="horario"
+      class="relative flex-1 px-2 text-xs text-neutral-700 border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+    >
+      <!-- Horário alinhado ao topo da janela -->
+      <div class="absolute top-0 left-0 right-0 flex items-start justify-center pt-1">
+        {{ horario }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+
+/**
+ * Gerar lista de horários das 8:00 às 22:00
+ * Cada horário marca o INÍCIO de uma janela de agendamento
+ * 8:00 = início da primeira janela, 22:00 = início da última janela
+ */
+const horarios = computed(() => {
+  const listaHorarios: string[] = []
+  
+  // Gerar horários de 8:00 até 22:00 (15 horários total)
+  // 8:00, 9:00, 10:00, ..., 21:00, 22:00
+  for (let hora = 8; hora <= 22; hora++) {
+    const horarioFormatado = `${hora.toString().padStart(2, '0')}:00`
+    listaHorarios.push(horarioFormatado)
+  }
+  
+  return listaHorarios
+})
+</script>

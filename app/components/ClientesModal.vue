@@ -1,4 +1,13 @@
 <template>
+  <!-- Overlay de transição para evitar piscar -->
+  <Teleport to="body">
+    <div
+      v-if="showTransitionOverlay"
+      class="fixed inset-0 bg-black bg-opacity-50 z-[150] pointer-events-none"
+      style="transition: none !important;"
+    />
+  </Teleport>
+
   <!-- Modal CPF já cadastrado -->
   <BaseModal
     v-model="showCPFModal"
@@ -91,7 +100,6 @@
     @confirm="handleConfirm"
     @cancel="handleCancel"
     @close="handleClose"
-    :style="showReativarModal ? 'z-index: 9999; filter: blur(2px); pointer-events: none;' : ''"
   >
     <!-- Conteúdo do modal -->
     <form @submit.prevent="handleConfirm" class="space-y-6">
@@ -702,6 +710,7 @@ const showCPFModal = ref(false)
 const cpfModalMessage = ref('')
 const showReativarModal = ref(false)
 const clienteDeletado = ref<Cliente | null>(null)
+const showTransitionOverlay = ref(false)
 
 // Handler para blur do CPF
 const onCPFBlur = async () => {
@@ -731,8 +740,20 @@ const onCPFBlur = async () => {
         toast.error('CPF já cadastrado!')
       } else {
         clienteDeletado.value = data
-        showReativarModal.value = true
-        toast.info('CPF pertence a um cliente removido. Você pode reativá-lo.')
+        // Ativa overlay de transição ANTES de fechar o modal
+        showTransitionOverlay.value = true
+        // Aguarda um tick para garantir que o overlay seja renderizado
+        await nextTick()
+        // Transição suave: primeiro fecha modal de inserção, depois abre de reativação
+        emit('update:modelValue', false)
+        setTimeout(() => {
+          showReativarModal.value = true
+          // Remove overlay apenas após modal de reativação estar completamente aberto
+          setTimeout(() => {
+            showTransitionOverlay.value = false
+          }, 100)
+          toast.info('CPF pertence a um cliente removido. Você pode reativá-lo.')
+        }, 250) // Reduzido para 250ms
       }
     }
   } catch (err: any) {

@@ -277,3 +277,11 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof (Database["public"]["Enums"])
   ? (Database["public"]["Enums"])[PublicEnumNameOrOptions]
   : never
+
+/**
+ * Perfil retornado pela RPC afaas_get_profiles_if_admin
+ */
+export interface PerfilRPC {
+  id: number
+  nome: string
+}

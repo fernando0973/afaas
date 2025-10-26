@@ -11,5 +11,19 @@ export default defineNuxtConfig({
       callback: '/',
       exclude: ['/login']
     }
+  },
+  vue: {
+    compilerOptions: {
+      isCustomElement: tag => tag.includes('-')
+    }
+  },
+  vite: {
+    vue: {
+      template: {
+        compilerOptions: {
+          isCustomElement: tag => tag.includes('-')
+        }
+      }
+    }
   }
 })

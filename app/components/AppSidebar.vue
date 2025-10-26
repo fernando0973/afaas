@@ -286,6 +286,14 @@ const dropdownItems: DropdownItem[] = [
   }
 ]
 
+// Configurar click outside para dropdown
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (showConfigDropdown.value && !target.closest('.config-dropdown') && !target.closest('.config-button')) {
+    showConfigDropdown.value = false
+  }
+}
+
 // Função para verificar se usuário é admin
 const checkAdminStatus = async () => {
   if (!process.client) return
@@ -310,19 +318,17 @@ onMounted(async () => {
   // Verifica status de admin
   await checkAdminStatus()
 
-  // Configurar click outside para dropdown
-  const handleClickOutside = (event: Event) => {
-    const target = event.target as HTMLElement
-    if (showConfigDropdown.value && !target.closest('.config-dropdown') && !target.closest('.config-button')) {
-      showConfigDropdown.value = false
-    }
+  // Adicionar event listener
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', handleClickOutside)
   }
-  
-  document.addEventListener('click', handleClickOutside)
-  
-  onBeforeUnmount(() => {
+})
+
+// Cleanup do event listener
+onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
     document.removeEventListener('click', handleClickOutside)
-  })
+  }
 })
 
 // Função de logout

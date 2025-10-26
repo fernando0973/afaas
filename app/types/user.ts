@@ -27,3 +27,14 @@ export type UserProfileUpdate = Partial<Omit<UserProfile, 'id' | 'created_at' | 
  * Possíveis roles do usuário
  */
 export type UserRole = 'user' | 'admin' | 'atendente'
+
+/**
+ * Profissional retornado pela RPC afaas_get_profissionais
+ */
+export interface ProfissionalRPC {
+  profissional_id: number
+  perfil_id: number
+  especialidade_id: number
+  nome_profissional: string
+  especialidade: string
+}

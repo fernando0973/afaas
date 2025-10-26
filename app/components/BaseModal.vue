@@ -11,7 +11,8 @@
     >
       <div
         v-if="modelValue"
-        class="fixed inset-0 z-50 overflow-y-auto"
+        class="fixed inset-0 overflow-y-auto"
+        :style="`z-index: ${zIndex};`"
         @click="handleOverlayClick"
       >
         <!-- Background overlay -->
@@ -108,6 +109,8 @@
 </template>
 
 <script setup lang="ts">
+// Prop para z-index customizado
+const zIndex = computed(() => props.zIndex ?? 50)
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 interface Props {
@@ -128,6 +131,7 @@ interface Props {
   closeOnEsc?: boolean
   loading?: boolean
   confirmDisabled?: boolean
+  zIndex?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {

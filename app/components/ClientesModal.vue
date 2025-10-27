@@ -49,45 +49,6 @@
       <p class="mt-2 text-neutral-700">Deseja reativar o cadastro de <span class="font-bold">{{ clienteDeletado?.nome_completo }}</span>?</p>
     </div>
   </BaseModal>
-  <!-- Modal CPF já cadastrado -->
-  <BaseModal
-    v-model="showCPFModal"
-    title="CPF já cadastrado"
-    :show-header="true"
-    :show-footer="true"
-    :show-close-button="true"
-    :show-cancel-button="false"
-    :show-confirm-button="true"
-    confirm-button-text="OK"
-    @confirm="showCPFModal = false"
-    @close="showCPFModal = false"
-  >
-    <div class="py-4 text-center">
-      <p class="text-lg text-red-600 font-semibold">{{ cpfModalMessage }}</p>
-    </div>
-  </BaseModal>
-
-  <!-- Modal reativar cliente deletado -->
-  <BaseModal
-    v-model="showReativarModal"
-    title="Reativar Cliente"
-    :show-header="true"
-    :show-footer="true"
-    :show-close-button="true"
-    :show-cancel-button="true"
-    :show-confirm-button="true"
-    confirm-button-text="Reativar"
-    cancel-button-text="Cancelar"
-    confirm-button-variant="primary"
-    @confirm="reativarCliente"
-    @cancel="showReativarModal = false"
-    @close="showReativarModal = false"
-  >
-    <div class="py-4 text-center">
-      <p class="text-lg text-blue-600 font-semibold">Este CPF pertence a um cliente removido.</p>
-      <p class="mt-2 text-neutral-700">Deseja reativar o cadastro de <span class="font-bold">{{ clienteDeletado?.nome_completo }}</span>?</p>
-    </div>
-  </BaseModal>
   <BaseModal
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
@@ -815,12 +776,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // Emits
-interface Emits {
+const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   'cliente-salvo': [cliente: Cliente]
-}
-
-const emit = defineEmits<Emits>()
+  'cancel': []
+  'close': []
+}>()
 
 // Composables
 const { inserirCliente, editarCliente } = useProfissionais()
@@ -1336,13 +1297,13 @@ const handleConfirm = async () => {
 }
 
 const handleCancel = () => {
-  // Opcional: pode emitir toast ao cancelar
+  emit('cancel')
   emit('update:modelValue', false)
   resetForm()
 }
 
 const handleClose = () => {
-  // Opcional: pode emitir toast ao fechar
+  emit('close')
   emit('update:modelValue', false)
   resetForm()
 }

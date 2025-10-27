@@ -50,11 +50,47 @@ npm run preview
 
 ## Funcionalidades
 
-- ✅ Sistema de autenticação com Supabase
-- ✅ Design system personalizado
-- ✅ Componentes base reutilizáveis
-- ✅ Proteção de rotas
-- 🔄 Cadastro de clientes (em desenvolvimento)
-- 🔄 Gerenciamento de atendimentos (em desenvolvimento)
+### 🔐 Autenticação e Segurança
+- ✅ Sistema completo de autenticação com Supabase
+- ✅ Proteção de rotas com middlewares
+- ✅ Gerenciamento de sessões e perfis de usuário
+
+### 🎨 Interface e Experiência do Usuário
+- ✅ Design system personalizado com Tailwind CSS
+- ✅ Componentes base reutilizáveis (Botões, Inputs, Modais, Tabelas)
+- ✅ Interface responsiva e acessível
+- ✅ Sistema de notificações toast
+- ✅ Layouts adaptativos para diferentes contextos
+
+### 👥 Gestão de Profissionais
+- ✅ CRUD completo de profissionais/atendentes
+- ✅ Validações de dados e campos obrigatórios
+- ✅ Sistema de confirmação para exclusões
+- ✅ Dashboard personalizado por usuário
+
+### 👤 Gestão de Clientes
+- ✅ CRUD completo de clientes com formulário abrangente
+- ✅ Validação de CPF e dados pessoais
+- ✅ Sistema de reativação para clientes removidos
+- ✅ Formulário com 5 abas: Dados Pessoais, Endereço, Família & Ambiente, Histórico Médico, Hábitos & Condições
+- ✅ Máscaras de entrada para CPF, telefone e CEP
+- ✅ Validações avançadas e feedback visual
+
+### 📅 Sistema de Agendamentos
+- ✅ Calendário visual profissional com grid de horários
+- ✅ Visualização semanal de agendamentos
+- ✅ Navegação entre semanas
+- ✅ 8 cores diferentes para categorização visual
+- ✅ Posicionamento preciso baseado em horários (8:00-22:00)
+- ✅ Interface otimizada para tela cheia
+- ✅ Footer com identificação do sistema
+
+### 🏗️ Arquitetura e Qualidade
+- ✅ Estrutura modular com componentes especializados
+- ✅ TypeScript em 100% do código
+- ✅ Composables para lógica de negócio
+- ✅ Estados reativos com Pinia
+- ✅ Padrões de nomenclatura consistentes
+- ✅ Build otimizado para produção
 
 Consulte a [documentação do Nuxt](https://nuxt.com/docs/getting-started/introduction) para mais informações.

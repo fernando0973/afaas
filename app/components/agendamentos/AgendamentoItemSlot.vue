@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full bg-neutral-200 rounded-b-lg">
+  <div class="flex flex-col bg-neutral-200 rounded-b-lg" style="height: 100%;">
     <!-- Área dos slots de agendamento com posicionamento absoluto -->
-    <div class="relative flex-1 overflow-hidden">
+    <div class="relative" style="height: 100%; overflow: hidden;">
       <AgendamentoSlot
         v-for="(agendamento, index) in agendamentosDoDia"
         :key="agendamento.id"

@@ -1,12 +1,12 @@
 <template>
   <div :class="[
-    corAgendamento.bg, 
-    corAgendamento.border, 
-    corAgendamento.hover,
+    corAgendamento?.bg || 'bg-blue-100', 
+    corAgendamento?.border || 'border-blue-300', 
+    corAgendamento?.hover || 'hover:bg-blue-200',
     'border rounded-md p-1.5 cursor-pointer transition-colors h-full flex flex-col overflow-hidden'
   ]">
     <!-- Horário do agendamento -->
-    <div :class="['text-xs font-medium mb-0.5 flex-shrink-0', corAgendamento.texto]">
+    <div :class="['text-xs font-medium mb-0.5 flex-shrink-0', corAgendamento?.texto || 'text-blue-800']">
       {{ formatarHorario(dataInicio) }} - {{ formatarHorario(dataFim) }}
     </div>
     
@@ -57,7 +57,7 @@ const coresSuaves = [
  */
 const corAgendamento = computed(() => {
   const index = props.corIndex ?? 0
-  return coresSuaves[index % coresSuaves.length]
+  return coresSuaves[index % coresSuaves.length] || coresSuaves[0]
 })
 
 /**

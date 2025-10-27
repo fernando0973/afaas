@@ -39,7 +39,6 @@
       <ClientesModal
         v-model="modalAberto"
         :is-edicao="modoEdicao"
-        :cliente-id="clienteSelecionado?.id || null"
         :cliente-data="clienteSelecionado"
         @cliente-salvo="salvarCliente"
         @cancel="fecharModal"

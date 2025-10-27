@@ -27,8 +27,6 @@ useHead({
 </script>
 
 <template>
-  <div class="h-screen overflow-hidden">
     <!-- Componente principal de gerenciamento ocupando toda a tela -->
     <AgendamentoManager />
-  </div>
 </template>

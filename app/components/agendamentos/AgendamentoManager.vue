@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col h-screen max-h-screen overflow-hidden">
-    <!-- Header - altura ajustável -->
-    <div class="pt-3 pb-3 px-6 flex-shrink-0">
+  <div class="h-screen flex flex-col overflow-hidden">
+    <!-- Header -->
+    <div class="flex-shrink-0 px-6 pt-4 pb-3">
       <!-- Primeira linha: 3 componentes principais -->
-      <div class="h-[80px] grid grid-cols-3 items-center mb-6">
+      <div class="h-20 grid grid-cols-3 items-center mb-4">
         <!-- Lado esquerdo: Controlador de navegação -->
         <div class="flex justify-start">
           <AgendamentoControlador />
@@ -32,7 +32,7 @@
       <AgendamentoListaDias :dias="diasSemana" />
     </div>
 
-    <!-- Corpo - ocupa todo o restante do espaço -->
+    <!-- Corpo -->
     <div class="flex-1 flex overflow-hidden px-6 pb-2 min-h-0">
       <!-- Lado esquerdo: Régua de horários -->
       <div class="w-20 flex-shrink-0 border-r border-neutral-200">
@@ -40,12 +40,23 @@
       </div>
       
       <!-- Lado direito: Área principal dos agendamentos -->
-      <div class="flex-1 grid grid-cols-7 gap-2 overflow-hidden">
+      <div class="flex-1 overflow-hidden" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">
         <AgendamentoItemSlot 
           v-for="(dia, index) in diasSemana" 
           :key="index"
           :data="dia"
         />
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex-shrink-0 px-6 py-2 border-t border-neutral-200 bg-neutral-50">
+      <div class="flex items-center justify-center text-xs text-neutral-600">
+        <!-- Informações do sistema -->
+        <div class="flex items-center space-x-4">
+          <span class="font-medium">AFAAS Atendimento v1.0</span>
+          <span>Sistema de Agendamentos</span>
+        </div>
       </div>
     </div>
   </div>

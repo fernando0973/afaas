@@ -186,6 +186,41 @@ export type Database = {
         }
         Relationships: []
       }
+      afaas_profiles: {
+        Row: {
+          id: number
+          created_at: string
+          user_id: string | null
+          nome: string | null
+          role: string | null
+          email: string | null
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          user_id?: string | null
+          nome?: string | null
+          role?: string | null
+          email?: string | null
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          user_id?: string | null
+          nome?: string | null
+          role?: string | null
+          email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "afaas_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -283,5 +318,9 @@ export type Enums<
  */
 export interface PerfilRPC {
   id: number
+  created_at: string
+  user_id: string
   nome: string
+  role: string
+  email: string
 }

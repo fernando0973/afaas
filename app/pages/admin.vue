@@ -94,6 +94,11 @@
         </div>
       </div>
 
+      <!-- Seção de Usuários do Sistema -->
+      <div class="mt-8">
+        <TabelaAdmin />
+      </div>
+
       <!-- Seção de Status do Sistema -->
       <div class="mt-8">
         <h2 class="text-xl font-semibold text-neutral-900 mb-4">Status do Sistema</h2>

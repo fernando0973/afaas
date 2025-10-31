@@ -192,6 +192,246 @@ export const useAuth = () => {
     }
   }
 
+  // ==========================================
+  // Funcionalidades de gestão de usuários
+  // ==========================================
+
+  /**
+   * Criar um novo usuário no sistema
+   */
+  const criarUsuario = async (dados: {
+    nome: string
+    email: string
+    senha: string
+    role: string
+  }): Promise<{
+    success: boolean
+    message: string
+    user?: {
+      id: string
+      email: string
+    }
+    profile?: {
+      id: number
+      user_id: string | null
+      nome: string | null
+      email: string | null
+      role: string | null
+    }
+  }> => {
+    try {
+      const response = await $fetch<{
+        success: boolean
+        message: string
+        user?: {
+          id: string
+          email: string
+        }
+        profile?: {
+          id: number
+          user_id: string | null
+          nome: string | null
+          email: string | null
+          role: string | null
+        }
+      }>('/api/usuarios', {
+        method: 'POST',
+        body: dados
+      })
+
+      return response
+    } catch (error: any) {
+      console.error('Erro ao criar usuário:', error)
+      
+      // Se for um erro da API, retornar a mensagem
+      if (error.data?.message) {
+        return {
+          success: false,
+          message: error.data.message
+        }
+      }
+
+      // Erro genérico
+      return {
+        success: false,
+        message: 'Erro interno do servidor'
+      }
+    }
+  }
+
+  /**
+   * Deletar usuário do sistema
+   */
+  const deletarUsuario = async (user_id: string): Promise<{
+    success: boolean
+    message: string
+  }> => {
+    try {
+      const response = await $fetch<{
+        success: boolean
+        message: string
+      }>('/api/usuarios', {
+        method: 'DELETE',
+        body: { user_id }
+      })
+
+      return response
+    } catch (error: any) {
+      console.error('Erro ao deletar usuário:', error)
+      
+      // Se for um erro da API, retornar a mensagem
+      if (error.data?.statusMessage) {
+        return {
+          success: false,
+          message: error.data.statusMessage
+        }
+      }
+
+      // Erro genérico
+      return {
+        success: false,
+        message: 'Erro interno do servidor'
+      }
+    }
+  }
+
+  /**
+   * Editar usuário no sistema
+   */
+  const editarUsuario = async (dados: {
+    user_id: string
+    nome: string
+    email: string
+    senha?: string
+  }): Promise<{
+    success: boolean
+    message: string
+    data?: any
+  }> => {
+    try {
+      const response = await $fetch<{
+        success: boolean
+        message: string
+        data?: any
+      }>('/api/usuarios', {
+        method: 'PUT',
+        body: dados
+      })
+
+      return response
+    } catch (error: any) {
+      console.error('Erro ao editar usuário:', error)
+      
+      // Se for um erro da API, retornar a mensagem
+      if (error.data?.statusMessage) {
+        return {
+          success: false,
+          message: error.data.statusMessage
+        }
+      }
+
+      // Erro genérico
+      return {
+        success: false,
+        message: 'Erro interno do servidor'
+      }
+    }
+  }
+
+  /**
+   * Atualizar informações do próprio usuário logado
+   */
+  const atualizarInfosUsuario = async (nome: string): Promise<{
+    success: boolean
+    message: string
+  }> => {
+    try {
+      if (!user.value) {
+        return { success: false, message: 'Usuário não autenticado' }
+      }
+
+      if (!nome || nome.trim().length < 2) {
+        return { success: false, message: 'Nome deve ter pelo menos 2 caracteres' }
+      }
+
+      // Usar any para contornar limitações de tipagem da RPC
+      const { data, error } = await (supabase as any).rpc('afaas_update_infos_user', {
+        p_nome: nome.trim()
+      })
+
+      if (error) {
+        console.error('Erro ao atualizar informações do usuário:', error)
+        return {
+          success: false,
+          message: error.message || 'Erro ao atualizar informações'
+        }
+      }
+
+      return data || { success: true, message: 'Informações atualizadas com sucesso' }
+    } catch (error: any) {
+      console.error('Erro ao atualizar informações do usuário:', error)
+      return {
+        success: false,
+        message: 'Erro interno do servidor'
+      }
+    }
+  }
+
+  /**
+   * Enviar e-mail de recuperação de senha
+   * 
+   * Envia um link de recuperação de senha para o e-mail especificado.
+   * Por segurança, sempre retorna sucesso, mesmo se o e-mail não existir.
+   * 
+   * Estados de link de recuperação:
+   * - Válido: Link pode ser usado uma única vez dentro de 1 hora
+   * - Expirado: Link passou de 1 hora desde a criação
+   * - Já utilizado: Link já foi usado para alterar a senha
+   * - Inválido: Link com formato incorreto ou corrompido
+   */
+  const esqueceuSenha = async (email: string): Promise<{
+    success: boolean
+    message: string
+  }> => {
+    try {
+      if (!email || !email.trim()) {
+        return { success: false, message: 'E-mail é obrigatório' }
+      }
+
+      // Validação básica de formato de e-mail
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email.trim())) {
+        return { success: false, message: 'Formato de e-mail inválido' }
+      }
+
+      // Configurar a URL de redirecionamento para a página de recuperação
+      const redirectTo = `${window.location.origin}/recuperar-senha`
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo
+      })
+
+      if (error) {
+        console.error('Erro ao enviar e-mail de recuperação:', error.message)
+        return {
+          success: false,
+          message: error.message || 'Erro ao enviar e-mail de recuperação'
+        }
+      }
+
+      return {
+        success: true,
+        message: 'E-mail de recuperação enviado com sucesso'
+      }
+    } catch (error: any) {
+      console.error('Erro ao processar recuperação de senha:', error.message)
+      return {
+        success: false,
+        message: 'Erro interno do servidor'
+      }
+    }
+  }
+
   return {
     user,
     isAuthenticated,
@@ -202,6 +442,11 @@ export const useAuth = () => {
     getUserDisplayName,
     updateUserProfile,
     updatePassword,
-    checkIsAdmin
+    checkIsAdmin,
+    criarUsuario,
+    deletarUsuario,
+    editarUsuario,
+    atualizarInfosUsuario,
+    esqueceuSenha
   }
 }

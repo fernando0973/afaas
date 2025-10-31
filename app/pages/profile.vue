@@ -43,18 +43,20 @@
                   <input
                     id="displayName"
                     v-model="editableUserName"
-                    :disabled="!isEditingName"
+                    :disabled="!isEditingName || updatingName"
                     type="text"
                     class="flex-1 px-3 py-2 border border-neutral-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-50 disabled:text-neutral-500"
                     placeholder="Digite seu nome"
                   />
                   <button
                     @click="toggleEditName"
-                    class="px-3 py-2 bg-neutral-100 border border-l-0 border-neutral-300 rounded-r-md hover:bg-neutral-200 transition-colors"
-                    :title="isEditingName ? 'Salvar' : 'Editar nome'"
+                    :disabled="updatingName"
+                    class="px-3 py-2 bg-neutral-100 border border-l-0 border-neutral-300 rounded-r-md hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    :title="updatingName ? 'Salvando...' : isEditingName ? 'Salvar' : 'Editar nome'"
                   >
-                    <PencilIcon v-if="!isEditingName" class="w-4 h-4 text-neutral-600" />
-                    <CheckIcon v-else class="w-4 h-4 text-green-600" />
+                    <PencilIcon v-if="!isEditingName && !updatingName" class="w-4 h-4 text-neutral-600" />
+                    <CheckIcon v-else-if="isEditingName && !updatingName" class="w-4 h-4 text-green-600" />
+                    <ArrowPathIcon v-else class="w-4 h-4 text-neutral-600 animate-spin" />
                   </button>
                 </div>
                 <p v-if="nameUpdateMessage" class="mt-1 text-xs text-green-600">
@@ -219,6 +221,7 @@
 <script setup lang="ts">
 import {
   ArrowLeftIcon,
+  ArrowPathIcon,
   UserIcon,
   EnvelopeIcon,
   ShieldCheckIcon,
@@ -227,6 +230,7 @@ import {
   PencilIcon,
   CheckIcon
 } from '@heroicons/vue/24/outline'
+import { useToast, POSITION } from 'vue-toastification'
 import { useUserData } from '~/composables/useUserData'
 
 // Definir meta da página
@@ -235,8 +239,9 @@ definePageMeta({
 })
 
 // Usar dados do usuário do store
-const { userName, userRole, profile } = useUserData()
-const { user } = useAuth()
+const { userName, userRole, profile, loadUserProfile } = useUserData()
+const { user, atualizarInfosUsuario } = useAuth()
+const toast = useToast()
 
 // Computed para dados derivados - SSR safe
 const userEmail = computed(() => {
@@ -252,6 +257,7 @@ const userCreatedAt = computed(() => {
 const isEditingName = ref(false)
 const editableUserName = ref('')
 const nameUpdateMessage = ref('')
+const updatingName = ref(false)
 
 // Computed para data formatada - SSR safe
 const formattedCreatedAt = computed(() => {
@@ -277,18 +283,57 @@ watch(userName, (newValue) => {
 }, { immediate: true })
 
 // Função para alternar edição de nome - SSR safe
-function toggleEditName() {
+async function toggleEditName() {
   if (!process.client) return
   
   if (isEditingName.value) {
     // Salvar nome
-    if (editableUserName.value.trim() !== userName.value) {
-      // TODO: Implementar atualização no store/backend
-      nameUpdateMessage.value = 'Nome atualizado com sucesso!'
-      setTimeout(() => {
-        nameUpdateMessage.value = ''
-      }, 3000)
+    const novoNome = editableUserName.value.trim()
+    
+    if (novoNome !== userName.value && novoNome.length >= 2) {
+      updatingName.value = true
+      
+      try {
+        const resultado = await atualizarInfosUsuario(novoNome)
+        
+        if (resultado.success) {
+          toast.success(resultado.message || 'Nome atualizado com sucesso!', {
+            position: POSITION.TOP_RIGHT
+          })
+          
+          // Recarregar os dados do perfil para refletir a mudança
+          await loadUserProfile()
+          
+          nameUpdateMessage.value = 'Nome atualizado!'
+          setTimeout(() => {
+            nameUpdateMessage.value = ''
+          }, 3000)
+        } else {
+          toast.error(resultado.message || 'Erro ao atualizar nome', {
+            position: POSITION.TOP_RIGHT
+          })
+          
+          // Reverter para o nome original
+          editableUserName.value = userName.value
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar nome:', error)
+        toast.error('Erro inesperado ao atualizar nome', {
+          position: POSITION.TOP_RIGHT
+        })
+        
+        // Reverter para o nome original
+        editableUserName.value = userName.value
+      } finally {
+        updatingName.value = false
+      }
+    } else if (novoNome.length < 2) {
+      toast.error('Nome deve ter pelo menos 2 caracteres', {
+        position: POSITION.TOP_RIGHT
+      })
+      return
     }
+    
     isEditingName.value = false
   } else {
     // Entrar em modo de edição

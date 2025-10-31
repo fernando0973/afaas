@@ -45,6 +45,16 @@
         </BaseButton>
       </div>
     </form>
+
+    <!-- Link para esqueci a senha -->
+    <div class="mt-6 text-center">
+      <NuxtLink
+        to="/esqueci-senha"
+        class="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 hover:underline transition-all duration-200"
+      >
+        Esqueci minha senha
+      </NuxtLink>
+    </div>
   </div>
 </template>
 

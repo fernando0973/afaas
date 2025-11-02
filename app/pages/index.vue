@@ -10,7 +10,10 @@ import {
   Cog6ToothIcon
 } from '@heroicons/vue/24/outline'
 
-
+// Garante que o usuário está autenticado
+definePageMeta({
+  middleware: 'auth'
+})
 
 const { user } = useAuth()
 

@@ -4,13 +4,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
   // Páginas que não precisam de autenticação
   const publicPages = ['/login', '/esqueci-senha', '/recuperar-senha']
   
-  // Evita loops infinitos - verifica se já está tentando navegar para o mesmo lugar
-  if (from && to.path === from.path) {
-    return
-  }
-  
   // Se não há usuário logado e não está tentando acessar uma página pública
   if (!user.value && !publicPages.includes(to.path)) {
+    // Evita loops infinitos
+    if (to.path === '/login') {
+      return
+    }
     return navigateTo('/login')
   }
   

@@ -235,12 +235,12 @@ export const useProfissionais = () => {
     }
   }
 
-  const inserirProfissional = async (profiel_id: number, especialidade_id: number) => {
+  const inserirProfissional = async (perfil_id: number, especialidade_id: number) => {
     try {
       const { data, error } = await (supabase as any)
         .from('afaas_profissionais')
         .insert({
-          profiel_id,
+          perfil_id,
           especialidade_id
         })
         .select()
@@ -258,12 +258,12 @@ export const useProfissionais = () => {
     }
   }
 
-  const editarProfissional = async (id: number, profiel_id: number, especialidade_id: number) => {
+  const editarProfissional = async (id: number, perfil_id: number, especialidade_id: number) => {
     try {
       const { data, error } = await (supabase as any)
         .from('afaas_profissionais')
         .update({
-          profiel_id,
+          perfil_id,
           especialidade_id
         })
         .eq('id', id)

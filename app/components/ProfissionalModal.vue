@@ -174,11 +174,17 @@ const handleSave = async () => {
     // Para criação de novo profissional
     if (!props.isEdicao) {
       const resultado = await inserirProfissional(perfil_id, especialidade_id)
+      console.log('Resultado ao inserir profissional:', resultado)
       
       if (resultado.success) {
+        console.log('Exibindo toast de sucesso:', resultado.message)
         toast.success(resultado.message)
-        emit('salvar', { perfil_id, especialidade_id })
+        // Aguardar um pouco para garantir que o toast seja exibido
+        setTimeout(() => {
+          emit('salvar', { perfil_id, especialidade_id })
+        }, 300)
       } else {
+        console.log('Exibindo toast de erro:', resultado.message)
         toast.error(resultado.message)
       }
     } else {
@@ -189,11 +195,17 @@ const handleSave = async () => {
       }
 
       const resultado = await editarProfissional(props.profissional.profissional_id, perfil_id, especialidade_id)
+      console.log('Resultado ao editar profissional:', resultado)
       
       if (resultado.success) {
+        console.log('Exibindo toast de sucesso:', resultado.message)
         toast.success(resultado.message)
-        emit('salvar', { perfil_id, especialidade_id })
+        // Aguardar um pouco para garantir que o toast seja exibido
+        setTimeout(() => {
+          emit('salvar', { perfil_id, especialidade_id })
+        }, 300)
       } else {
+        console.log('Exibindo toast de erro:', resultado.message)
         toast.error(resultado.message)
       }
     }

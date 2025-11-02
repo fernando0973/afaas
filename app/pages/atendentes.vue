@@ -194,7 +194,11 @@ const fecharModal = () => {
 
 const aoSalvarProfissional = async (dadosProfissional: any) => {
   console.log('Profissional salvo:', dadosProfissional)
-  fecharModal()
+  
+  // Aguardar um pouco para garantir que o toast seja exibido antes de fechar o modal
+  setTimeout(() => {
+    fecharModal()
+  }, 500)
   
   // Recarregar a tabela de profissionais
   if (tabelaRef.value && typeof tabelaRef.value.recarregarDados === 'function') {

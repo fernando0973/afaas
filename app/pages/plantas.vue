@@ -147,6 +147,7 @@
 
 <script setup lang="ts">
 import { PlusIcon } from '@heroicons/vue/24/outline'
+import { useToast } from 'vue-toastification'
 import type { PlantaMedicinal } from '~/types/planta'
 
 // Título da página
@@ -156,6 +157,7 @@ useHead({
 
 // Composables
 const { buscarPlantas, inserirPlanta, editarPlanta: editarPlantaAPI, deletarPlanta } = usePlantas()
+const toast = useToast()
 
 // Estados reativos
 const isAdmin = ref(true) // TODO: Implementar verificação de admin real
@@ -226,27 +228,28 @@ const confirmarDelecao = async () => {
     if (resultado.success) {
       console.log('Planta deletada com sucesso:', resultado.data)
       
-      // Fechar modal de confirmação
-      cancelarDelecao()
+      // Exibir toast de sucesso
+      toast.success('Planta removida com sucesso!')
       
-      // Recarregar tabela
-      if (tabelaRef.value?.recarregarDados) {
-        await tabelaRef.value.recarregarDados()
-      }
-      
-      // TODO: Adicionar toast de sucesso
-      console.log('Planta removida com sucesso!')
+      // Aguardar um pouco para garantir que o toast seja exibido
+      setTimeout(() => {
+        // Fechar modal de confirmação
+        cancelarDelecao()
+        
+        // Recarregar tabela
+        if (tabelaRef.value?.recarregarDados) {
+          tabelaRef.value.recarregarDados()
+        }
+      }, 300)
       
     } else {
       // Exibir erro
       console.error('Erro ao deletar planta:', resultado.error)
-      // TODO: Adicionar toast de erro
-      alert(`Erro ao remover planta: ${resultado.error}`)
+      toast.error(`Erro ao remover planta: ${resultado.error}`)
     }
   } catch (error: any) {
     console.error('Erro inesperado ao deletar planta:', error)
-    // TODO: Adicionar toast de erro
-    alert(`Erro inesperado: ${error.message || error}`)
+    toast.error(`Erro inesperado: ${error.message || error}`)
   } finally {
     deletandoPlanta.value = false
   }
@@ -277,28 +280,29 @@ const salvarPlanta = async (dadosPlanta: Omit<PlantaMedicinal, 'id' | 'created_a
     if (resultado.success) {
       console.log('Planta salva com sucesso:', resultado.data)
       
-      // Fechar modal
-      fecharModal()
+      // Exibir toast de sucesso primeiro
+      toast.success(`Planta ${modoEdicao.value ? 'editada' : 'criada'} com sucesso!`)
       
-      // Recarregar tabela
-      if (tabelaRef.value?.recarregarDados) {
-        await tabelaRef.value.recarregarDados()
-      }
-      
-      // TODO: Adicionar toast de sucesso
-      console.log(`Planta ${modoEdicao.value ? 'editada' : 'criada'} com sucesso!`)
+      // Aguardar um pouco para garantir que o toast seja exibido antes de fechar o modal
+      setTimeout(async () => {
+        // Fechar modal
+        fecharModal()
+        
+        // Recarregar tabela
+        if (tabelaRef.value?.recarregarDados) {
+          await tabelaRef.value.recarregarDados()
+        }
+      }, 500)
       
     } else {
       // Exibir erro
       console.error('Erro ao salvar planta:', resultado.error)
-      // TODO: Adicionar toast de erro
-      alert(`Erro ao ${modoEdicao.value ? 'editar' : 'criar'} planta: ${resultado.error}`)
+      toast.error(`Erro ao ${modoEdicao.value ? 'editar' : 'criar'} planta: ${resultado.error}`)
     }
     
   } catch (error: any) {
     console.error('Erro inesperado ao salvar planta:', error)
-    // TODO: Adicionar toast de erro
-    alert(`Erro inesperado: ${error.message || error}`)
+    toast.error(`Erro inesperado: ${error.message || error}`)
   }
 }
 

@@ -10,6 +10,17 @@ export interface FormData {
   cor: string
 }
 
+export interface AgendamentoInsert {
+  profissional_id: number
+  cliente_id: number
+  titulo: string
+  descricao: string
+  data: string
+  hora_inicio: string
+  hora_fim: string
+  cor: string
+}
+
 export interface FormErrors {
   clienteId: string
   titulo: string
@@ -144,6 +155,82 @@ export const useAgendamentoForm = () => {
     }
   }
 
+  // Função para criar agendamento
+  const criarAgendamento = async (profissionalId: number) => {
+    if (!validateForm()) {
+      return { success: false, error: 'Dados do formulário inválidos' }
+    }
+
+    loading.value = true
+    
+    try {
+      const supabase = useSupabaseClient()
+      
+      // Formatar horários no formato time com timezone (-03)
+      const formatarHorario = (horario: string): string => {
+        if (!horario) return '00:00:00-03'
+        
+        // Dividir horário em partes
+        const partes = horario.split(':')
+        
+        // Garantir formato HH:MM:SS
+        const hora = partes[0]?.padStart(2, '0') || '00'
+        const minuto = partes[1]?.padStart(2, '0') || '00'
+        const segundo = partes[2] || '00'
+        
+        // Retornar formato completo com timezone
+        return `${hora}:${minuto}:${segundo}-03`
+      }
+      
+      // Preparar dados para inserção conforme a estrutura da tabela
+      const agendamentoData: AgendamentoInsert = {
+        profissional_id: profissionalId,
+        cliente_id: Number(form.value.clienteId),
+        titulo: form.value.titulo.trim(),
+        descricao: form.value.descricao.trim(),
+        data: form.value.data, // Campo date da tabela
+        hora_inicio: formatarHorario(form.value.horaInicio), // Campo time com timezone
+        hora_fim: formatarHorario(form.value.horaFim), // Campo time com timezone
+        cor: form.value.cor
+      }
+
+      console.log('🔄 Criando agendamento com dados:', agendamentoData)
+
+      const { data, error } = await supabase
+        .from('afaas_agendamentos')
+        .insert([agendamentoData])
+        .select()
+
+      if (error) {
+        console.error('❌ Erro ao criar agendamento:', error)
+        return { 
+          success: false, 
+          error: error.message || 'Erro ao criar agendamento' 
+        }
+      }
+
+      console.log('✅ Agendamento criado com sucesso:', data[0])
+
+      // Resetar formulário após sucesso
+      resetForm()
+      
+      return { 
+        success: true, 
+        data: data[0],
+        message: 'Agendamento criado com sucesso!' 
+      }
+      
+    } catch (error) {
+      console.error('❌ Erro inesperado ao criar agendamento:', error)
+      return { 
+        success: false, 
+        error: 'Erro inesperado ao criar agendamento' 
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     form,
     errors,
@@ -152,6 +239,7 @@ export const useAgendamentoForm = () => {
     clearErrors,
     validateForm,
     resetForm,
-    prepareFormData
+    prepareFormData,
+    criarAgendamento
   }
 }

@@ -229,8 +229,92 @@ export const usePlantas = () => {
     }
   }
 
+  /**
+   * Busca plantas medicinais por nome (popular ou científico)
+   * @param termo - Termo de busca
+   * @param limite - Limite de resultados (padrão: 10)
+   * @returns Promise com lista de plantas encontradas
+   */
+  const buscarPlantasPorNome = async (termo: string, limite: number = 10) => {
+    try {
+      if (!termo || termo.trim().length < 2) {
+        return { success: true, data: [] }
+      }
+
+      const termoLimpo = termo.trim().toLowerCase()
+
+      // Buscar nos campos nome_popular e nome_cientifico usando ilike (insensitive to case)
+      const { data, error } = await (supabase as any)
+        .from('afaas_plantas_medicinais')
+        .select(`
+          id,
+          nome_popular,
+          nome_cientifico,
+          partes_usadas,
+          sabor_propriedade,
+          meridianos,
+          acao_terapeutica,
+          indicacoes,
+          contraindicacoes,
+          renisus
+        `)
+        .is('deleted_at', null)
+        .or(`nome_popular.ilike.%${termoLimpo}%,nome_cientifico.ilike.%${termoLimpo}%`)
+        .order('nome_popular')
+        .limit(limite)
+
+      if (error) throw error
+
+      return { success: true, data: data as PlantaMedicinal[] }
+    } catch (error: any) {
+      console.error('Erro ao buscar plantas por nome:', error.message)
+      return { success: false, error: error.message, data: [] }
+    }
+  }
+
+  /**
+   * Busca uma planta medicinal específica por ID
+   * @param id - ID da planta medicinal
+   * @returns Promise com dados da planta
+   */
+  const buscarPlantaPorId = async (id: number) => {
+    try {
+      if (!id || id <= 0) {
+        throw new Error('ID da planta é inválido')
+      }
+
+      const { data, error } = await (supabase as any)
+        .from('afaas_plantas_medicinais')
+        .select(`
+          id,
+          created_at,
+          nome_popular,
+          nome_cientifico,
+          partes_usadas,
+          sabor_propriedade,
+          meridianos,
+          acao_terapeutica,
+          indicacoes,
+          contraindicacoes,
+          renisus
+        `)
+        .eq('id', id)
+        .is('deleted_at', null)
+        .single()
+
+      if (error) throw error
+
+      return { success: true, data: data as PlantaMedicinal }
+    } catch (error: any) {
+      console.error('Erro ao buscar planta por ID:', error.message)
+      return { success: false, error: error.message, data: null }
+    }
+  }
+
   return {
     buscarPlantas,
+    buscarPlantasPorNome,
+    buscarPlantaPorId,
     inserirPlanta,
     editarPlanta,
     deletarPlanta

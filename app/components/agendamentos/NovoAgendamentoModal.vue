@@ -167,8 +167,8 @@
         </BaseButton>
         <BaseButton
           variant="primary"
-          :loading="carregandoSalvar"
-          :disabled="!isFormValid"
+          :loading="loadingForm || carregandoProfissional"
+          :disabled="!isFormValid || !profissionalLogado || carregandoProfissional"
           @click="handleConfirm"
         >
           Salvar Agendamento
@@ -180,7 +180,10 @@
 
 <script setup lang="ts">
 // ===== IMPORTS =====
+import { computed, watch, nextTick, ref, onMounted } from 'vue'
 import DateTimeSelector from '~/components/agendamentos/DateTimeSelector.vue'
+import { useAgendamentoForm } from '~/composables/useAgendamentoForm'
+import { useToast } from 'vue-toastification'
 import type { Cliente } from '~/types/cliente'
 import type { Profissional } from '~/types/profissional'
 
@@ -207,30 +210,18 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  'confirm': [data: any]
+  'agendamento-criado': []
 }>()
 
-// ===== ESTADO REATIVO =====
-const form = ref({
-  clienteId: '',
-  titulo: 'Consulta',
-  descricao: '',
-  data: '',
-  horaInicio: '',
-  horaFim: '',
-  cor: '#DBE9FE'
-})
+// ===== COMPOSABLES =====
+const toast = useToast()
+const { profile } = useUserData()
+const { buscarProfissionais } = useProfissionais()
+const { form, errors, loading: loadingForm, isFormValid, validateForm, resetForm, criarAgendamento } = useAgendamentoForm()
 
-const errors = ref({
-  clienteId: '',
-  titulo: '',
-  descricao: '',
-  data: '',
-  horaInicio: '',
-  horaFim: ''
-})
-
-const carregandoSalvar = ref(false)
+// Estado para o profissional logado
+const profissionalLogado = ref<number | null>(null)
+const carregandoProfissional = ref(true)
 const dropdownCoresAberto = ref(false)
 
 // Cores predefinidas
@@ -267,74 +258,7 @@ const iniciaisProfissional = computed(() => {
   return nomeProfissional.value.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 })
 
-const isFormValid = computed(() => {
-  return form.value.clienteId && 
-         form.value.titulo.trim() && 
-         form.value.data && 
-         form.value.horaInicio && 
-         form.value.horaFim
-})
-
-const validarFormulario = () => {
-  errors.value = {
-    clienteId: '',
-    titulo: '',
-    descricao: '',
-    data: '',
-    horaInicio: '',
-    horaFim: ''
-  }
-  
-  let valido = true
-
-  if (!form.value.clienteId) {
-    errors.value.clienteId = 'Cliente é obrigatório'
-    valido = false
-  }
-
-  if (!form.value.titulo.trim()) {
-    errors.value.titulo = 'Título é obrigatório'
-    valido = false
-  }
-
-  if (!form.value.data) {
-    errors.value.data = 'Data é obrigatória'
-    valido = false
-  }
-
-  if (!form.value.horaInicio) {
-    errors.value.horaInicio = 'Hora de início é obrigatória'
-    valido = false
-  }
-
-  if (!form.value.horaFim) {
-    errors.value.horaFim = 'Hora de fim é obrigatória'
-    valido = false
-  }
-
-  return valido
-}
-
-const resetarFormulario = () => {
-  form.value = {
-    clienteId: '',
-    titulo: 'Consulta',
-    descricao: '',
-    data: '',
-    horaInicio: '',
-    horaFim: '',
-    cor: '#DBE9FE'
-  }
-  
-  errors.value = {
-    clienteId: '',
-    titulo: '',
-    descricao: '',
-    data: '',
-    horaInicio: '',
-    horaFim: ''
-  }
-}
+// isFormValid já vem do composable useAgendamentoForm
 
 // ===== COMPUTED =====
 const isOpen = computed({
@@ -350,36 +274,71 @@ const selecionarCor = (cor: { nome: string; valor: string }) => {
   dropdownCoresAberto.value = false
 }
 
-// Função para salvar agendamento
-const salvar = async () => {
-  if (!validarFormulario()) return
-
+// Buscar o ID do profissional logado
+const buscarProfissionalLogado = async () => {
   try {
-    carregandoSalvar.value = true
-
-    const dadosAgendamento = {
-      clienteId: Number(form.value.clienteId),
-      titulo: form.value.titulo.trim(),
-      descricao: form.value.descricao.trim(),
-      dataInicio: new Date(`${form.value.data}T${form.value.horaInicio}:00`).toISOString(),
-      dataFim: new Date(`${form.value.data}T${form.value.horaFim}:00`).toISOString(),
-      cor: form.value.cor,
-      profissionalId: props.profissionalAtual?.id || null
+    carregandoProfissional.value = true
+    
+    if (!profile.value?.id) {
+      console.warn('⚠️ Perfil do usuário não está disponível ainda')
+      return
     }
 
-    emit('confirm', dadosAgendamento)
-    resetarFormulario()
-    isOpen.value = false
+    const { success, data } = await buscarProfissionais()
+    
+    if (!success || !data) {
+      console.error('❌ Erro ao buscar profissionais')
+      return
+    }
+
+    // Encontrar o profissional baseado no perfil_id
+    const profissional = data.find(p => p.perfil_id === profile.value?.id)
+    
+    if (!profissional) {
+      console.error('❌ Usuário atual não é um profissional cadastrado')
+      return
+    }
+
+    profissionalLogado.value = profissional.profissional_id
+    console.log('✅ Profissional logado identificado:', profissionalLogado.value)
+    
   } catch (error) {
-    console.error('Erro ao salvar agendamento:', error)
+    console.error('❌ Erro ao buscar profissional logado:', error)
   } finally {
-    carregandoSalvar.value = false
+    carregandoProfissional.value = false
+  }
+}
+
+// Função para salvar agendamento
+const salvar = async () => {
+  // Verificar se o profissional foi identificado
+  if (!profissionalLogado.value) {
+    toast.error('Profissional não identificado. Aguarde ou tente novamente.')
+    return
+  }
+
+  console.log('🔄 Iniciando criação do agendamento para profissional:', profissionalLogado.value)
+
+  const resultado = await criarAgendamento(profissionalLogado.value)
+  
+  if (resultado.success) {
+    console.log('✅ Agendamento criado com sucesso!')
+    toast.success(resultado.message || 'Agendamento criado com sucesso!')
+    
+    // Emitir evento para forçar atualização dos agendamentos
+    emit('agendamento-criado')
+    
+    // Fechar modal
+    isOpen.value = false
+  } else {
+    console.error('❌ Erro ao criar agendamento:', resultado.error)
+    toast.error(resultado.error || 'Erro ao criar agendamento')
   }
 }
 
 // Função para cancelar
 const cancelar = () => {
-  resetarFormulario()
+  resetForm()
   isOpen.value = false
 }
 
@@ -387,12 +346,33 @@ const cancelar = () => {
 
 // ===== WATCHERS =====
 
-// Watcher para resetar formulário quando modal fecha
+// Watcher para resetar formulário quando modal fecha e carregar profissional quando abre
 watch(() => props.modelValue, (isOpenValue) => {
-  if (!isOpenValue) {
+  if (isOpenValue) {
+    console.log('📖 Modal aberto - identificando profissional logado...')
+    // Modal abriu - buscar profissional logado
+    buscarProfissionalLogado()
+  } else {
+    // Modal fechou - resetar formulário
     nextTick(() => {
-      resetarFormulario()
+      resetForm()
     })
+  }
+})
+
+// Watcher para monitorar mudanças no profile
+watch(() => profile.value, (newProfile) => {
+  if (newProfile?.id && !profissionalLogado.value) {
+    console.log('👤 Profile carregado, identificando profissional...')
+    buscarProfissionalLogado()
+  }
+}, { immediate: true })
+
+// Carregar profissional na montagem do componente
+onMounted(() => {
+  console.log('🎯 Componente montado - perfil disponível:', !!profile.value?.id)
+  if (profile.value?.id) {
+    buscarProfissionalLogado()
   }
 })
 

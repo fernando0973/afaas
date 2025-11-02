@@ -24,6 +24,19 @@
         </div>
       </div>
 
+      <!-- Campo de busca -->
+      <div class="mb-6">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div class="flex-1 max-w-md">
+            <PlantasBuscador @planta-selecionada="visualizarPlanta" />
+          </div>
+          
+          <div class="text-sm text-gray-500">
+            💡 Digite o nome da planta para buscar e visualizar informações detalhadas
+          </div>
+        </div>
+      </div>
+
       <!-- Tabela de plantas -->
       <TabelaPlantas 
         ref="tabelaRef"
@@ -59,6 +72,13 @@
         @cancel="cancelarDelecao"
         @close="cancelarDelecao"
       />
+
+      <!-- Modal de visualização de planta -->
+      <PlantaVisualizacaoModal
+        v-model="modalVisualizacaoAberto"
+        :planta-data="plantaVisualizacao"
+        @close="fecharModalVisualizacao"
+      />
     </div>
   </div>
 </template>
@@ -88,6 +108,10 @@ const plantaSelecionada = ref<PlantaMedicinal | null>(null)
 const modalConfirmacaoAberto = ref(false)
 const plantaParaDeletar = ref<PlantaMedicinal | null>(null)
 const deletandoPlanta = ref(false)
+
+// Estados do modal de visualização
+const modalVisualizacaoAberto = ref(false)
+const plantaVisualizacao = ref<PlantaMedicinal | null>(null)
 
 // Funções para manipulação das plantas
 const adicionarPlanta = () => {
@@ -216,5 +240,19 @@ const salvarPlanta = async (dadosPlanta: Omit<PlantaMedicinal, 'id' | 'created_a
 const recarregarTabela = () => {
   console.log('Tabela recarregada')
   // Lógica adicional se necessário após recarregar
+}
+
+// Funções do modal de visualização
+const visualizarPlanta = (planta: PlantaMedicinal) => {
+  console.log('Visualizando planta:', planta)
+  plantaVisualizacao.value = planta
+  modalVisualizacaoAberto.value = true
+}
+
+const fecharModalVisualizacao = () => {
+  modalVisualizacaoAberto.value = false
+  setTimeout(() => {
+    plantaVisualizacao.value = null
+  }, 300)
 }
 </script>

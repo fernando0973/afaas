@@ -33,6 +33,9 @@ const { buscarProfissionais: fetchProfissionais } = useProfissionais()
 const userStore = useUserStore()
 const agendamentoStore = useAgendamentoStore()
 
+// Use storeToRefs para acessar as refs de forma reativa
+const { profile: userProfile } = storeToRefs(userStore)
+
 // Função para buscar profissionais
 const buscarProfissionais = async () => {
   try {
@@ -42,7 +45,7 @@ const buscarProfissionais = async () => {
     
     if (resultado.success && resultado.data && resultado.data.length > 0) {
       // Primeiro, tenta encontrar o profissional baseado no profile_id do usuário logado
-      const profileData = userStore.profile
+      const profileData = userProfile.value
       const userProfileId = profileData?.id
       
       if (userProfileId) {
@@ -78,7 +81,7 @@ const buscarProfissionais = async () => {
 }
 
 // Watcher para reagir quando o perfil do usuário mudar
-watch(() => userStore.profile, async (newProfile, oldProfile) => {
+watch(userProfile, async (newProfile, oldProfile) => {
   const newProfileId = newProfile?.id
   const oldProfileId = oldProfile?.id
   
@@ -91,7 +94,7 @@ watch(() => userStore.profile, async (newProfile, oldProfile) => {
 // Buscar dados quando o componente for montado
 onMounted(async () => {
   // Garantir que o perfil do usuário esteja carregado
-  const profileData = userStore.profile
+  const profileData = userProfile.value
   if (!profileData) {
     await userStore.fetchProfile()
   }

@@ -67,9 +67,7 @@
       :carregando-clientes="carregandoClientes"
       :agendamentos="agendamentos"
       :carregando-agendamentos="carregandoAgendamentos"
-      @confirm="handleConfirmarNovoAgendamento"
-      @cancel="handleCancelarNovoAgendamento"
-      @close="handleFecharNovoAgendamento"
+      @agendamento-criado="handleAgendamentoCriado"
     />
   </div>
 </template>
@@ -322,36 +320,22 @@ const criarAgendamento = async (dados: any) => {
   }
 }
 
-// Handlers do modal
-const handleConfirmarNovoAgendamento = async (dados: any) => {
-  try {
-
-    
-    // Criar agendamento no banco
-    await criarAgendamento(dados)
-    
-    // Recarregar agendamentos com cache limpo
-    await recarregarAgendamentos(true)
-    
-    // Fechar modal
-    modalNovoAgendamentoAberto.value = false
-    
-
-    
-  } catch (error) {
-    console.error('❌ Erro ao criar agendamento:', error)
-    // Modal permanece aberto em caso de erro para o usuário tentar novamente
+// Handler para quando um agendamento é criado
+const handleAgendamentoCriado = async () => {
+  console.log('🔄 Agendamento criado! Forçando atualização da lista...')
+  
+  // Limpar cache completamente para garantir dados frescos
+  if (profissionalSelecionadoId.value) {
+    limparCache(profissionalSelecionadoId.value)
   }
-}
-
-const handleCancelarNovoAgendamento = () => {
-
+  
+  // Recarregar agendamentos forçando busca no banco
+  await recarregarAgendamentos(true)
+  
+  // Fechar modal
   modalNovoAgendamentoAberto.value = false
-}
-
-const handleFecharNovoAgendamento = () => {
-
-  modalNovoAgendamentoAberto.value = false
+  
+  console.log('✅ Lista de agendamentos atualizada!')
 }
 
 // Expor funções para uso externo se necessário

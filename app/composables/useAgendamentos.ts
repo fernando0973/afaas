@@ -81,8 +81,18 @@ export const useAgendamentos = () => {
   const formatarAgendamentos = (agendamentos: Agendamento[]): AgendamentoFormatado[] => {
     return agendamentos.map(agendamento => {
       // Tratar horários que podem vir com timezone (-03, etc)
-      const horaInicioLimpa = agendamento.hora_inicio?.split('-')[0] || agendamento.hora_inicio
-      const horaFimLimpa = agendamento.hora_fim?.split('-')[0] || agendamento.hora_fim
+      // Remove o timezone e mantém apenas a parte do horário (HH:MM:SS)
+      const horaInicioLimpa = agendamento.hora_inicio?.split(/[-+]/)[0] || agendamento.hora_inicio
+      const horaFimLimpa = agendamento.hora_fim?.split(/[-+]/)[0] || agendamento.hora_fim
+      
+      console.log('🔄 Formatando agendamento:', {
+        id: agendamento.id,
+        data: agendamento.data,
+        horaInicioOriginal: agendamento.hora_inicio,
+        horaFimOriginal: agendamento.hora_fim,
+        horaInicioLimpa,
+        horaFimLimpa
+      })
       
       // Combinar data + hora_inicio para criar Date
       const dataInicio = agendamento.data && horaInicioLimpa

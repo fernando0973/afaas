@@ -10,6 +10,9 @@
       <p class="text-sm text-text-muted">
         {{ profissional.especialidade }}
       </p>
+      <p class="text-xs text-text-muted bg-neutral-100 px-2 py-1 rounded">
+        ID: {{ profissional.profissional_id }}
+      </p>
     </div>
     <div v-else class="text-text-muted">
       Nenhum profissional encontrado
@@ -25,9 +28,10 @@ import type { ProfissionalRPC } from '~/types/user'
 const profissional = ref<ProfissionalRPC | null>(null)
 const loading = ref(true)
 
-// Composables
+// Composables e Stores
 const { buscarProfissionais: fetchProfissionais } = useProfissionais()
 const userStore = useUserStore()
+const agendamentoStore = useAgendamentoStore()
 
 // Função para buscar profissionais
 const buscarProfissionais = async () => {
@@ -38,19 +42,29 @@ const buscarProfissionais = async () => {
     
     if (resultado.success && resultado.data && resultado.data.length > 0) {
       // Primeiro, tenta encontrar o profissional baseado no profile_id do usuário logado
-      const userProfileId = userStore.profile?.id
+      const profileData = userStore.profile
+      const userProfileId = profileData?.id
       
       if (userProfileId) {
         const profissionalLogado = resultado.data.find(p => p.perfil_id === userProfileId)
         
         if (profissionalLogado) {
           profissional.value = profissionalLogado
+          // Só atualizar o store se for diferente do atual
+          if (agendamentoStore.profissionalSelecionadoId !== profissionalLogado.profissional_id) {
+            agendamentoStore.setProfissionalSelecionado(profissionalLogado.profissional_id)
+          }
           return
         }
       }
       
       // Se não encontrar o profissional do usuário logado, usa o primeiro da lista
       profissional.value = resultado.data[0] || null
+      
+      // Atualizar o store com o primeiro profissional da lista (só se for diferente)
+      if (profissional.value && agendamentoStore.profissionalSelecionadoId !== profissional.value.profissional_id) {
+        agendamentoStore.setProfissionalSelecionado(profissional.value.profissional_id)
+      }
     } else {
       profissional.value = null
     }
@@ -64,8 +78,12 @@ const buscarProfissionais = async () => {
 }
 
 // Watcher para reagir quando o perfil do usuário mudar
-watch(() => userStore.profile, async (newProfile) => {
-  if (newProfile) {
+watch(() => userStore.profile, async (newProfile, oldProfile) => {
+  const newProfileId = newProfile?.id
+  const oldProfileId = oldProfile?.id
+  
+  // Só recarregar se o ID realmente mudou e não for a primeira execução
+  if (newProfileId && newProfileId !== oldProfileId) {
     await buscarProfissionais()
   }
 }, { immediate: false })
@@ -73,7 +91,8 @@ watch(() => userStore.profile, async (newProfile) => {
 // Buscar dados quando o componente for montado
 onMounted(async () => {
   // Garantir que o perfil do usuário esteja carregado
-  if (!userStore.profile) {
+  const profileData = userStore.profile
+  if (!profileData) {
     await userStore.fetchProfile()
   }
   

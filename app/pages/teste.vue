@@ -259,6 +259,93 @@
       </div>
     </section>
 
+    <!-- Debug Agendamentos -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-text mb-6">🐛 Debug Agendamentos 12/11/2025</h2>
+      
+      <div class="max-w-4xl bg-surface border border-border rounded-xl p-6 shadow-card">
+        <!-- Controles de teste -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <BaseInput
+            v-model.number="profissionalId"
+            type="number"
+            label="Profissional ID"
+          />
+          
+          <BaseInput
+            v-model="dataEspecifica"
+            type="date"
+            label="Data Específica"
+          />
+          
+          <div class="flex items-end">
+            <BaseButton 
+              @click="testarBuscaEspecifica" 
+              :disabled="carregandoDebug"
+              variant="primary"
+              full-width
+            >
+              {{ carregandoDebug ? 'Buscando...' : 'Testar Busca' }}
+            </BaseButton>
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mb-6">
+          <BaseButton 
+            @click="testarSemanaCompleta" 
+            :disabled="carregandoDebug"
+            variant="secondary"
+          >
+            Testar Semana 09/11 - 15/11
+          </BaseButton>
+          
+          <BaseButton 
+            @click="listarTodosAgendamentos" 
+            :disabled="carregandoDebug"
+            variant="outline"
+          >
+            Listar TODOS
+          </BaseButton>
+        </div>
+
+        <!-- Resultados -->
+        <div v-if="erroDebug" class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+          <strong>Erro:</strong> {{ erroDebug }}
+        </div>
+        
+        <div v-if="resultadosDebug.length === 0 && !carregandoDebug && !erroDebug" class="bg-yellow-100 border border-yellow-300 text-yellow-700 px-4 py-3 rounded mb-4">
+          Nenhum agendamento encontrado.
+        </div>
+        
+        <div v-if="resultadosDebug.length > 0" class="mb-4">
+          <p class="font-semibold mb-3">{{ resultadosDebug.length }} agendamento(s) encontrado(s):</p>
+          
+          <div v-for="agendamento in resultadosDebug" :key="agendamento.id" class="border border-neutral-200 rounded p-3 mb-2">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+              <div><strong>ID:</strong> {{ agendamento.id }}</div>
+              <div><strong>Data:</strong> {{ agendamento.data }}</div>
+              <div><strong>Hora:</strong> {{ agendamento.hora_inicio }} - {{ agendamento.hora_fim }}</div>
+              <div><strong>Cancelado:</strong> {{ agendamento.cancelado ? 'Sim' : 'Não' }}</div>
+            </div>
+            <div class="mt-2">
+              <div><strong>Título:</strong> {{ agendamento.titulo || 'Sem título' }}</div>
+              <div><strong>Descrição:</strong> {{ agendamento.descricao || 'Sem descrição' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Log de debug -->
+        <div class="bg-neutral-900 text-neutral-100 p-4 rounded-lg max-h-40 overflow-y-auto">
+          <h3 class="text-sm font-semibold mb-2">🔍 Log de Debug</h3>
+          <div class="text-xs space-y-1 font-mono">
+            <div v-for="(log, index) in logsDebug" :key="index">
+              {{ log }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Paleta de cores -->
     <section>
       <h2 class="text-2xl font-semibold text-text mb-6">Paleta de Cores</h2>
@@ -296,6 +383,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
+import { useAgendamentos } from '~/composables/useAgendamentos'
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -313,6 +401,22 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const toast = useToast()
+
+// Debug de agendamentos
+const { debugBuscarPorData, buscarAgendamentosSemana } = useAgendamentos()
+const profissionalId = ref(1)
+const dataEspecifica = ref('2025-11-12')
+const carregandoDebug = ref(false)
+const resultadosDebug = ref<any[]>([])
+const erroDebug = ref<string | null>(null)
+const logsDebug = ref<string[]>([])
+
+// Capturar logs do console para debug
+const originalConsoleLog = console.log
+console.log = (...args) => {
+  logsDebug.value.push(new Date().toLocaleTimeString() + ': ' + args.join(' '))
+  originalConsoleLog(...args)
+}
 
 const form = ref({
   name: '',
@@ -365,5 +469,113 @@ const resetContactForm = () => {
     message: ''
   }
   toast.info('Formulário limpo')
+}
+
+// Funções de debug de agendamentos
+const testarBuscaEspecifica = async () => {
+  carregandoDebug.value = true
+  erroDebug.value = null
+  logsDebug.value = []
+  
+  try {
+    const resultado = await debugBuscarPorData(profissionalId.value, dataEspecifica.value)
+    resultadosDebug.value = resultado || []
+  } catch (err: any) {
+    erroDebug.value = err.message || 'Erro desconhecido'
+    resultadosDebug.value = []
+  } finally {
+    carregandoDebug.value = false
+  }
+}
+
+const testarSemanaCompleta = async () => {
+  carregandoDebug.value = true
+  erroDebug.value = null
+  logsDebug.value = []
+  
+  try {
+    // Criar array com os 7 dias da semana (09/11 a 15/11)
+    const diasSemana = [
+      new Date(2025, 10, 9),  // Domingo 09/11
+      new Date(2025, 10, 10), // Segunda 10/11
+      new Date(2025, 10, 11), // Terça 11/11
+      new Date(2025, 10, 12), // Quarta 12/11
+      new Date(2025, 10, 13), // Quinta 13/11
+      new Date(2025, 10, 14), // Sexta 14/11
+      new Date(2025, 10, 15), // Sábado 15/11
+    ]
+    
+    const resultado = await buscarAgendamentosSemana(profissionalId.value, diasSemana, true)
+    resultadosDebug.value = resultado || []
+  } catch (err: any) {
+    erroDebug.value = err.message || 'Erro desconhecido'
+    resultadosDebug.value = []
+  } finally {
+    carregandoDebug.value = false
+  }
+}
+
+const listarTodosAgendamentos = async () => {
+  carregandoDebug.value = true
+  erroDebug.value = null
+  logsDebug.value = []
+  
+  try {
+    const supabase = useSupabaseClient()
+    
+    // Primeiro, buscar todos os profissionais usando o composable
+    const { buscarProfissionais } = useProfissionais()
+    const resultadoProfissionais = await buscarProfissionais()
+    
+    logsDebug.value.push(`Profissionais disponíveis:`)
+    if (resultadoProfissionais.success && resultadoProfissionais.data) {
+      resultadoProfissionais.data.forEach(prof => {
+        logsDebug.value.push(`  - ID ${prof.profissional_id}: ${prof.nome_profissional}`)
+      })
+    }
+    
+    // Depois, buscar agendamentos do profissional específico
+    const { data, error } = await supabase
+      .from('afaas_agendamentos')
+      .select('*')
+      .eq('profissional_id', profissionalId.value)
+      .order('data', { ascending: true })
+    
+    if (error) throw error
+    
+    resultadosDebug.value = data || []
+    logsDebug.value.push(`Total de agendamentos do profissional ${profissionalId.value}: ${data?.length || 0}`)
+    
+    // Buscar TODOS os agendamentos para comparação
+    const { data: todosAgendamentos } = await supabase
+      .from('afaas_agendamentos')
+      .select('*')
+      .order('data', { ascending: true })
+    
+    logsDebug.value.push(`Total geral de agendamentos no sistema: ${todosAgendamentos?.length || 0}`)
+    
+    // Mostrar resumo por profissional
+    if (todosAgendamentos) {
+      const resumoPorProfissional = new Map()
+      todosAgendamentos.forEach(agend => {
+        const profId = agend.profissional_id
+        if (!resumoPorProfissional.has(profId)) {
+          resumoPorProfissional.set(profId, 0)
+        }
+        resumoPorProfissional.set(profId, resumoPorProfissional.get(profId) + 1)
+      })
+      
+      logsDebug.value.push(`Resumo de agendamentos por profissional:`)
+      resumoPorProfissional.forEach((count, profId) => {
+        logsDebug.value.push(`  - Profissional ID ${profId}: ${count} agendamento(s)`)
+      })
+    }
+    
+  } catch (err: any) {
+    erroDebug.value = err.message || 'Erro desconhecido'
+    resultadosDebug.value = []
+  } finally {
+    carregandoDebug.value = false
+  }
 }
 </script>

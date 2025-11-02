@@ -10,8 +10,7 @@ import {
   Cog6ToothIcon
 } from '@heroicons/vue/24/outline'
 
-// Import explícito do componente
-import AgendamentoManager from '~/components/agendamentos/AgendamentoManager.vue'
+
 
 const { user } = useAuth()
 

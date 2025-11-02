@@ -19,6 +19,12 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
    */
   const dataReferencia = ref(new Date())
 
+  /**
+   * ID do profissional selecionado para visualização de agendamentos
+   * Inicializado como null - deve ser definido quando um profissional for selecionado
+   */
+  const profissionalSelecionadoId = ref<number | null>(null)
+
   // ===== COMPUTED (DADOS DERIVADOS) =====
   
   /**
@@ -80,17 +86,27 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     dataReferencia.value = novaData
   }
 
+  /**
+   * Define o profissional selecionado
+   * @param profissionalId - ID do profissional ou null para limpar seleção
+   */
+  const setProfissionalSelecionado = (profissionalId: number | null) => {
+    profissionalSelecionadoId.value = profissionalId
+  }
+
   // ===== RETORNO DO STORE =====
   
   return {
     // Estado reativo
     dataReferencia,
+    profissionalSelecionadoId,
     
     // Dados derivados (computed)
     diasSemana,
     
     // Ações/funções
     avancarSemana,
-    voltarSemana
+    voltarSemana,
+    setProfissionalSelecionado
   }
 })

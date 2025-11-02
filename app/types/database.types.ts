@@ -221,6 +221,76 @@ export type Database = {
           }
         ]
       }
+      afaas_agendamentos: {
+        Row: {
+          id: number
+          created_at: string
+          user_id: string | null
+          profissional_id: number | null
+          cliente_id: number | null
+          data: string | null
+          hora_inicio: string | null
+          hora_fim: string | null
+          titulo: string | null
+          descricao: string | null
+          cancelado: boolean | null
+          cancelado_as: string | null
+          cor: string | null
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          user_id?: string | null
+          profissional_id?: number | null
+          cliente_id?: number | null
+          data?: string | null
+          hora_inicio?: string | null
+          hora_fim?: string | null
+          titulo?: string | null
+          descricao?: string | null
+          cancelado?: boolean | null
+          cancelado_as?: string | null
+          cor?: string | null
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          user_id?: string | null
+          profissional_id?: number | null
+          cliente_id?: number | null
+          data?: string | null
+          hora_inicio?: string | null
+          hora_fim?: string | null
+          titulo?: string | null
+          descricao?: string | null
+          cancelado?: boolean | null
+          cancelado_as?: string | null
+          cor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "afaas_agendamentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "afaas_agendamentos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_profissionais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "afaas_agendamentos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

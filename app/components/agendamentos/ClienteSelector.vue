@@ -133,6 +133,9 @@ const emit = defineEmits<{
 // Estado reativo
 const searchTerm = ref('')
 const isDropdownOpen = ref(false)
+const isAutoSelecting = ref(false) // Flag para evitar loops
+
+
 
 // Cliente selecionado
 const selectedClient = computed(() => {
@@ -141,23 +144,29 @@ const selectedClient = computed(() => {
 
 // Clientes filtrados
 const filteredClients = computed(() => {
-  if (!props.clients || props.clients.length === 0) return []
+  if (!props.clients || props.clients.length === 0) {
+    return []
+  }
   
   if (!searchTerm.value.trim()) {
-    return props.clients.slice(0, 50) // Limite inicial para performance
+    return []
   }
   
   const termo = searchTerm.value.toLowerCase().trim()
   
-  return props.clients.filter(cliente => {
+  const filtrados = props.clients.filter(cliente => {
     const nome = cliente.nome_completo?.toLowerCase() || ''
     const cpf = cliente.cpf?.replace(/\D/g, '') || ''
     const telefone = cliente.telefone?.replace(/\D/g, '') || ''
     
-    return nome.includes(termo) || 
+    const match = nome.includes(termo) || 
            cpf.includes(termo.replace(/\D/g, '')) ||
            telefone.includes(termo.replace(/\D/g, ''))
-  }).slice(0, 50) // Limite de 50 resultados para performance
+           
+    return match
+  }).slice(0, 50)
+  
+  return filtrados
 })
 
 // Função para formatar CPF
@@ -200,6 +209,11 @@ const closeDropdown = () => {
 
 // Handler do input - lógica simplificada
 const handleInput = () => {
+  // Se está em processo de auto-seleção, ignorar
+  if (isAutoSelecting.value) {
+    return
+  }
+  
   // Sempre abrir dropdown ao digitar
   if (!isDropdownOpen.value) {
     isDropdownOpen.value = true
@@ -208,6 +222,95 @@ const handleInput = () => {
   // Limpar seleção se o texto mudou
   if (selectedClient.value && searchTerm.value !== selectedClient.value.nome_completo) {
     emit('update:modelValue', '')
+  }
+  
+  // SELEÇÃO AUTOMÁTICA INLINE - executar diretamente aqui
+  performAutoSelection()
+}
+
+// Função para seleção automática
+const performAutoSelection = () => {
+  // Se já está processando, não fazer nada
+  if (isAutoSelecting.value) {
+    return
+  }
+
+  const termo = searchTerm.value.toLowerCase().trim()
+  
+  if (!termo || !props.clients || termo.length < 2) {
+    return
+  }
+  
+  // Filtrar clientes que correspondem à busca
+  const clientesEncontrados = props.clients.filter(cliente => {
+    const nome = cliente.nome_completo?.toLowerCase() || ''
+    const cpf = cliente.cpf?.replace(/\D/g, '') || ''
+    const telefone = cliente.telefone?.replace(/\D/g, '') || ''
+    
+    return nome.includes(termo) || 
+           cpf.includes(termo.replace(/\D/g, '')) ||
+           telefone.includes(termo.replace(/\D/g, ''))
+  })
+
+  
+  // Se encontrou apenas um cliente, selecionar automaticamente
+  if (clientesEncontrados.length === 1) {
+    const cliente = clientesEncontrados[0]
+    if (cliente && props.modelValue !== cliente.id.toString()) {
+      isAutoSelecting.value = true
+      
+      emit('update:modelValue', cliente.id.toString())
+      
+      searchTerm.value = cliente.nome_completo
+      isDropdownOpen.value = false
+      
+      setTimeout(() => {
+        isAutoSelecting.value = false
+      }, 200)
+    }
+  }
+  // Se há múltiplos, verificar APENAS match exato completo por nome
+  else if (clientesEncontrados.length > 1) {
+    const matchExatoCompleto = clientesEncontrados.find(cliente => {
+      const nome = cliente.nome_completo?.toLowerCase() || ''
+      return nome === termo
+    })
+    
+    if (matchExatoCompleto && props.modelValue !== matchExatoCompleto.id.toString()) {
+      isAutoSelecting.value = true
+      
+      emit('update:modelValue', matchExatoCompleto.id.toString())
+      
+      searchTerm.value = matchExatoCompleto.nome_completo
+      isDropdownOpen.value = false
+      
+      setTimeout(() => {
+        isAutoSelecting.value = false
+      }, 200)
+      return
+    }
+    
+    // OU match exato por CPF completo
+    const matchCPFCompleto = clientesEncontrados.find(cliente => {
+      const cpf = cliente.cpf?.replace(/\D/g, '') || ''
+      return cpf === termo.replace(/\D/g, '') && termo.replace(/\D/g, '').length === 11
+    })
+    
+    if (matchCPFCompleto && props.modelValue !== matchCPFCompleto.id.toString()) {
+      isAutoSelecting.value = true
+      
+      emit('update:modelValue', matchCPFCompleto.id.toString())
+      
+      searchTerm.value = matchCPFCompleto.nome_completo
+      isDropdownOpen.value = false
+      
+      setTimeout(() => {
+        isAutoSelecting.value = false
+      }, 200)
+    }
+    
+    // Caso contrário, manter dropdown aberto para seleção manual
+    console.log('� Mantendo dropdown aberto para seleção manual')
   }
 }
 
@@ -225,9 +328,21 @@ const addNewClient = () => {
 }
 
 // Watcher para seleção automática baseada na busca
-watch(() => searchTerm.value, (novoTermo) => {
-  if (!novoTermo || !props.clients || novoTermo.length < 2) return
+watch(searchTerm, (novoTermo) => {
+  console.log('🔍 Watcher executado - termo:', novoTermo)
+  console.log('📊 Verificações:', {
+    temTermo: !!novoTermo,
+    temClientes: !!props.clients,
+    tamanho: novoTermo?.length,
+    condicao: novoTermo?.length >= 2
+  })
   
+  if (!novoTermo || !props.clients || novoTermo.length < 2) {
+    console.log('❌ Watcher: condições não atendidas')
+    return
+  }
+  
+  console.log('✅ Watcher: executando seleção automática')
   const termo = novoTermo.toLowerCase().trim()
   
   // Filtrar clientes que correspondem à busca

@@ -31,6 +31,9 @@
       </div>
 
       <!-- Seletor de Cliente -->
+      <div class="debug-info mb-2 p-2 bg-gray-100 text-xs">
+        DEBUG: Clientes={{ clientes?.length || 0 }} | Loading={{ carregandoClientes }} | ClienteId={{ form.clienteId }}
+      </div>
       <ClienteSelector 
         v-model="form.clienteId"
         :clients="clientes"

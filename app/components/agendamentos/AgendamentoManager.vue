@@ -196,7 +196,7 @@ watch(dataReferencia, async (novaData, dataAnterior) => {
       profissionalSelecionadoId.value &&
       !carregandoAgendamentos.value) {
     
-    console.log(`📅 Semana alterada para ${novaData.toLocaleDateString()}, buscando dados frescos...`)
+
     // Limpar cache para garantir dados atualizados
     limparCache(profissionalSelecionadoId.value)
     await carregarAgendamentos()
@@ -214,12 +214,12 @@ const carregarClientes = async () => {
     carregandoClientes.value = true
     erroClientes.value = null
     
-    console.log('📋 Carregando lista de clientes...')
+
     const resultado = await buscarClientes()
     
     if (resultado.success && resultado.data) {
       clientes.value = resultado.data
-      console.log(`✅ ${resultado.data.length} clientes carregados`)
+
     } else {
       throw new Error(resultado.error || 'Erro ao buscar clientes')
     }
@@ -279,19 +279,20 @@ const buscarProfissionalAtual = async () => {
 
 // Função para criar novo agendamento
 const novoAgendamento = async () => {
-  console.log('➕ Novo agendamento clicado')
+
   
   // Buscar dados do profissional antes de abrir o modal
   await buscarProfissionalAtual()
   
   // Abrir modal
   modalNovoAgendamentoAberto.value = true
+
 }
 
 // Função para criar agendamento no Supabase
 const criarAgendamento = async (dados: any) => {
   try {
-    console.log('📝 Criando agendamento...', dados)
+
     
     const { data, error } = await supabase
       .from('afaas_agendamentos')
@@ -312,7 +313,7 @@ const criarAgendamento = async (dados: any) => {
       throw error
     }
 
-    console.log('✅ Agendamento criado com sucesso:', data)
+
     return data
     
   } catch (error) {
@@ -324,7 +325,7 @@ const criarAgendamento = async (dados: any) => {
 // Handlers do modal
 const handleConfirmarNovoAgendamento = async (dados: any) => {
   try {
-    console.log('📝 Dados do novo agendamento:', dados)
+
     
     // Criar agendamento no banco
     await criarAgendamento(dados)
@@ -335,7 +336,7 @@ const handleConfirmarNovoAgendamento = async (dados: any) => {
     // Fechar modal
     modalNovoAgendamentoAberto.value = false
     
-    console.log('✅ Agendamento criado e interface atualizada!')
+
     
   } catch (error) {
     console.error('❌ Erro ao criar agendamento:', error)
@@ -344,12 +345,12 @@ const handleConfirmarNovoAgendamento = async (dados: any) => {
 }
 
 const handleCancelarNovoAgendamento = () => {
-  console.log('❌ Criação de agendamento cancelada')
+
   modalNovoAgendamentoAberto.value = false
 }
 
 const handleFecharNovoAgendamento = () => {
-  console.log('🔒 Modal de agendamento fechado')
+
   modalNovoAgendamentoAberto.value = false
 }
 

@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/supabase', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
+  build: {
+    transpile: ['vue-toastification']
+  },
   nitro: {
     devServer: {
       watch: ['app/**/*']

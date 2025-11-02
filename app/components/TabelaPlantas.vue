@@ -6,7 +6,7 @@
         <div>
           <h3 class="text-lg font-medium text-neutral-900">Plantas Medicinais Cadastradas</h3>
           <p class="text-sm text-neutral-600 mt-1">
-            {{ plantas.length }} {{ plantas.length === 1 ? 'planta encontrada' : 'plantas encontradas' }}
+            {{ totalItens }} {{ totalItens === 1 ? 'planta encontrada' : 'plantas encontradas' }}
           </p>
         </div>
         
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Estado vazio -->
-    <div v-else-if="plantas.length === 0" class="px-6 py-12 text-center">
+    <div v-else-if="totalItens === 0" class="px-6 py-12 text-center">
       <div class="flex flex-col items-center">
         <BeakerIcon class="w-12 h-12 text-neutral-300 mb-4" />
         <h3 class="text-lg font-medium text-neutral-900 mb-2">Nenhuma planta medicinal encontrada</h3>
@@ -95,7 +95,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-neutral-200">
           <tr 
-            v-for="planta in plantas" 
+            v-for="planta in plantasPaginadas" 
             :key="planta.id"
             class="hover:bg-neutral-50 transition-colors"
           >
@@ -170,16 +170,15 @@
       </table>
     </div>
 
-    <!-- Rodapé da tabela -->
-    <div v-if="plantas.length > 0" class="px-6 py-3 bg-neutral-50 border-t border-neutral-200">
-      <div class="flex items-center justify-between text-sm text-neutral-600">
-        <span>
-          Mostrando {{ plantas.length }} {{ plantas.length === 1 ? 'resultado' : 'resultados' }}
-        </span>
-        <div class="flex items-center space-x-2">
-          <span>Total: {{ plantas.length }} {{ plantas.length === 1 ? 'planta' : 'plantas' }}</span>
-        </div>
-      </div>
+    <!-- Paginação -->
+    <div v-if="totalItens > 0 && totalPaginas > 1" class="px-6 py-4 bg-neutral-50 border-t border-neutral-200">
+      <BasePagination
+        :current-page="paginaAtual"
+        :total-pages="totalPaginas"
+        :total-items="totalItens"
+        :items-per-page="itensPorPagina"
+        @page-changed="mudarPagina"
+      />
     </div>
   </div>
 </template>
@@ -221,6 +220,19 @@ const plantas = ref<PlantaMedicinal[]>([])
 const carregando = ref(false)
 const erro = ref<string | null>(null)
 
+// Estados de paginação
+const paginaAtual = ref(1)
+const itensPorPagina = ref(10)
+
+// Computeds para paginação
+const totalItens = computed(() => plantas.value.length)
+const totalPaginas = computed(() => Math.ceil(totalItens.value / itensPorPagina.value))
+const plantasPaginadas = computed(() => {
+  const inicio = (paginaAtual.value - 1) * itensPorPagina.value
+  const fim = inicio + itensPorPagina.value
+  return plantas.value.slice(inicio, fim)
+})
+
 // Função para carregar dados
 const carregarDados = async () => {
   carregando.value = true
@@ -256,6 +268,13 @@ const editarPlanta = (planta: PlantaMedicinal) => {
 // Função para confirmar remoção
 const confirmarRemocao = (planta: PlantaMedicinal) => {
   emit('remover', planta)
+}
+
+// Função para mudar página
+const mudarPagina = (novaPagina: number) => {
+  if (novaPagina >= 1 && novaPagina <= totalPaginas.value) {
+    paginaAtual.value = novaPagina
+  }
 }
 
 // Carregar dados automaticamente na montagem

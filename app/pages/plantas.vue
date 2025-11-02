@@ -1,38 +1,72 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <!-- Cabeçalho da página -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-neutral-900">Plantas Medicinais</h1>
-            <p class="mt-2 text-neutral-600">
-              Gerencie as plantas medicinais cadastradas no sistema
-            </p>
-          </div>
+  <div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Hero Section / Cabeçalho da página -->
+      <div class="pt-6 pb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-green-100 p-6 mb-6 relative overflow-hidden">
+          <!-- Decoração de fundo -->
+          <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full -translate-y-12 translate-x-12 opacity-50"></div>
           
-          <BaseButton 
-            variant="primary"
-            :disabled="!isAdmin"
-            @click="adicionarPlanta"
-          >
-            <template #iconLeft>
-              <PlusIcon class="w-5 h-5" />
-            </template>
-            Adicionar Planta
-          </BaseButton>
+          <div class="relative z-10">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div class="flex-1">
+                <!-- Breadcrumb/Categoria -->
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    🌿 Base de Conhecimento
+                  </span>
+                </div>
+                
+                <h1 class="text-2xl lg:text-3xl font-bold text-neutral-900 mb-2">
+                  Plantas 
+                  <span class="text-green-600">Medicinais</span>
+                </h1>
+                
+                <p class="text-base text-neutral-600 max-w-xl">
+                  Explore nossa base de dados completa com informações detalhadas sobre plantas medicinais.
+                </p>
+              </div>
+              
+              <div class="flex flex-col sm:flex-row gap-3">
+                <BaseButton 
+                  variant="primary"
+                  :disabled="!isAdmin"
+                  @click="adicionarPlanta"
+                  class="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <template #iconLeft>
+                    <PlusIcon class="w-5 h-5" />
+                  </template>
+                  Adicionar Planta
+                </BaseButton>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Campo de busca -->
-      <div class="mb-6">
-        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div class="flex-1 max-w-md">
-            <PlantasBuscador @planta-selecionada="visualizarPlanta" />
-          </div>
-          
-          <div class="text-sm text-gray-500">
-            💡 Digite o nome da planta para buscar e visualizar informações detalhadas
+        <!-- Seção de busca melhorada -->
+        <div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+          <div class="flex flex-col xl:flex-row gap-4 items-start xl:items-center">
+            <div class="flex-1 w-full">
+              <div class="w-full max-w-2xl">
+                <PlantasBuscador @planta-selecionada="visualizarPlanta" />
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200 xl:max-w-sm">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
+                  <span class="text-green-600 text-xs">💡</span>
+                </div>
+                <div>
+                  <h4 class="text-xs font-semibold text-green-900 mb-1">Dica</h4>
+                  <p class="text-xs text-green-700 leading-relaxed">
+                    Digite o nome popular ou científico para buscar.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

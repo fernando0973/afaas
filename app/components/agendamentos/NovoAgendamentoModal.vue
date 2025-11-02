@@ -10,30 +10,35 @@
     <div class="space-y-6">
       <!-- Profissional (Read-only) -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-neutral-700">
-          Profissional
+        <label class="block text-sm font-medium text-gray-700">
+          Profissional Responsável
         </label>
-        <div class="bg-neutral-50 border border-neutral-200 rounded-md px-3 py-2">
-          <div v-if="profissionalAtual" class="flex items-center space-x-2">
+        <div class="bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+          <div v-if="profissionalAtual" class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+              <span class="text-white font-medium text-sm">
+                {{ iniciaisProfissional }}
+              </span>
+            </div>
             <div class="flex-1">
-              <p class="text-sm font-medium text-neutral-900">
-                {{ profissionalAtual.nome_completo }}
+              <p class="text-sm font-semibold text-gray-900">
+                {{ nomeProfissional }}
               </p>
-              <p class="text-xs text-neutral-500">
+              <p class="text-xs text-gray-600">
                 {{ profissionalAtual.especialidade }}
               </p>
             </div>
           </div>
-          <div v-else class="text-sm text-neutral-500">
-            Nenhum profissional selecionado
+          <div v-else class="text-sm text-gray-500 flex items-center space-x-2">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            <span>Nenhum profissional selecionado</span>
           </div>
         </div>
       </div>
 
       <!-- Seletor de Cliente -->
-      <div class="debug-info mb-2 p-2 bg-gray-100 text-xs">
-        DEBUG: Clientes={{ clientes?.length || 0 }} | Loading={{ carregandoClientes }} | ClienteId={{ form.clienteId }}
-      </div>
       <ClienteSelector 
         v-model="form.clienteId"
         :clients="clientes"
@@ -69,85 +74,86 @@
         />
       </div>
 
-      <!-- Data -->
-      <div>
-        <label for="data" class="block text-sm font-medium text-gray-700 mb-1">
-          Data *
-        </label>
-        <input
-          id="data"
-          v-model="form.data"
-          type="date"
-          :class="[
-            'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-            errors.data ? 'border-red-300' : 'border-gray-300'
-          ]"
-        />
-        <p v-if="errors.data" class="mt-1 text-sm text-red-600">
-          {{ errors.data }}
-        </p>
-      </div>
-
-      <!-- Horários -->
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label for="horaInicio" class="block text-sm font-medium text-gray-700 mb-1">
-            Hora de Início *
-          </label>
-          <input
-            id="horaInicio"
-            v-model="form.horaInicio"
-            type="time"
-            :class="[
-              'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-              errors.horaInicio ? 'border-red-300' : 'border-gray-300'
-            ]"
-          />
-          <p v-if="errors.horaInicio" class="mt-1 text-sm text-red-600">
-            {{ errors.horaInicio }}
-          </p>
-        </div>
-
-        <div>
-          <label for="horaFim" class="block text-sm font-medium text-gray-700 mb-1">
-            Hora de Fim *
-          </label>
-          <input
-            id="horaFim"
-            v-model="form.horaFim"
-            type="time"
-            :class="[
-              'w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-              errors.horaFim ? 'border-red-300' : 'border-gray-300'
-            ]"
-          />
-          <p v-if="errors.horaFim" class="mt-1 text-sm text-red-600">
-            {{ errors.horaFim }}
-          </p>
-        </div>
-      </div>
+      <!-- Data e Horário -->
+      <DateTimeSelector 
+        v-model:selectedDate="form.data"
+        v-model:startTime="form.horaInicio"
+        v-model:endTime="form.horaFim"
+        :weekDays="props.diasSemanaAtual"
+        :appointments="props.agendamentos"
+        :dateError="errors.data"
+        :startTimeError="errors.horaInicio"
+        :endTimeError="errors.horaFim"
+      />
 
       <!-- Seletor de Cor -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
           Cor do Agendamento
         </label>
-        <div class="grid grid-cols-6 gap-3">
+        <div class="relative">
           <button
-            v-for="cor in coresPredefinidas"
-            :key="cor.valor"
             type="button"
-            :style="{ backgroundColor: cor.valor }"
-            :class="[
-              'w-10 h-10 rounded-lg border-2 transition-all duration-200',
-              form.cor === cor.valor 
-                ? 'border-gray-800 ring-2 ring-gray-800 ring-offset-2 scale-105' 
-                : 'border-gray-300 hover:border-gray-400 hover:scale-105'
-            ]"
-            :title="cor.nome"
-            @click="form.cor = cor.valor"
-          />
+            @click="dropdownCoresAberto = !dropdownCoresAberto"
+            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-left flex items-center justify-between"
+          >
+            <!-- Badge da cor selecionada -->
+            <div class="flex items-center space-x-2">
+              <div 
+                class="w-4 h-4 rounded-full border border-gray-300"
+                :style="{ backgroundColor: form.cor }"
+              ></div>
+              <span class="text-sm text-gray-700">{{ corSelecionadaNome }}</span>
+            </div>
+            
+            <!-- Ícone dropdown -->
+            <svg 
+              class="w-4 h-4 text-gray-500 transition-transform duration-200"
+              :class="{ 'rotate-180': dropdownCoresAberto }"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <!-- Dropdown das cores -->
+          <div 
+            v-if="dropdownCoresAberto"
+            class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+          >
+            <button
+              v-for="cor in coresPredefinidas"
+              :key="cor.valor"
+              type="button"
+              @click="selecionarCor(cor)"
+              class="w-full px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none flex items-center space-x-3 transition-colors duration-150"
+              :class="{ 'bg-blue-50': form.cor === cor.valor }"
+            >
+              <div 
+                class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"
+                :style="{ backgroundColor: cor.valor }"
+              ></div>
+              <span class="text-sm text-gray-700 truncate">{{ cor.nome }}</span>
+              <svg 
+                v-if="form.cor === cor.valor"
+                class="w-4 h-4 text-blue-600 ml-auto flex-shrink-0" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+          </div>
         </div>
+        
+        <!-- Overlay para fechar dropdown ao clicar fora -->
+        <div 
+          v-if="dropdownCoresAberto"
+          @click="dropdownCoresAberto = false"
+          class="fixed inset-0 z-40"
+        ></div>
       </div>
     </div>
 
@@ -174,6 +180,7 @@
 
 <script setup lang="ts">
 // ===== IMPORTS =====
+import DateTimeSelector from '~/components/agendamentos/DateTimeSelector.vue'
 import type { Cliente } from '~/types/cliente'
 import type { Profissional } from '~/types/profissional'
 
@@ -224,8 +231,7 @@ const errors = ref({
 })
 
 const carregandoSalvar = ref(false)
-
-
+const dropdownCoresAberto = ref(false)
 
 // Cores predefinidas
 const coresPredefinidas = [
@@ -242,6 +248,24 @@ const coresPredefinidas = [
   { nome: 'Azul Bebê', valor: '#B8E3FF' },
   { nome: 'Verde Lima', valor: '#D4FF8C' }
 ]
+
+// Nome da cor selecionada
+const corSelecionadaNome = computed(() => {
+  const corEncontrada = coresPredefinidas.find(cor => cor.valor === form.value.cor)
+  return corEncontrada?.nome || 'Selecione uma cor'
+})
+
+// Nome do profissional (compatibilidade com diferentes formatos)
+const nomeProfissional = computed(() => {
+  if (!props.profissionalAtual) return 'Nome não informado'
+  return props.profissionalAtual.nome_completo || props.profissionalAtual.nome_profissional || 'Nome não informado'
+})
+
+// Iniciais do profissional
+const iniciaisProfissional = computed(() => {
+  if (!nomeProfissional.value || nomeProfissional.value === 'Nome não informado') return 'N/A'
+  return nomeProfissional.value.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+})
 
 const isFormValid = computed(() => {
   return form.value.clienteId && 
@@ -319,6 +343,12 @@ const isOpen = computed({
 })
 
 // ===== FUNÇÕES =====
+
+// Função para selecionar cor
+const selecionarCor = (cor: { nome: string; valor: string }) => {
+  form.value.cor = cor.valor
+  dropdownCoresAberto.value = false
+}
 
 // Função para salvar agendamento
 const salvar = async () => {

@@ -8,6 +8,7 @@
       <select
         :modelValue="selectedDate"
         @update:modelValue="handleDateChange"
+        @change="(event) => handleDateChange((event.target as HTMLSelectElement)?.value || '')"
         :disabled="availableDays.length === 0"
         class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
         :class="{
@@ -58,15 +59,16 @@
         <select
           :modelValue="startTime"
           @update:modelValue="handleStartTimeChange"
+          @change="(event) => handleStartTimeChange((event.target as HTMLSelectElement)?.value || '')"
           :disabled="!selectedDate || availableStartTimes.length === 0"
           class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
           :class="{
             'border-danger focus:ring-danger focus:border-danger': startTimeError
           }"
         >
-          <option value="" v-if="!selectedDate">Selecione uma data primeiro</option>
-          <option value="" v-else-if="availableStartTimes.length === 0">Nenhum horário disponível hoje</option>
-          <option value="" v-else>Selecione um horário</option>
+        <option value="" v-if="!selectedDate">Selecione uma data primeiro</option>
+        <option value="" v-else-if="availableStartTimes.length === 0">Nenhum horário disponível</option>
+        <option value="" v-else>Selecione um horário (8:00 - 21:30)</option>
           <option 
             v-for="hora in availableStartTimes" 
             :key="hora" 
@@ -76,6 +78,7 @@
           </option>
         </select>
         <p v-if="startTimeError" class="text-sm text-danger">{{ startTimeError }}</p>
+        <p v-else class="text-xs text-neutral-500">Horários de :00 e :30 minutos</p>
       </div>
 
       <!-- Hora Fim -->
@@ -86,13 +89,14 @@
         <select
           :modelValue="endTime"
           @update:modelValue="handleEndTimeChange"
+          @change="(event) => handleEndTimeChange((event.target as HTMLSelectElement)?.value || '')"
           :disabled="!startTime"
           class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
           :class="{
             'border-danger focus:ring-danger focus:border-danger': endTimeError
           }"
         >
-          <option value="">Selecione</option>
+          <option value="">Selecione horário de fim (até 22:00)</option>
           <option 
             v-for="hora in availableEndTimes" 
             :key="hora" 
@@ -102,12 +106,15 @@
           </option>
         </select>
         <p v-if="endTimeError" class="text-sm text-danger">{{ endTimeError }}</p>
+        <p v-else class="text-xs text-neutral-500">Última consulta até 22:00</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Props {
   selectedDate: string
   startTime: string
@@ -133,7 +140,9 @@ const emit = defineEmits<{
 
 // Dias disponíveis (filtra dias que já passaram)
 const availableDays = computed(() => {
-  if (!props.weekDays || props.weekDays.length === 0) return []
+  if (!props.weekDays || props.weekDays.length === 0) {
+    return []
+  }
   
   const hoje = new Date()
   const hojeInicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
@@ -144,21 +153,19 @@ const availableDays = computed(() => {
   })
 })
 
-// Horários disponíveis (intervalos de 30 minutos, 8:00h às 22:00h)
+// Horários disponíveis (intervalos de 30 minutos, 8:00h às 21:30h para início)
 const availableStartTimes = computed(() => {
-  // Gerar todos os horários possíveis (8:00 às 22:00)
+  // Gerar todos os horários possíveis (8:00 às 21:30 para permitir consultas até 22:00)
   const todosHorarios = []
-  for (let h = 8; h <= 22; h++) {
+  for (let h = 8; h <= 21; h++) {
     for (let m = 0; m < 60; m += 30) {
-      if (h === 22 && m > 0) break
-      
       const hora = h.toString().padStart(2, '0')
       const minuto = m.toString().padStart(2, '0')
       todosHorarios.push(`${hora}:${minuto}`)
     }
   }
   
-  if (!props.selectedDate) {
+  if (!props.selectedDate || props.selectedDate === '') {
     return todosHorarios
   }
   
@@ -178,9 +185,11 @@ const availableStartTimes = computed(() => {
       
       if (h === undefined || m === undefined) return false
       
-      if (h > horaAtual) return true
-      if (h === horaAtual) return m > minutoAtual + 30
-      return false
+      const horarioMinutos = h * 60 + m
+      const agora = horaAtual * 60 + minutoAtual
+      
+      // Permitir apenas horários que sejam pelo menos 1 hora no futuro
+      return horarioMinutos >= agora + 60
     })
   }
   
@@ -227,62 +236,67 @@ const availableEndTimes = computed(() => {
   const inicioMinutos = horaInicio * 60 + minutoInicio
   const dataSelecionada = new Date(props.selectedDate + 'T00:00:00')
   
-  // Gerar horários após o início
-  const todosHorarios = []
+  // Gerar todos os horários possíveis após o início (até 22:00)
+  const horariosDisponiveis = []
   for (let h = 8; h <= 22; h++) {
     for (let m = 0; m < 60; m += 30) {
+      // Para 22:00, só permitir 22:00 (não 22:30)
       if (h === 22 && m > 0) break
       
-      const hora = h.toString().padStart(2, '0')
-      const minuto = m.toString().padStart(2, '0')
       const totalMinutos = h * 60 + m
       
+      // Só incluir horários que sejam pelo menos 30 min após o início
       if (totalMinutos > inicioMinutos) {
-        todosHorarios.push(`${hora}:${minuto}`)
+        const hora = h.toString().padStart(2, '0')
+        const minuto = m.toString().padStart(2, '0')
+        horariosDisponiveis.push(`${hora}:${minuto}`)
       }
     }
   }
   
-  // Filtrar baseado em agendamentos existentes
-  if (props.appointments && props.appointments.length > 0) {
-    const agendamentosDoDia = props.appointments.filter(agendamento => {
-      const dataAgendamento = new Date(agendamento.dataInicio)
-      return dataAgendamento.toDateString() === dataSelecionada.toDateString()
-    })
-    
-    let limiteMaximo: number | null = null
-    
-    agendamentosDoDia.forEach(agendamento => {
-      const inicioAgendamento = new Date(agendamento.dataInicio)
-      const inicioMinutosAgendamento = inicioAgendamento.getHours() * 60 + inicioAgendamento.getMinutes()
-      
-      if (inicioMinutos >= inicioMinutosAgendamento) {
-        limiteMaximo = inicioMinutos
-        return
-      }
-      
-      if (inicioMinutosAgendamento > inicioMinutos) {
-        if (limiteMaximo === null || inicioMinutosAgendamento < limiteMaximo) {
-          limiteMaximo = inicioMinutosAgendamento
-        }
-      }
-    })
-    
-    if (limiteMaximo !== null) {
-      return todosHorarios.filter(hora => {
-        const partes = hora.split(':').map(Number)
-        const h = partes[0]
-        const m = partes[1]
-        
-        if (h === undefined || m === undefined) return false
-        
-        const totalMinutos = h * 60 + m
-        return totalMinutos <= limiteMaximo!
-      })
-    }
+  // Filtrar conflitos com agendamentos existentes
+  if (!props.appointments || props.appointments.length === 0) {
+    return horariosDisponiveis
   }
   
-  return todosHorarios
+  // Buscar agendamentos do mesmo dia
+  const agendamentosDoDia = props.appointments.filter(agendamento => {
+    const dataAgendamento = new Date(agendamento.dataInicio)
+    return dataAgendamento.toDateString() === dataSelecionada.toDateString()
+  })
+  
+  if (agendamentosDoDia.length === 0) {
+    return horariosDisponiveis
+  }
+  
+  // Para cada horário de fim possível, verificar se geraria conflito
+  return horariosDisponiveis.filter(horarioFim => {
+    const partesFim = horarioFim.split(':').map(Number)
+    const [horaFim, minutoFim] = partesFim
+    if (horaFim === undefined || minutoFim === undefined) return false
+    
+    const fimMinutos = horaFim * 60 + minutoFim
+    
+    // Verificar se o novo agendamento (inicioMinutos até fimMinutos) conflita
+    return !agendamentosDoDia.some(agendamento => {
+      const inicioExistente = new Date(agendamento.dataInicio)
+      const fimExistente = new Date(agendamento.dataFim)
+      
+      const inicioExistenteMinutos = inicioExistente.getHours() * 60 + inicioExistente.getMinutes()
+      const fimExistenteMinutos = fimExistente.getHours() * 60 + fimExistente.getMinutes()
+      
+      // Há conflito se:
+      // 1. O novo início está dentro de um agendamento existente: inicioMinutos < fimExistenteMinutos && inicioMinutos >= inicioExistenteMinutos
+      // 2. O novo fim está dentro de um agendamento existente: fimMinutos > inicioExistenteMinutos && fimMinutos <= fimExistenteMinutos
+      // 3. O novo agendamento engloba um existente: inicioMinutos <= inicioExistenteMinutos && fimMinutos >= fimExistenteMinutos
+      
+      const novoInicioConflita = inicioMinutos < fimExistenteMinutos && inicioMinutos >= inicioExistenteMinutos
+      const novoFimConflita = fimMinutos > inicioExistenteMinutos && fimMinutos <= fimExistenteMinutos
+      const novoEnglobaExistente = inicioMinutos <= inicioExistenteMinutos && fimMinutos >= fimExistenteMinutos
+      
+      return novoInicioConflita || novoFimConflita || novoEnglobaExistente
+    })
+  })
 })
 
 // Agendamentos existentes no dia

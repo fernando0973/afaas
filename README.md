@@ -80,7 +80,11 @@ npm run preview
 - ✅ Calendário visual profissional com grid de horários
 - ✅ Visualização semanal de agendamentos
 - ✅ Navegação entre semanas
-- ✅ 8 cores diferentes para categorização visual
+- ✅ **Seletor de cores personalizado para agendamentos**
+  - 12 cores predefinidas incluindo `#71E3AD` e `#72C1EE`
+  - Campo para entrada de cor personalizada (hex)
+  - Seleção visual interativa no modal
+- ✅ Modal de criação de agendamentos com validação
 - ✅ Posicionamento preciso baseado em horários (8:00-22:00)
 - ✅ Interface otimizada para tela cheia
 - ✅ Footer com identificação do sistema

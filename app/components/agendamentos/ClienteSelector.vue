@@ -11,6 +11,7 @@
         @focus="openDropdown"
         @blur="closeDropdown"
         @input="handleInput"
+        @keyup="handleInput"
         :disabled="loading"
         :placeholder="loading ? 'Carregando clientes...' : 'Digite o nome ou CPF do cliente'"
         class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -140,39 +141,23 @@ const selectedClient = computed(() => {
 
 // Clientes filtrados
 const filteredClients = computed(() => {
-  console.log('📊 Recalculando filteredClients:', {
-    clients: props.clients?.length || 0,
-    searchTerm: searchTerm.value,
-    isDropdownOpen: isDropdownOpen.value
-  })
-  
-  if (!props.clients || props.clients.length === 0) {
-    console.log('❌ Sem clientes')
-    return []
-  }
+  if (!props.clients || props.clients.length === 0) return []
   
   if (!searchTerm.value.trim()) {
-    const inicial = props.clients.slice(0, 50)
-    console.log('📝 Retornando lista inicial:', inicial.length)
-    return inicial
+    return props.clients.slice(0, 50) // Limite inicial para performance
   }
   
   const termo = searchTerm.value.toLowerCase().trim()
   
-  const filtrados = props.clients.filter(cliente => {
+  return props.clients.filter(cliente => {
     const nome = cliente.nome_completo?.toLowerCase() || ''
     const cpf = cliente.cpf?.replace(/\D/g, '') || ''
     const telefone = cliente.telefone?.replace(/\D/g, '') || ''
     
-    const match = nome.includes(termo) || 
+    return nome.includes(termo) || 
            cpf.includes(termo.replace(/\D/g, '')) ||
            telefone.includes(termo.replace(/\D/g, ''))
-           
-    return match
-  }).slice(0, 50)
-  
-  console.log('🎯 Clientes filtrados:', filtrados.length, 'de', props.clients.length)
-  return filtrados
+  }).slice(0, 50) // Limite de 50 resultados para performance
 })
 
 // Função para formatar CPF
@@ -213,73 +198,18 @@ const closeDropdown = () => {
   }, 150)
 }
 
-// Handler do input (acionado pelo @input)
+// Handler do input - lógica simplificada
 const handleInput = () => {
-  console.log('⌨️ Input event triggered:', searchTerm.value)
-  // Abrir dropdown automaticamente ao digitar
+  // Sempre abrir dropdown ao digitar
   if (!isDropdownOpen.value) {
     isDropdownOpen.value = true
   }
   
-  // Se o usuário digitou algo diferente do nome do cliente selecionado, limpar seleção
+  // Limpar seleção se o texto mudou
   if (selectedClient.value && searchTerm.value !== selectedClient.value.nome_completo) {
     emit('update:modelValue', '')
   }
 }
-
-// Watcher para seleção automática baseada no termo de busca
-watch(searchTerm, (novoTermo) => {
-  console.log('🔍 Search term changed:', novoTermo)
-  const termo = novoTermo.toLowerCase().trim()
-  
-  // Seleção automática inteligente apenas se há termo e dropdown está aberto
-  if (termo.length >= 2 && isDropdownOpen.value && props.clients) {
-    const clientesEncontrados = props.clients.filter(cliente => {
-      const nome = cliente.nome_completo?.toLowerCase() || ''
-      const cpf = cliente.cpf?.replace(/\D/g, '') || ''
-      const telefone = cliente.telefone?.replace(/\D/g, '') || ''
-      
-      return nome.includes(termo) || 
-             cpf.includes(termo.replace(/\D/g, '')) ||
-             telefone.includes(termo.replace(/\D/g, ''))
-    })
-    
-    // Se encontrou exatamente um cliente
-    if (clientesEncontrados.length === 1) {
-      const cliente = clientesEncontrados[0]
-      if (cliente && props.modelValue !== cliente.id.toString()) {
-        emit('update:modelValue', cliente.id.toString())
-      }
-    } 
-    // Se há múltiplos, verificar correspondência exata
-    else if (clientesEncontrados.length > 1) {
-      // Correspondência exata por nome
-      const correspondenciaExata = clientesEncontrados.find(cliente => {
-        const nome = cliente.nome_completo?.toLowerCase() || ''
-        return nome === termo
-      })
-      
-      if (correspondenciaExata && props.modelValue !== correspondenciaExata.id.toString()) {
-        emit('update:modelValue', correspondenciaExata.id.toString())
-        return
-      }
-      
-      // Correspondência por CPF completo
-      const correspondenciaCPF = clientesEncontrados.find(cliente => {
-        const cpf = cliente.cpf?.replace(/\D/g, '') || ''
-        return cpf === termo.replace(/\D/g, '') && termo.replace(/\D/g, '').length === 11
-      })
-      
-      if (correspondenciaCPF && props.modelValue !== correspondenciaCPF.id.toString()) {
-        emit('update:modelValue', correspondenciaCPF.id.toString())
-        // Atualizar o campo com o nome do cliente
-        nextTick(() => {
-          searchTerm.value = correspondenciaCPF.nome_completo
-        })
-      }
-    }
-  }
-}, { immediate: false })
 
 // Selecionar cliente
 const selectClient = (cliente: Cliente) => {
@@ -293,6 +223,59 @@ const addNewClient = () => {
   isDropdownOpen.value = false
   navigateTo('/clientes')
 }
+
+// Watcher para seleção automática baseada na busca
+watch(() => searchTerm.value, (novoTermo) => {
+  if (!novoTermo || !props.clients || novoTermo.length < 2) return
+  
+  const termo = novoTermo.toLowerCase().trim()
+  
+  // Filtrar clientes que correspondem à busca
+  const clientesEncontrados = props.clients.filter(cliente => {
+    const nome = cliente.nome_completo?.toLowerCase() || ''
+    const cpf = cliente.cpf?.replace(/\D/g, '') || ''
+    const telefone = cliente.telefone?.replace(/\D/g, '') || ''
+    
+    return nome.includes(termo) || 
+           cpf.includes(termo.replace(/\D/g, '')) ||
+           telefone.includes(termo.replace(/\D/g, ''))
+  })
+  
+  // Se encontrou apenas um cliente, selecionar automaticamente
+  if (clientesEncontrados.length === 1) {
+    const cliente = clientesEncontrados[0]
+    if (cliente && props.modelValue !== cliente.id.toString()) {
+      emit('update:modelValue', cliente.id.toString())
+    }
+  }
+  // Se há múltiplos, verificar se tem match exato
+  else if (clientesEncontrados.length > 1) {
+    // Match exato por nome
+    const matchExato = clientesEncontrados.find(cliente => {
+      const nome = cliente.nome_completo?.toLowerCase() || ''
+      return nome === termo
+    })
+    
+    if (matchExato && props.modelValue !== matchExato.id.toString()) {
+      emit('update:modelValue', matchExato.id.toString())
+    }
+    // Match por CPF completo
+    else {
+      const matchCPF = clientesEncontrados.find(cliente => {
+        const cpf = cliente.cpf?.replace(/\D/g, '') || ''
+        return cpf === termo.replace(/\D/g, '') && termo.replace(/\D/g, '').length === 11
+      })
+      
+      if (matchCPF && props.modelValue !== matchCPF.id.toString()) {
+        emit('update:modelValue', matchCPF.id.toString())
+        // Atualizar campo com nome
+        nextTick(() => {
+          searchTerm.value = matchCPF.nome_completo
+        })
+      }
+    }
+  }
+})
 
 // Watcher para sincronizar busca com cliente selecionado
 watch(() => props.modelValue, (novoClienteId) => {

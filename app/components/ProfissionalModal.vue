@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { InformationCircleIcon } from '@heroicons/vue/24/outline'
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { Especialidade } from '~/types/especialidade'
 import type { PerfilRPC } from '~/types/database.types'
 import type { ProfissionalRPC } from '~/types/user'

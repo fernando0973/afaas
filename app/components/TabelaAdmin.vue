@@ -237,7 +237,7 @@ import {
   PencilIcon,
   TrashIcon
 } from '@heroicons/vue/24/outline'
-import { useToast, POSITION } from 'vue-toastification'
+import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import type { PerfilRPC } from '~/types/database.types'
 import type { UserRole } from '~/types/user'
 import { ROLE_LABELS, ROLE_COLORS } from '~/types/user'

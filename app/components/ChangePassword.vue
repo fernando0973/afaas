@@ -92,7 +92,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/vue/24/outline'
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 
 // Composables
 const { updatePassword } = useAuth()

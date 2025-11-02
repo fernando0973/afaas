@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { useToast, POSITION } from 'vue-toastification'
+import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 
 interface Props {
   modelValue: boolean

@@ -748,7 +748,7 @@ const reativarCliente = async () => {
   }
 }
 // Toast composable
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 const toast = useToast()
 import type { Cliente } from '~/types/cliente'
 import {

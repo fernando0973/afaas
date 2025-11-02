@@ -168,7 +168,7 @@ import {
   ClockIcon,
   XCircleIcon
 } from '@heroicons/vue/24/outline'
-import { useToast, POSITION } from 'vue-toastification'
+import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 
 // Definir meta da página (sem layout e middleware específico)
 definePageMeta({

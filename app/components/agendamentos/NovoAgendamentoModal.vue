@@ -183,7 +183,7 @@
 import { computed, watch, nextTick, ref, onMounted } from 'vue'
 import DateTimeSelector from '~/components/agendamentos/DateTimeSelector.vue'
 import { useAgendamentoForm } from '~/composables/useAgendamentoForm'
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { Cliente } from '~/types/cliente'
 import type { Profissional } from '~/types/profissional'
 

@@ -230,7 +230,7 @@ import {
   PencilIcon,
   CheckIcon
 } from '@heroicons/vue/24/outline'
-import { useToast, POSITION } from 'vue-toastification'
+import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import { useUserData } from '~/composables/useUserData'
 
 // Definir meta da página

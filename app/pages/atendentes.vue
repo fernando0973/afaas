@@ -79,7 +79,7 @@ import { UserGroupIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import type { ProfissionalRPC } from '~/types/user'
 import type { PerfilRPC } from '~/types/database.types'
 import type { Especialidade } from '~/types/especialidade'
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 
 // Meta da página
 definePageMeta({

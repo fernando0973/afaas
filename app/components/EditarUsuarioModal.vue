@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { useToast, POSITION } from 'vue-toastification'
+import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import type { PerfilRPC } from '~/types/database.types'
 
 interface Props {

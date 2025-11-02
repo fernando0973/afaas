@@ -76,7 +76,7 @@
 import { AcademicCapIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import type { Especialidade } from '~/types/especialidade'
 import { useProfissionais } from '~/composables/useProfissionais'
-import { useToast } from 'vue-toastification'
+import { useToastNotification as useToast } from '~/composables/useToastNotification'
 
 // Meta da página
 definePageMeta({

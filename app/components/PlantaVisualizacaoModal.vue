@@ -55,15 +55,11 @@
             <div class="flex flex-wrap gap-2">
               <span 
                 v-if="planta.renisus"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200"
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
+                title="Planta da RENISUS (Relação Nacional de Plantas Medicinais de Interesse do SUS)"
               >
                 <CheckBadgeIcon class="w-4 h-4 mr-1" />
-                RENISUS
-              </span>
-              
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                <InformationCircleIcon class="w-4 h-4 mr-1" />
-                Planta Medicinal
+                SUS
               </span>
             </div>
           </div>
@@ -222,7 +218,6 @@
 import { ref, watch, computed } from 'vue'
 import { 
   CheckBadgeIcon, 
-  InformationCircleIcon,
   CubeIcon,
   SparklesIcon,
   MapIcon,

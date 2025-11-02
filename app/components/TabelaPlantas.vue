@@ -6,7 +6,16 @@
         <div>
           <h3 class="text-lg font-medium text-neutral-900">Plantas Medicinais Cadastradas</h3>
           <p class="text-sm text-neutral-600 mt-1">
-            {{ totalItens }} {{ totalItens === 1 ? 'planta encontrada' : 'plantas encontradas' }}
+            <template v-if="props.termoBusca && props.termoBusca.trim().length >= 2">
+              {{ totalItens }} {{ totalItens === 1 ? 'planta encontrada' : 'plantas encontradas' }}
+              para "{{ props.termoBusca }}"
+              <span class="text-neutral-400">
+                ({{ plantas.length }} total)
+              </span>
+            </template>
+            <template v-else>
+              {{ totalItens }} {{ totalItens === 1 ? 'planta encontrada' : 'plantas encontradas' }}
+            </template>
           </p>
         </div>
         
@@ -97,7 +106,8 @@
           <tr 
             v-for="planta in plantasPaginadas" 
             :key="planta.id"
-            class="hover:bg-neutral-50 transition-colors"
+            class="hover:bg-neutral-50 transition-colors cursor-pointer"
+            @click="visualizarPlanta(planta)"
           >
             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
               #{{ planta.id }}
@@ -145,7 +155,7 @@
                   variant="outline"
                   size="sm"
                   :disabled="!props.isAdmin"
-                  @click="editarPlanta(planta)"
+                  @click.stop="editarPlanta(planta)"
                 >
                   <template #iconLeft>
                     <PencilIcon class="w-3 h-3" />
@@ -156,7 +166,7 @@
                   variant="danger"
                   size="sm"
                   :disabled="!props.isAdmin"
-                  @click="confirmarRemocao(planta)"
+                  @click.stop="confirmarRemocao(planta)"
                 >
                   <template #iconLeft>
                     <TrashIcon class="w-3 h-3" />
@@ -198,16 +208,19 @@ import type { PlantaMedicinal } from '~/types/planta'
 interface Props {
   autoLoad?: boolean
   isAdmin?: boolean
+  termoBusca?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   autoLoad: true,
-  isAdmin: false
+  isAdmin: false,
+  termoBusca: ''
 })
 
 const emit = defineEmits<{
   editar: [planta: PlantaMedicinal]
   remover: [planta: PlantaMedicinal]
+  visualizar: [planta: PlantaMedicinal]
   recarregar: []
   adicionar: []
 }>()
@@ -224,13 +237,25 @@ const erro = ref<string | null>(null)
 const paginaAtual = ref(1)
 const itensPorPagina = ref(10)
 
-// Computeds para paginação
-const totalItens = computed(() => plantas.value.length)
+// Computeds para paginação e busca
+const plantasFiltradas = computed(() => {
+  if (!props.termoBusca || props.termoBusca.trim().length < 2) {
+    return plantas.value
+  }
+
+  const termo = props.termoBusca.toLowerCase().trim()
+  return plantas.value.filter(planta => 
+    planta.nome_popular?.toLowerCase().includes(termo) ||
+    planta.nome_cientifico?.toLowerCase().includes(termo)
+  )
+})
+
+const totalItens = computed(() => plantasFiltradas.value.length)
 const totalPaginas = computed(() => Math.ceil(totalItens.value / itensPorPagina.value))
 const plantasPaginadas = computed(() => {
   const inicio = (paginaAtual.value - 1) * itensPorPagina.value
   const fim = inicio + itensPorPagina.value
-  return plantas.value.slice(inicio, fim)
+  return plantasFiltradas.value.slice(inicio, fim)
 })
 
 // Função para carregar dados
@@ -270,12 +295,22 @@ const confirmarRemocao = (planta: PlantaMedicinal) => {
   emit('remover', planta)
 }
 
+// Função para visualizar planta
+const visualizarPlanta = (planta: PlantaMedicinal) => {
+  emit('visualizar', planta)
+}
+
 // Função para mudar página
 const mudarPagina = (novaPagina: number) => {
   if (novaPagina >= 1 && novaPagina <= totalPaginas.value) {
     paginaAtual.value = novaPagina
   }
 }
+
+// Watcher para resetar página quando busca mudar
+watch(() => props.termoBusca, () => {
+  paginaAtual.value = 1 // Resetar para primeira página quando busca mudar
+})
 
 // Carregar dados automaticamente na montagem
 onMounted(async () => {

@@ -2,6 +2,7 @@
   <BaseModal
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
+    @close="$emit('update:modelValue', false)"
     :title="tituloModal"
     size="xl"
     :show-footer="false"

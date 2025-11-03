@@ -216,7 +216,6 @@ const emit = defineEmits<{
 }>()
 
 // ===== COMPOSABLES =====
-const { useToastNotification } = await import('~/composables/useToastNotification')
 const toast = useToastNotification()
 
 const { profile } = useUserData()

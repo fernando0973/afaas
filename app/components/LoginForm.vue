@@ -69,7 +69,6 @@ const errors = ref({
   password: ''
 })
 
-const { useToastNotification } = await import('~/composables/useToastNotification')
 const toast = useToastNotification()
 
 const { login } = useAuth()

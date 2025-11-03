@@ -331,10 +331,7 @@ const confirmarExclusaoUsuario = (usuario: PerfilRPC) => {
   )
 
   if (isOwnAccount) {
-    toast.error('Você não pode deletar sua própria conta do sistema', {
-      timeout: 6000,
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error('Você não pode deletar sua própria conta do sistema')
     return
   }
 
@@ -356,10 +353,7 @@ const executarExclusaoUsuario = async () => {
     const resultado = await deletarUsuario(usuarioParaDeletar.value.user_id)
     
     if (resultado.success) {
-      toast.success(resultado.message, {
-        timeout: 4000,
-        position: POSITION.TOP_RIGHT
-      })
+      toast.success(resultado.message)
       
       // Fechar modal e limpar estado
       modalConfirmacaoAberto.value = false
@@ -368,17 +362,11 @@ const executarExclusaoUsuario = async () => {
       // Recarregar lista de usuários
       await recarregarDados()
     } else {
-      toast.error(resultado.message, {
-        timeout: 5000,
-        position: POSITION.TOP_RIGHT
-      })
+      toast.error(resultado.message)
     }
   } catch (error: any) {
     console.error('Erro ao deletar usuário:', error)
-    toast.error('Erro inesperado ao deletar usuário', {
-      timeout: 5000,
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error('Erro inesperado ao deletar usuário')
   } finally {
     deletandoUsuario.value = false
   }

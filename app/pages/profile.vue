@@ -297,9 +297,7 @@ async function toggleEditName() {
         const resultado = await atualizarInfosUsuario(novoNome)
         
         if (resultado.success) {
-          toast.success(resultado.message || 'Nome atualizado com sucesso!', {
-            position: POSITION.TOP_RIGHT
-          })
+          toast.success(resultado.message || 'Nome atualizado com sucesso!')
           
           // Recarregar os dados do perfil para refletir a mudança
           await loadUserProfile()
@@ -309,18 +307,13 @@ async function toggleEditName() {
             nameUpdateMessage.value = ''
           }, 3000)
         } else {
-          toast.error(resultado.message || 'Erro ao atualizar nome', {
-            position: POSITION.TOP_RIGHT
-          })
-          
+          toast.error(resultado.message || 'Erro ao atualizar nome')
           // Reverter para o nome original
           editableUserName.value = userName.value
         }
       } catch (error) {
         console.error('Erro ao atualizar nome:', error)
-        toast.error('Erro inesperado ao atualizar nome', {
-          position: POSITION.TOP_RIGHT
-        })
+        toast.error('Erro inesperado ao atualizar nome')
         
         // Reverter para o nome original
         editableUserName.value = userName.value
@@ -328,9 +321,7 @@ async function toggleEditName() {
         updatingName.value = false
       }
     } else if (novoNome.length < 2) {
-      toast.error('Nome deve ter pelo menos 2 caracteres', {
-        position: POSITION.TOP_RIGHT
-      })
+      toast.error('Nome deve ter pelo menos 2 caracteres')
       return
     }
     

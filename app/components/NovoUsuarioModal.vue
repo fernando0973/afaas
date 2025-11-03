@@ -246,10 +246,7 @@ const criarUsuario = async () => {
   carregandoCriacao.value = true
   
   // Mostrar toast informativo de início do processo
-  toast.info('Criando usuário...', {
-    position: POSITION.TOP_RIGHT,
-    timeout: 2000
-  })
+  toast.info('Criando usuário...')
   
   try {
     // Chamar API diretamente usando $fetch
@@ -279,10 +276,7 @@ const criarUsuario = async () => {
 
     if (resultado.success) {
       // Sucesso - mostrar toast de sucesso
-      toast.success('Usuário criado com sucesso!', {
-        position: POSITION.TOP_RIGHT,
-        timeout: 4000
-      })
+      toast.success('Usuário criado com sucesso!')
       
       // Emitir evento e fechar modal
       emit('usuario-criado')
@@ -291,10 +285,7 @@ const criarUsuario = async () => {
       console.log('Usuário criado com sucesso:', resultado.user)
     } else {
       // Erro da API - mostrar toast de erro e mensagem no modal
-      toast.error(resultado.message || 'Erro ao criar usuário', {
-        position: POSITION.TOP_RIGHT,
-        timeout: 5000
-      })
+      toast.error(resultado.message || 'Erro ao criar usuário')
       
       console.error('Erro ao criar usuário:', resultado.message)
       errors.value.geral = resultado.message || 'Erro ao criar usuário'
@@ -313,10 +304,7 @@ const criarUsuario = async () => {
     }
     
     // Mostrar toast de erro
-    toast.error(mensagemErro, {
-      position: POSITION.TOP_RIGHT,
-      timeout: 6000
-    })
+    toast.error(mensagemErro)
     
     // Mostrar erro no modal também
     errors.value.geral = mensagemErro

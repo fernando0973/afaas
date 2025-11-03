@@ -1265,20 +1265,20 @@ const handleConfirm = async () => {
     if (props.isEdicao && props.clienteData?.id) {
     resultado = await editarCliente(props.clienteData.id, clienteData)
     if (resultado.success && resultado.data) {
-      toast.success ? toast.success('Dados do cliente atualizados com sucesso!') : toast('Dados do cliente atualizados com sucesso!')
+      toast.success('Dados do cliente atualizados com sucesso!')
       emit('cliente-salvo', resultado.data)
       resetForm()
     } else {
-      toast.error ? toast.error(resultado.message || 'Erro ao atualizar cliente!') : toast(resultado.message || 'Erro ao atualizar cliente!')
+      toast.error(resultado.message || 'Erro ao atualizar cliente!')
     }
     } else {
     resultado = await inserirCliente(clienteData)
     if (resultado.success && resultado.data) {
-      toast.success ? toast.success('Novo cliente criado com sucesso!') : toast('Novo cliente criado com sucesso!')
+      toast.success('Novo cliente criado com sucesso!')
       emit('cliente-salvo', resultado.data)
       resetForm()
     } else {
-      toast.error ? toast.error(resultado.message || 'Erro ao criar cliente!') : toast(resultado.message || 'Erro ao criar cliente!')
+      toast.error(resultado.message || 'Erro ao criar cliente!')
     }
     }
 

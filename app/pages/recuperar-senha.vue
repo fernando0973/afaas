@@ -388,9 +388,7 @@ function validateForm(): boolean {
 // Função para atualizar a senha
 async function updatePassword() {
   if (!validateForm()) {
-    toast.error('Por favor, corrija os erros no formulário', {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error('Por favor, corrija os erros no formulário')
     return
   }
 
@@ -415,15 +413,11 @@ async function updatePassword() {
         return
       }
       
-      toast.error('Erro ao atualizar senha: ' + authError.message, {
-        position: POSITION.TOP_RIGHT
-      })
+      toast.error('Erro ao atualizar senha: ' + authError.message)
       return
     }
 
-    toast.success('Senha atualizada com sucesso!', {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.success('Senha atualizada com sucesso!')
 
     setTimeout(() => {
       router.push('/')
@@ -431,9 +425,7 @@ async function updatePassword() {
 
   } catch (err: any) {
     console.error('Erro inesperado:', err)
-    toast.error('Erro inesperado ao atualizar senha', {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error('Erro inesperado ao atualizar senha')
   } finally {
     updating.value = false
   }

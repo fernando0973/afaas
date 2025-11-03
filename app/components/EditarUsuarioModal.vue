@@ -248,9 +248,7 @@ async function salvarUsuario() {
   if (!props.usuario) return
 
   if (!validarFormulario()) {
-    toast.error('Por favor, corrija os erros no formulário', {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error('Por favor, corrija os erros no formulário')
     return
   }
 
@@ -277,9 +275,7 @@ async function salvarUsuario() {
       throw new Error(error)
     }
 
-    toast.success('Usuário atualizado com sucesso!', {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.success('Usuário atualizado com sucesso!')
 
     emit('usuario-atualizado')
     fecharModal()
@@ -289,9 +285,7 @@ async function salvarUsuario() {
     
     const mensagemErro = error?.data?.message || error?.message || 'Erro ao atualizar usuário'
     
-    toast.error(mensagemErro, {
-      position: POSITION.TOP_RIGHT
-    })
+    toast.error(mensagemErro)
   } finally {
     carregando.value = false
   }

@@ -85,6 +85,8 @@
         :startTimeError="errors.horaInicio"
         :endTimeError="errors.horaFim"
       />
+      
+
 
       <!-- Seletor de Cor -->
       <div>
@@ -351,7 +353,6 @@ const cancelar = () => {
 // Watcher para resetar formulário quando modal fecha e carregar profissional quando abre
 watch(() => props.modelValue, (isOpenValue) => {
   if (isOpenValue) {
-    console.log('📖 Modal aberto - identificando profissional logado...')
     // Modal abriu - buscar profissional logado
     buscarProfissionalLogado()
   } else {
@@ -365,14 +366,14 @@ watch(() => props.modelValue, (isOpenValue) => {
 // Watcher para monitorar mudanças no profile
 watch(() => profile.value, (newProfile) => {
   if (newProfile?.id && !profissionalLogado.value) {
-    console.log('👤 Profile carregado, identificando profissional...')
     buscarProfissionalLogado()
   }
 }, { immediate: true })
 
+
+
 // Carregar profissional na montagem do componente
 onMounted(() => {
-  console.log('🎯 Componente montado - perfil disponível:', !!profile.value?.id)
   if (profile.value?.id) {
     buscarProfissionalLogado()
   }

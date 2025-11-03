@@ -43,12 +43,9 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signOut()
       if (error) throw error
 
-      // Aguarda um pouco antes de redirecionar para evitar race conditions
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // O redirecionamento será feito pelo plugin auth.client.ts
+      // quando detectar o evento SIGNED_OUT
       
-      // Redirecionar para página de login após logout
-      await navigateTo('/login')
-
       return { success: true }
     } catch (error: any) {
       console.error('Erro no logout:', error.message)

@@ -97,8 +97,19 @@ onMounted(async () => {
   const profileData = userProfile.value
   if (!profileData) {
     await userStore.fetchProfile()
+    
+    // Aguardar um pouco para garantir que o perfil seja propagado
+    await new Promise(resolve => setTimeout(resolve, 300))
   }
   
   await buscarProfissionais()
+})
+
+// Adicionar um watcher adicional para casos onde o perfil demora para carregar
+watch(() => userStore.loading, async (isLoading, wasLoading) => {
+  // Quando o loading do perfil terminar e não havia profissional selecionado ainda
+  if (wasLoading && !isLoading && userProfile.value && !profissional.value) {
+    await buscarProfissionais()
+  }
 })
 </script>

@@ -322,8 +322,11 @@ const existingAppointments = computed(() => {
 
 // Funções de formatação
 const formatDateForInput = (data: Date): string => {
-  const isoString = data.toISOString().split('T')[0]
-  return isoString || ''
+  // Usar a data local em vez de UTC para evitar problemas de timezone
+  const year = data.getFullYear()
+  const month = String(data.getMonth() + 1).padStart(2, '0')
+  const day = String(data.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 const formatDateForDisplay = (data: Date): string => {

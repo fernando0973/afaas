@@ -1,8 +1,5 @@
-import pkg from 'vue-toastification'
+import Toast, { POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
-
-const Toast = (pkg as any).default || pkg
-const POSITION = (pkg as any).POSITION
 
 export default defineNuxtPlugin((nuxtApp) => {
   const options = {

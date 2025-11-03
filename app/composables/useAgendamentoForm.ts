@@ -194,7 +194,8 @@ export const useAgendamentoForm = () => {
         cor: form.value.cor
       }
 
-      console.log('🔄 Criando agendamento com dados:', agendamentoData)
+      console.log('� Data selecionada no formulário:', form.value.data)
+      console.log('�🔄 Criando agendamento com dados:', agendamentoData)
 
       const { data, error } = await supabase
         .from('afaas_agendamentos')

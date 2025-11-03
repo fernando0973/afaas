@@ -1,14 +1,22 @@
 /**
- * Composable centralizado para notificações toast
- * Resolve problema de compatibilidade ESM/CommonJS com vue-toastification
+ * Composable centralizado para vue-toastification
  */
-import pkg from 'vue-toastification'
-
-// Extrai as funções do pacote CommonJS
-const { useToast: useToastOriginal, POSITION } = pkg as any
+import { useToast } from 'vue-toastification'
 
 export const useToastNotification = () => {
-  return useToastOriginal()
+  try {
+    return useToast()
+  } catch (error) {
+    console.warn('Erro ao inicializar toast:', error)
+    return {
+      success: (msg: string) => console.log('✅ Toast Success:', msg),
+      error: (msg: string) => console.error('❌ Toast Error:', msg),
+      warning: (msg: string) => console.warn('⚠️ Toast Warning:', msg),
+      info: (msg: string) => console.info('ℹ️ Toast Info:', msg),
+    }
+  }
 }
 
-export { POSITION }
+// Exporta POSITION da biblioteca
+import { POSITION as ToastPosition } from 'vue-toastification'
+export const POSITION = ToastPosition

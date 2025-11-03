@@ -59,9 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline'
-import { useToastNotification } from '~/composables/useToastNotification'
 
 const email = ref('')
 const password = ref('')
@@ -70,7 +69,9 @@ const errors = ref({
   password: ''
 })
 
+const { useToastNotification } = await import('~/composables/useToastNotification')
 const toast = useToastNotification()
+
 const { login } = useAuth()
 
 const loading = ref(false)

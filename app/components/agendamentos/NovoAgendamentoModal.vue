@@ -214,7 +214,9 @@ const emit = defineEmits<{
 }>()
 
 // ===== COMPOSABLES =====
-const toast = useToast()
+const { useToastNotification } = await import('~/composables/useToastNotification')
+const toast = useToastNotification()
+
 const { profile } = useUserData()
 const { buscarProfissionais } = useProfissionais()
 const { form, errors, loading: loadingForm, isFormValid, validateForm, resetForm, criarAgendamento } = useAgendamentoForm()

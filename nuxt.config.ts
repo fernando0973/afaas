@@ -47,7 +47,11 @@ export default defineNuxtConfig({
         '@supabase/supabase-js',
         'vue-toastification',
         '@heroicons/vue/24/outline'
-      ]
+      ],
+      exclude: ['cookie']
+    },
+    ssr: {
+      noExternal: ['cookie']
     }
   }
 })

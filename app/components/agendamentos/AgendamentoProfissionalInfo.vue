@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import type { ProfissionalRPC } from '~/types/user'
+import { ref, onMounted } from 'vue'
+import type { Profissional } from '~/types/profissional'
 
 // Estado do componente
-const profissional = ref<ProfissionalRPC | null>(null)
+const profissional = ref<Profissional | null>(null)
 const loading = ref(true)
 
 // Composables e Stores
@@ -33,21 +33,17 @@ const userStore = useUserStore()
 const agendamentoStore = useAgendamentoStore()
 const profissionaisStore = useProfissionaisStore()
 
-// Use storeToRefs para acessar as refs de forma reativa
-const { profile: userProfile } = storeToRefs(userStore)
-
 // Função para buscar profissionais usando o store (com cache)
 const buscarProfissionais = async () => {
   try {
     loading.value = true
     
     // Usar store - busca com cache automático
-    await profissionaisStore.buscarProfissionais()
-    const listaProfissionais = profissionaisStore.profissionais
+    const listaProfissionais = await profissionaisStore.buscarProfissionais()
     
     if (listaProfissionais && listaProfissionais.length > 0) {
       // Primeiro, tenta encontrar o profissional baseado no profile_id do usuário logado
-      const profileData = userProfile.value
+      const profileData = userStore.profile
       const userProfileId = profileData?.id
       
       if (userProfileId) {
@@ -56,8 +52,9 @@ const buscarProfissionais = async () => {
         if (profissionalLogado) {
           profissional.value = profissionalLogado
           // Só atualizar o store se for diferente do atual
-          if (agendamentoStore.profissionalSelecionadoId !== profissionalLogado.profissional_id) {
-            agendamentoStore.setProfissionalSelecionado(profissionalLogado.profissional_id)
+          const profId = profissionalLogado.profissional_id || profissionalLogado.id
+          if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
+            agendamentoStore.setProfissionalSelecionado(profId)
           }
           return
         }
@@ -67,8 +64,11 @@ const buscarProfissionais = async () => {
       profissional.value = listaProfissionais[0] || null
       
       // Atualizar o store com o primeiro profissional da lista (só se for diferente)
-      if (profissional.value && agendamentoStore.profissionalSelecionadoId !== profissional.value.profissional_id) {
-        agendamentoStore.setProfissionalSelecionado(profissional.value.profissional_id)
+      if (profissional.value) {
+        const profId = profissional.value.profissional_id || profissional.value.id
+        if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
+          agendamentoStore.setProfissionalSelecionado(profId)
+        }
       }
     } else {
       profissional.value = null
@@ -82,21 +82,8 @@ const buscarProfissionais = async () => {
   }
 }
 
-// Watcher para reagir quando o perfil do usuário mudar
-watch(userProfile, async (newProfile, oldProfile) => {
-  const newProfileId = newProfile?.id
-  const oldProfileId = oldProfile?.id
-  
-  // Só recarregar se o ID realmente mudou e não for a primeira execução
-  if (newProfileId && newProfileId !== oldProfileId) {
-    await buscarProfissionais()
-  }
-}, { immediate: false })
-
 // Buscar dados quando o componente for montado
 onMounted(async () => {
-  // Plugin auth.client.ts já garantiu que o perfil está carregado
-  // Removido userStore.fetchProfile() duplicado
   await buscarProfissionais()
 })
 </script>

@@ -8,28 +8,37 @@
  * - Gerenciar acesso a páginas públicas
  */
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const supabase = useSupabaseClient()
-  
   // Páginas que não precisam de autenticação
   const publicPages = ['/login', '/esqueci-senha', '/recuperar-senha']
   const isPublicPage = publicPages.includes(to.path)
   
-  // Verifica sessão no Supabase
-  const { data: { session } } = await supabase.auth.getSession()
+  const ambiente = process.server ? '[SERVER]' : '[CLIENT]'
+  console.log(`${ambiente} [auth.middleware] Verificando rota:`, to.path, '| Pública:', isPublicPage, '| From:', from.path)
+  
+  // Se é página pública, permitir acesso
+  if (isPublicPage) {
+    console.log(`${ambiente} [auth.middleware] ✅ Página pública - permitindo acesso`)
+    return
+  }
+  
+  // Verificar sessão no Supabase
+  const supabase = useSupabaseClient()
+  const { data: { session }, error } = await supabase.auth.getSession()
   const hasValidSession = !!session
   
-  // Caso 1: Usuário não autenticado tentando acessar página protegida
-  if (!hasValidSession && !isPublicPage) {
-    console.log('[auth] Redirecionando para /login - sessão inválida')
+  console.log(`${ambiente} [auth.middleware] Sessão válida:`, hasValidSession, '| User:', session?.user?.email || 'nenhum')
+  
+  if (error) {
+    console.error(`${ambiente} [auth.middleware] Erro ao verificar sessão:`, error)
+  }
+  
+  // Se não tem sessão válida e não é página pública, redirecionar para login
+  if (!hasValidSession) {
+    console.log(`${ambiente} [auth.middleware] ❌ Sem sessão - redirecionando para /login`)
     return navigateTo('/login', { replace: true })
   }
   
-  // Caso 2: Usuário autenticado tentando acessar página de login
-  if (hasValidSession && to.path === '/login') {
-    console.log('[auth] Redirecionando para / - usuário já autenticado')
-    return navigateTo('/', { replace: true })
-  }
-  
-  // Caso 3: Permitir navegação
+  // Tem sessão válida, permitir navegação
+  console.log(`${ambiente} [auth.middleware] ✅ Sessão válida - permitindo navegação`)
   return
 })

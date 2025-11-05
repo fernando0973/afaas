@@ -6,7 +6,16 @@
         <div>
           <h3 class="text-lg font-medium text-neutral-900">Clientes Cadastrados</h3>
           <p class="text-sm text-neutral-600 mt-1">
-            {{ clientes.length }} {{ clientes.length === 1 ? 'cliente encontrado' : 'clientes encontrados' }}
+            <template v-if="props.termoBusca && props.termoBusca.trim().length >= 2">
+              {{ clientesFiltrados.length }} {{ clientesFiltrados.length === 1 ? 'cliente encontrado' : 'clientes encontrados' }}
+              para "{{ props.termoBusca }}"
+              <span class="text-neutral-400">
+                ({{ clientes.length }} total)
+              </span>
+            </template>
+            <template v-else>
+              {{ clientesFiltrados.length }} {{ clientesFiltrados.length === 1 ? 'cliente encontrado' : 'clientes encontrados' }}
+            </template>
           </p>
         </div>
         
@@ -53,7 +62,7 @@
     </div>
 
     <!-- Estado vazio -->
-    <div v-else-if="clientes.length === 0" class="px-6 py-12 text-center">
+    <div v-else-if="clientesFiltrados.length === 0" class="px-6 py-12 text-center">
       <div class="flex flex-col items-center">
         <UserGroupIcon class="w-12 h-12 text-neutral-300 mb-4" />
         <h3 class="text-lg font-medium text-neutral-900 mb-2">Nenhum cliente encontrado</h3>
@@ -101,7 +110,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-neutral-200">
           <tr 
-            v-for="cliente in clientes" 
+            v-for="cliente in clientesFiltrados" 
             :key="cliente.id"
             class="hover:bg-neutral-50 transition-colors"
           >
@@ -209,6 +218,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { 
   ArrowPathIcon, 
   ExclamationTriangleIcon, 
@@ -223,11 +233,13 @@ import type { Cliente } from '~/types/cliente'
 interface Props {
   autoLoad?: boolean
   isAdmin?: boolean
+  termoBusca?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   autoLoad: false,
-  isAdmin: false
+  isAdmin: false,
+  termoBusca: ''
 })
 
 // Emits
@@ -245,6 +257,29 @@ const { buscarClientes, removerCliente } = useProfissionais()
 const clientes = ref<Cliente[]>([])
 const carregando = ref(false)
 const erro = ref('')
+
+// Computed para filtrar clientes
+const clientesFiltrados = computed(() => {
+  if (!props.termoBusca || props.termoBusca.trim().length < 2) {
+    return clientes.value
+  }
+
+  const termo = props.termoBusca.toLowerCase().trim()
+  
+  return clientes.value.filter(cliente => {
+    // Busca por nome (garantindo que nome_completo não seja null/undefined)
+    const nomeCliente = cliente.nome_completo || ''
+    const matchNome = nomeCliente.toLowerCase().includes(termo)
+
+    // Busca por CPF (removendo caracteres não numéricos)
+    const cpfCliente = cliente.cpf || ''
+    const termoNumerico = termo.replace(/\D/g, '')
+    const cpfNumerico = cpfCliente.replace(/\D/g, '')
+    const matchCPF = termoNumerico.length > 0 && cpfNumerico.includes(termoNumerico)
+
+    return matchNome || matchCPF
+  })
+})
 
 // Funções utilitárias
 const formatCPF = (cpf: string | null) => {
@@ -284,7 +319,6 @@ const carregarDados = async () => {
     
     if (resultado.success) {
       clientes.value = resultado.data
-      console.log('Clientes carregados:', clientes.value.length)
     } else {
       erro.value = resultado.error || 'Erro desconhecido ao carregar clientes'
       console.error('Erro ao carregar clientes:', resultado.error)

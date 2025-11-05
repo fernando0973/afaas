@@ -146,30 +146,32 @@ const filteredClients = computed(() => {
   if (!props.clients || props.clients.length === 0) {
     return []
   }
-  
+
+  // Quando o usuário apenas focar no campo, mostrar os primeiros 50 clientes
+  // Isto ajuda na seleção rápida, como já fazemos em PlantasBuscador
   if (!searchTerm.value.trim()) {
-    return []
+    return props.clients.slice(0, 50)
   }
-  
+
   const termo = searchTerm.value.toLowerCase().trim()
-  
-  const filtrados = props.clients.filter(cliente => {
-    const nome = cliente.nome_completo?.toLowerCase() || ''
-    const cpf = cliente.cpf?.replace(/\D/g, '') || ''
-    const telefone = cliente.telefone?.replace(/\D/g, '') || ''
-    
-    // Separar busca por nome e por números
-    const termoNumeros = termo.replace(/\D/g, '')
-    
-    const matchNome = nome.includes(termo)
-    const matchCPF = termoNumeros.length > 0 && cpf.includes(termoNumeros)
-    const matchTelefone = termoNumeros.length > 0 && telefone.includes(termoNumeros)
-    
-    const match = matchNome || matchCPF || matchTelefone
-    
-    return match
-  }).slice(0, 50)
-  
+
+  const filtrados = props.clients
+    .filter(cliente => {
+      const nome = cliente.nome_completo?.toLowerCase() || ''
+      const cpf = cliente.cpf?.replace(/\D/g, '') || ''
+      const telefone = cliente.telefone?.replace(/\D/g, '') || ''
+
+      // Separar busca por nome e por números
+      const termoNumeros = termo.replace(/\D/g, '')
+
+      const matchNome = nome.includes(termo)
+      const matchCPF = termoNumeros.length > 0 && cpf.includes(termoNumeros)
+      const matchTelefone = termoNumeros.length > 0 && telefone.includes(termoNumeros)
+
+      return matchNome || matchCPF || matchTelefone
+    })
+    .slice(0, 50)
+
   return filtrados
 })
 

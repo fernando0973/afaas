@@ -54,15 +54,13 @@ export const useUserData = () => {
   })
   
   // Função para carregar dados do store
+  // REMOVIDO: userStore.fetchProfile() - Plugin auth.client.ts já faz isso
   const loadUserProfile = async () => {
     if (!process.client) return
     
-    try {
-      const userStore = useUserStore()
-      await userStore.fetchProfile()
-    } catch (err) {
-      console.warn('Erro ao carregar perfil:', err)
-    }
+    // O perfil já é carregado pelo plugin auth.client.ts após login
+    // Esta função agora é um no-op, mantida para compatibilidade
+    return Promise.resolve()
   }
   
   return {

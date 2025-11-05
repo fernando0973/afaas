@@ -271,8 +271,6 @@ const adicionarProfissional = () => {
   toast.info('Funcionalidade de adição em desenvolvimento')
 }
 
-// Carregar perfil do usuário na montagem
-onMounted(async () => {
-  await userStore.fetchProfile()
-})
+// Perfil do usuário já carregado pelo plugin auth.client.ts
+// Removido userStore.fetchProfile() duplicado
 </script>

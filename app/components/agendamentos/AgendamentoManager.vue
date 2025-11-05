@@ -86,7 +86,10 @@ const { diasSemana, profissionalSelecionadoId, dataReferencia } = storeToRefs(ag
 
 
 const { buscarAgendamentosSemana, limparCache } = useAgendamentos()
-const { buscarProfissionais, buscarClientes } = useProfissionais()
+const { buscarClientes } = useProfissionais()
+
+// Usar store de profissionais (cache centralizado)
+const profissionaisStore = useProfissionaisStore()
 
 // ===== ESTADO REATIVO =====
 const agendamentos = ref<AgendamentoFormatado[]>([])
@@ -260,16 +263,15 @@ const recarregarAgendamentos = async (limparCacheAntes = false) => {
 
 // ===== FUNÇÕES DO MODAL =====
 
-// Buscar dados do profissional atual
+// Buscar dados do profissional atual usando o store
 const buscarProfissionalAtual = async () => {
   if (!profissionalSelecionadoId.value) return
 
   try {
-    const resultado = await buscarProfissionais()
-    
-    if (resultado.success && resultado.data) {
-      profissionalAtual.value = resultado.data.find(p => p.profissional_id === profissionalSelecionadoId.value)
-    }
+    await profissionaisStore.buscarProfissionais()
+    profissionalAtual.value = profissionaisStore.profissionais.find(
+      (p: any) => p.profissional_id === profissionalSelecionadoId.value
+    )
   } catch (error) {
     console.error('Erro ao buscar profissional atual:', error)
   }

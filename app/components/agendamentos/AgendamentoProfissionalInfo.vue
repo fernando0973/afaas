@@ -29,27 +29,29 @@ const profissional = ref<ProfissionalRPC | null>(null)
 const loading = ref(true)
 
 // Composables e Stores
-const { buscarProfissionais: fetchProfissionais } = useProfissionais()
 const userStore = useUserStore()
 const agendamentoStore = useAgendamentoStore()
+const profissionaisStore = useProfissionaisStore()
 
 // Use storeToRefs para acessar as refs de forma reativa
 const { profile: userProfile } = storeToRefs(userStore)
 
-// Função para buscar profissionais
+// Função para buscar profissionais usando o store (com cache)
 const buscarProfissionais = async () => {
   try {
     loading.value = true
     
-    const resultado = await fetchProfissionais()
+    // Usar store - busca com cache automático
+    await profissionaisStore.buscarProfissionais()
+    const listaProfissionais = profissionaisStore.profissionais
     
-    if (resultado.success && resultado.data && resultado.data.length > 0) {
+    if (listaProfissionais && listaProfissionais.length > 0) {
       // Primeiro, tenta encontrar o profissional baseado no profile_id do usuário logado
       const profileData = userProfile.value
       const userProfileId = profileData?.id
       
       if (userProfileId) {
-        const profissionalLogado = resultado.data.find(p => p.perfil_id === userProfileId)
+        const profissionalLogado = listaProfissionais.find((p: any) => p.perfil_id === userProfileId)
         
         if (profissionalLogado) {
           profissional.value = profissionalLogado
@@ -62,7 +64,7 @@ const buscarProfissionais = async () => {
       }
       
       // Se não encontrar o profissional do usuário logado, usa o primeiro da lista
-      profissional.value = resultado.data[0] || null
+      profissional.value = listaProfissionais[0] || null
       
       // Atualizar o store com o primeiro profissional da lista (só se for diferente)
       if (profissional.value && agendamentoStore.profissionalSelecionadoId !== profissional.value.profissional_id) {
@@ -93,23 +95,8 @@ watch(userProfile, async (newProfile, oldProfile) => {
 
 // Buscar dados quando o componente for montado
 onMounted(async () => {
-  // Garantir que o perfil do usuário esteja carregado
-  const profileData = userProfile.value
-  if (!profileData) {
-    await userStore.fetchProfile()
-    
-    // Aguardar um pouco para garantir que o perfil seja propagado
-    await new Promise(resolve => setTimeout(resolve, 300))
-  }
-  
+  // Plugin auth.client.ts já garantiu que o perfil está carregado
+  // Removido userStore.fetchProfile() duplicado
   await buscarProfissionais()
-})
-
-// Adicionar um watcher adicional para casos onde o perfil demora para carregar
-watch(() => userStore.loading, async (isLoading, wasLoading) => {
-  // Quando o loading do perfil terminar e não havia profissional selecionado ainda
-  if (wasLoading && !isLoading && userProfile.value && !profissional.value) {
-    await buscarProfissionais()
-  }
 })
 </script>

@@ -36,24 +36,12 @@ export default defineNuxtPlugin(() => {
           
           // Força atualização de componentes dependentes do profile
           await nextTick()
-          
-          // Recarregar a página apenas se não estivermos na página de login
-          // e se o login foi feito via formulário (não refresh da página)
-          if (process.client && window.location.pathname !== '/login' && !sessionStorage.getItem('page_reloaded_after_login')) {
-            sessionStorage.setItem('page_reloaded_after_login', 'true')
-            window.location.reload()
-          }
         } catch (error) {
           console.warn('Erro ao carregar perfil após login:', error)
         }
       } else if (event === 'SIGNED_OUT') {
         // Limpar dados do store quando usuário fizer logout
         userStore.clearProfile()
-        
-        // Limpar flag de reload
-        if (process.client) {
-          sessionStorage.removeItem('page_reloaded_after_login')
-        }
         
         // Redirecionar para login após logout
         try {

@@ -112,7 +112,9 @@
           <tr 
             v-for="cliente in clientesFiltrados" 
             :key="cliente.id"
-            class="hover:bg-neutral-50 transition-colors"
+            class="hover:bg-neutral-50 transition-colors cursor-pointer"
+            @click="$emit('editar', cliente)"
+            title="Clique para visualizar/editar cliente"
           >
             <!-- ID -->
             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">

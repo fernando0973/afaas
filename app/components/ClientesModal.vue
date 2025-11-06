@@ -1,54 +1,7 @@
 <template>
-  <!-- Overlay de transição para evitar piscar -->
-  <Teleport to="body">
-    <div
-      v-if="showTransitionOverlay"
-      class="fixed inset-0 bg-black bg-opacity-50 z-[150] pointer-events-none"
-      style="transition: none !important;"
-    />
-  </Teleport>
 
-  <!-- Modal CPF já cadastrado -->
-  <BaseModal
-    v-model="showCPFModal"
-    title="CPF já cadastrado"
-    :show-header="true"
-    :show-footer="true"
-    :show-close-button="true"
-    :show-cancel-button="false"
-    :show-confirm-button="true"
-    confirm-button-text="OK"
-    @confirm="showCPFModal = false"
-    @close="showCPFModal = false"
-    :z-index="110"
-  >
-    <div class="py-4 text-center">
-      <p class="text-lg text-red-600 font-semibold">{{ cpfModalMessage }}</p>
-    </div>
-  </BaseModal>
 
-  <!-- Modal reativar cliente deletado -->
-  <BaseModal
-    v-model="showReativarModal"
-    title="Reativar Cliente"
-    :show-header="true"
-    :show-footer="true"
-    :show-close-button="true"
-    :show-cancel-button="true"
-    :show-confirm-button="true"
-    confirm-button-text="Reativar"
-    cancel-button-text="Cancelar"
-    confirm-button-variant="primary"
-    :z-index="120"
-    @confirm="reativarCliente"
-    @cancel="onReativarCancel"
-    @close="showReativarModal = false"
-  >
-    <div class="py-4 text-center">
-      <p class="text-lg text-blue-600 font-semibold">Este CPF pertence a um cliente removido.</p>
-      <p class="mt-2 text-neutral-700">Deseja reativar o cadastro de <span class="font-bold">{{ clienteDeletado?.nome_completo }}</span>?</p>
-    </div>
-  </BaseModal>
+
   <BaseModal
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
@@ -57,7 +10,7 @@
     size="full"
     :confirm-button-text="confirmButtonText"
     :loading="loading"
-    :confirm-disabled="!isFormValid"
+    :confirm-disabled="!isFormValid || (props.isEdicao && !dadosForamAlterados)"
     @confirm="handleConfirm"
     @cancel="handleCancel"
     @close="handleClose"
@@ -98,6 +51,7 @@
               @update:model-value="handleCPFInput"
               label="CPF"
               placeholder="000.000.000-00"
+              required
               :error="errors.cpf"
               @blur="onCPFBlur"
               @input="clearFieldError('cpf')"
@@ -114,6 +68,7 @@
               @update:model-value="form.data_nascimento = $event"
               label="Data de Nascimento"
               type="date"
+              required
               :error="errors.data_nascimento"
               @blur="validateField('data_nascimento')"
               @input="clearFieldError('data_nascimento')"
@@ -144,13 +99,12 @@
               <div class="lg:col-span-2">
                 <BaseInput
                   :model-value="form.email"
-                  @update:model-value="(val) => { form.email = val; validateField('email'); }"
+                  @update:model-value="form.email = $event"
                   label="E-mail"
                   placeholder="email@exemplo.com"
-                  required
                   :error="errors.email"
                   @blur="validateField('email')"
-                  @input="(e: any) => { form.email = e.target.value; validateField('email'); }"
+                  @input="clearFieldError('email')"
                   maxlength="120"
                   type="email"
                 >
@@ -212,7 +166,7 @@
             <!-- Sexo -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-neutral-700">
-                Sexo
+                Sexo <span class="text-red-500">*</span>
               </label>
               <div class="flex space-x-4">
                 <label class="flex items-center">
@@ -234,6 +188,7 @@
                   <span class="text-sm text-neutral-700">Feminino</span>
                 </label>
               </div>
+              <p v-if="errors.sexo" class="text-sm text-red-600">{{ errors.sexo }}</p>
             </div>
 
             <!-- Naturalidade -->
@@ -659,94 +614,14 @@
 
 
 <script setup lang="ts">
-// Ao cancelar reativação, reabrir modal de adicionar
-const onReativarCancel = () => {
-  showReativarModal.value = false
-  setTimeout(() => {
-    emit('update:modelValue', true)
-  }, 300)
-}
-// Estado para modais de CPF já cadastrado/reativação
-const showCPFModal = ref(false)
-const cpfModalMessage = ref('')
-const showReativarModal = ref(false)
-const clienteDeletado = ref<Cliente | null>(null)
-const showTransitionOverlay = ref(false)
+
 
 // Handler para blur do CPF
-const onCPFBlur = async () => {
-  const cpfLimpo = removeMask(form.cpf)
-  if (cpfLimpo.length !== 11) return
-  try {
-    // Consulta Supabase para o CPF
-    const supabase = useSupabaseClient()
-    const { data, error } = await supabase
-      .from('afaas_clientes')
-      .select('*')
-      .eq('cpf', cpfLimpo)
-      .order('deleted_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    if (error) {
-      toast.error('Erro ao consultar CPF: ' + error.message)
-      return
-    }
-    if (data) {
-      if (!data.deleted_at) {
-        cpfModalMessage.value = 'Já existe um cliente cadastrado com este CPF.'
-        emit('update:modelValue', false)
-        setTimeout(() => {
-          showCPFModal.value = true
-        }, 200)
-        toast.error('CPF já cadastrado!')
-      } else {
-        clienteDeletado.value = data
-        // Ativa overlay de transição ANTES de fechar o modal
-        showTransitionOverlay.value = true
-        // Aguarda um tick para garantir que o overlay seja renderizado
-        await nextTick()
-        // Transição suave: primeiro fecha modal de inserção, depois abre de reativação
-        emit('update:modelValue', false)
-        setTimeout(() => {
-          showReativarModal.value = true
-          // Remove overlay apenas após modal de reativação estar completamente aberto
-          setTimeout(() => {
-            showTransitionOverlay.value = false
-          }, 100)
-          toast.info('CPF pertence a um cliente removido. Você pode reativá-lo.')
-        }, 250) // Reduzido para 250ms
-      }
-    }
-  } catch (err: any) {
-    toast.error('Erro inesperado ao consultar CPF: ' + (err.message || err))
-  }
+const onCPFBlur = () => {
+  // Validação básica de formato do CPF
+  validateField('cpf')
 }
-// Função para reativar cliente deletado
-const reativarCliente = async () => {
-  if (!clienteDeletado.value?.id) return
-  try {
-    const supabase = useSupabaseClient()
-    const { error } = await supabase
-      .from('afaas_clientes')
-      .update({ deleted_at: null })
-      .eq('id', clienteDeletado.value.id)
-    if (error) {
-      toast.error('Erro ao reativar cliente: ' + error.message)
-    } else {
-      toast.success('Cliente reativado com sucesso!')
-      showReativarModal.value = false
-      emit('update:modelValue', false) // Fecha modal de adicionar/editar
-      // Aguarda animação de fechamento antes de recarregar
-      setTimeout(() => {
-        if (clienteDeletado.value) {
-          emit('cliente-salvo', clienteDeletado.value)
-        }
-      }, 300)
-    }
-  } catch (err: any) {
-    toast.error('Erro inesperado ao reativar cliente: ' + (err.message || err))
-  }
-}
+
 // Toast composable
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 const toast = useToast()
@@ -902,21 +777,69 @@ const modalTitle = computed(() => props.isEdicao ? 'Editar Cliente' : 'Novo Clie
 const modalSubtitle = computed(() => props.isEdicao ? 'Altere as informações do cliente' : 'Preencha as informações do cliente')
 const confirmButtonText = computed(() => props.isEdicao ? 'Salvar Alterações' : 'Salvar Cliente')
 
+// Dados originais para comparação (apenas na edição)
+const dadosOriginais = ref<any>(null)
+
 const isFormValid = computed(() => {
   return form.nome_completo.trim() !== '' &&
     form.cpf.trim() !== '' &&
-    form.email.trim() !== '' &&
     form.data_nascimento.trim() !== '' &&
     form.sexo.trim() !== ''
+})
+
+// Verifica se os dados foram alterados (apenas na edição)
+const dadosForamAlterados = computed(() => {
+  if (!props.isEdicao || !dadosOriginais.value) return true
+  
+  // Comparar todos os campos do formulário com os dados originais
+  const camposParaComparar = [
+    'nome_completo', 'cpf', 'email', 'data_nascimento', 'altura', 'peso',
+    'tipo_sanguineo', 'sexo', 'naturalidade', 'estado_naturalidade', 
+    'telefone', 'profissao', 'cep', 'endereco', 'numero', 'complemento',
+    'bairro', 'cidade', 'estado', 'pais', 'como_se_sente_em_casa',
+    'quantas_pessoas_moram_com_voce', 'aspecto_genetico_familiar', 
+    'historico_doencas_familia', 'acompanhamento_medico', 'patologia',
+    'tratamento_utilizado', 'usa_protese', 'tipo_protese', 'fez_transplante',
+    'tipo_transplante', 'ferimentos_graves', 'medicamentos_em_uso',
+    'procedimentos_cirurgicos', 'dorme_bem'
+  ]
+  
+  // Verificar campos simples
+  for (const campo of camposParaComparar) {
+    const valorAtual = form[campo as keyof typeof form]
+    const valorOriginal = dadosOriginais.value[campo]
+    
+    // Normalizar valores para comparação
+    const normalizeValue = (value: any) => {
+      if (value === null || value === undefined || value === '') return ''
+      if (typeof value === 'string') return value.trim()
+      return String(value)
+    }
+    
+    if (normalizeValue(valorAtual) !== normalizeValue(valorOriginal)) {
+      return true
+    }
+  }
+  
+  // Verificar arrays (uso_substancias_quimicas, historico_doencas_passadas, outras_condicoes)
+  const camposArray = ['uso_substancias_quimicas', 'historico_doencas_passadas', 'outras_condicoes']
+  for (const campo of camposArray) {
+    const arrayAtual = Array.isArray(form[campo as keyof typeof form]) ? form[campo as keyof typeof form] as string[] : []
+    const arrayOriginal = Array.isArray(dadosOriginais.value[campo]) ? dadosOriginais.value[campo] : []
+    
+    if (JSON.stringify([...arrayAtual].sort()) !== JSON.stringify([...arrayOriginal].sort())) {
+      return true
+    }
+  }
+  
+  return false
 })
 
 // Métodos de validação
 const validateField = (field: keyof typeof form) => {
   switch (field) {
     case 'email':
-      if (!form.email.trim()) {
-        errors.email = 'E-mail é obrigatório'
-      } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+      if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
         errors.email = 'E-mail inválido'
       } else {
         errors.email = ''
@@ -1021,6 +944,13 @@ const validateField = (field: keyof typeof form) => {
         errors.numero = 'Número deve ter no máximo 10 caracteres'
       } else {
         errors.numero = ''
+      }
+      break
+    case 'sexo':
+      if (!form.sexo.trim()) {
+        errors.sexo = 'Sexo é obrigatório'
+      } else {
+        errors.sexo = ''
       }
       break
     case 'data_nascimento':
@@ -1146,10 +1076,8 @@ const validateForm = () => {
     errors[key as keyof typeof errors] = ''
   })
 
-  if (!form.email.trim()) {
-    errors.email = 'E-mail é obrigatório'
-    isValid = false
-  } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+  // Validar email apenas se preenchido
+  if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) {
     errors.email = 'E-mail inválido'
     isValid = false
   }
@@ -1200,7 +1128,7 @@ const handleConfirm = async () => {
   if (!validateForm()) {
     // Ir para a primeira aba que tem erro
     const errosOrdenados = {
-      pessoais: ['nome_completo', 'cpf', 'data_nascimento', 'altura', 'peso', 'sexo'],
+      pessoais: ['nome_completo', 'cpf', 'data_nascimento', 'sexo', 'email', 'altura', 'peso'],
       endereco: ['cep', 'endereco', 'cidade', 'estado'],
       ambiente: ['como_se_sente_em_casa', 'quantas_pessoas_moram_com_voce'],
       medico: ['acompanhamento_medico', 'patologia'],
@@ -1223,7 +1151,7 @@ const handleConfirm = async () => {
     const clienteData = {
       nome_completo: form.nome_completo.trim(),
       cpf: removeMask(form.cpf),
-      email: form.email.trim(),
+      email: form.email.trim() || null,
       data_nascimento: form.data_nascimento.trim(),
       altura: form.altura ? parseFloat(form.altura) : null,
       peso: form.peso ? parseFloat(form.peso) : null,
@@ -1365,6 +1293,9 @@ const resetForm = () => {
   
   abaAtiva.value = 'pessoais'
   loading.value = false
+  
+  // Limpar dados originais
+  dadosOriginais.value = null
 }
 
 // Carregar dados para edição
@@ -1417,6 +1348,50 @@ const loadClienteData = () => {
     form.historico_doencas_passadas = props.clienteData.historico_doencas_passadas || []
     form.outras_condicoes = props.clienteData.outras_condicoes || []
     form.dorme_bem = props.clienteData.dorme_bem
+    
+    // Salvar dados originais para comparação (apenas na edição)
+    if (props.isEdicao) {
+      dadosOriginais.value = {
+        nome_completo: form.nome_completo,
+        cpf: form.cpf,
+        email: form.email,
+        data_nascimento: form.data_nascimento,
+        altura: form.altura,
+        peso: form.peso,
+        tipo_sanguineo: form.tipo_sanguineo,
+        sexo: form.sexo,
+        naturalidade: form.naturalidade,
+        estado_naturalidade: form.estado_naturalidade,
+        telefone: form.telefone,
+        profissao: form.profissao,
+        cep: form.cep,
+        endereco: form.endereco,
+        numero: form.numero,
+        complemento: form.complemento,
+        bairro: form.bairro,
+        cidade: form.cidade,
+        estado: form.estado,
+        pais: form.pais,
+        como_se_sente_em_casa: form.como_se_sente_em_casa,
+        quantas_pessoas_moram_com_voce: form.quantas_pessoas_moram_com_voce,
+        aspecto_genetico_familiar: form.aspecto_genetico_familiar,
+        historico_doencas_familia: form.historico_doencas_familia,
+        acompanhamento_medico: form.acompanhamento_medico,
+        patologia: form.patologia,
+        tratamento_utilizado: form.tratamento_utilizado,
+        usa_protese: form.usa_protese,
+        tipo_protese: form.tipo_protese,
+        fez_transplante: form.fez_transplante,
+        tipo_transplante: form.tipo_transplante,
+        ferimentos_graves: form.ferimentos_graves,
+        medicamentos_em_uso: form.medicamentos_em_uso,
+        procedimentos_cirurgicos: form.procedimentos_cirurgicos,
+        uso_substancias_quimicas: [...form.uso_substancias_quimicas],
+        historico_doencas_passadas: [...form.historico_doencas_passadas],
+        outras_condicoes: [...form.outras_condicoes],
+        dorme_bem: form.dorme_bem
+      }
+    }
   }
 }
 

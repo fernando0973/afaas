@@ -77,9 +77,6 @@
         <thead class="bg-neutral-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              ID
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Especialidade
             </th>
             <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -93,9 +90,6 @@
             :key="especialidade.id"
             class="hover:bg-neutral-50 transition-colors"
           >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-              #{{ especialidade.id }}
-            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <AcademicCapIcon class="w-5 h-5 text-primary-400 mr-3 flex-shrink-0" />

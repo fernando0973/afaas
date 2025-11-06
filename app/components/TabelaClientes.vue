@@ -86,9 +86,6 @@
         <thead class="bg-neutral-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              ID
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Nome Completo
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -116,11 +113,6 @@
             @click="$emit('editar', cliente)"
             title="Clique para visualizar/editar cliente"
           >
-            <!-- ID -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-              #{{ cliente.id }}
-            </td>
-
             <!-- Nome Completo -->
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">

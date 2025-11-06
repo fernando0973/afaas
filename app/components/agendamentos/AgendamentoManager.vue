@@ -33,7 +33,7 @@
     <!-- Corpo -->
     <div class="flex-1 flex overflow-hidden px-6 pb-2 min-h-0">
       <!-- Lado esquerdo: Régua de horários -->
-      <div class="w-20 flex-shrink-0 border-r border-neutral-200">
+      <div class="w-20 flex-shrink-0">
         <AgendamentoReguaHorarios />
       </div>
       
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="flex-shrink-0 px-6 py-2 border-t border-neutral-200 bg-neutral-50">
+    <div class="flex-shrink-0 px-6 py-2 bg-neutral-50">
       <div class="flex items-center justify-center text-xs text-neutral-600">
         <!-- Informações do sistema -->
         <div class="flex items-center space-x-4">

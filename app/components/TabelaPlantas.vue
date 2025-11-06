@@ -86,9 +86,6 @@
         <thead class="bg-neutral-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              ID
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Nome Popular
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -109,9 +106,6 @@
             class="hover:bg-neutral-50 transition-colors cursor-pointer"
             @click="visualizarPlanta(planta)"
           >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-              #{{ planta.id }}
-            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <BeakerIcon class="w-5 h-5 text-green-400 mr-3 flex-shrink-0" />

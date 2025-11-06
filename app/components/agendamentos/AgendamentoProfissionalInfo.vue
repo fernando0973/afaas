@@ -10,9 +10,6 @@
       <p class="text-sm text-text-muted">
         {{ profissional.especialidade }}
       </p>
-      <p class="text-xs text-text-muted bg-neutral-100 px-2 py-1 rounded">
-        ID: {{ profissional.profissional_id }}
-      </p>
     </div>
     <div v-else class="text-text-muted">
       Nenhum profissional encontrado

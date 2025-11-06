@@ -78,9 +78,6 @@
         <thead class="bg-neutral-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              ID
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Usuário
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -103,10 +100,6 @@
             :key="usuario.id"
             class="hover:bg-neutral-50 transition-colors"
           >
-            <!-- ID -->
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-              #{{ usuario.id }}
-            </td>
 
             <!-- Nome -->
             <td class="px-6 py-4 whitespace-nowrap">

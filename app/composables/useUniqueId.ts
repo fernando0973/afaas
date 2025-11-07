@@ -1,23 +1,21 @@
-import { ref, onMounted } from 'vue'
-
-// Contador global para garantir IDs únicos mesmo durante SSR
-let idCounter = 0
+import { ref } from 'vue'
 
 /**
  * Generates a unique ID that is safe for SSR
- * Uses an incremental counter for SSR and enhances with random string on client
- * @param prefix - Optional prefix for the ID
- * @returns A reactive ID string that's SSR-safe
+ * Creates static IDs that are the same between server and client
  */
-export function useUniqueId(prefix = 'id') {
-  // Create unique ID immediately using counter
-  const id = ++idCounter
-  const uniqueId = ref(`${prefix}-${id}`)
+
+let idCounter = 0
+
+export function useUniqueId(prefix = 'input') {
+  // Create ID immediately when function is called
+  const id = `${prefix}-${++idCounter}`
   
-  // Enhance with random string on client side for extra uniqueness
-  onMounted(() => {
-    uniqueId.value = `${prefix}-${id}-${Math.random().toString(36).substr(2, 9)}`
-  })
-  
-  return uniqueId
+  // Return ref with the static ID
+  return ref(id)
+}
+
+// Reset counter function (useful for testing)
+export function resetIdCounter() {
+  idCounter = 0
 }

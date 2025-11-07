@@ -7,6 +7,7 @@
 
     <form @submit.prevent="handleLogin" class="space-y-5">
       <BaseInput
+        id="email-input"
         v-model="email"
         type="email"
         label="E-mail"
@@ -20,6 +21,7 @@
       </BaseInput>
 
       <BaseInput
+        id="password-input"
         v-model="password"
         type="password"
         label="Senha"

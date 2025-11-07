@@ -72,6 +72,8 @@
 </template>
 
 <script setup lang="ts">
+import { useUniqueId } from '~/composables/useUniqueId'
+
 interface Props {
   modelValue?: string | null
   label?: string
@@ -87,6 +89,7 @@ interface Props {
   minlength?: number
   size?: 'sm' | 'md' | 'lg'
   showCharCount?: boolean
+  id?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -103,8 +106,9 @@ const emit = defineEmits<{
   input: [event: Event]
 }>()
 
-// ID único para associar label com textarea
-const inputId = computed(() => `textarea-${Math.random().toString(36).substr(2, 9)}`)
+// Use SSR-safe ID generation
+const generatedId = useUniqueId('textarea')
+const inputId = computed(() => props.id || generatedId.value)
 
 // Contador de caracteres
 const characterCount = computed(() => {

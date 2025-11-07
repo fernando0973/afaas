@@ -102,6 +102,13 @@ const toast = useToast()
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import type { Cliente } from '~/types/cliente'
 
+// Meta da página
+definePageMeta({
+  title: 'Clientes',
+  description: 'Gerencie os clientes cadastrados no sistema',
+  middleware: 'auth'
+})
+
 // Título da página
 useHead({
   title: 'Clientes - AFAAS Atendimento'

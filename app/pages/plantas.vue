@@ -150,6 +150,13 @@ import { PlusIcon } from '@heroicons/vue/24/outline'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { PlantaMedicinal } from '~/types/planta'
 
+// Meta da página
+definePageMeta({
+  title: 'Plantas Medicinais',
+  description: 'Gerencie informações sobre plantas medicinais',
+  middleware: 'auth'
+})
+
 // Título da página
 useHead({
   title: 'Plantas Medicinais - AFAAS Atendimento'

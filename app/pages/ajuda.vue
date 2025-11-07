@@ -141,6 +141,13 @@
 </template>
 
 <script setup lang="ts">
+// Meta da página
+definePageMeta({
+  title: 'Ajuda',
+  description: 'Central de ajuda e suporte',
+  middleware: 'auth'
+})
+
 // Título da página
 useHead({
   title: 'Ajuda - AFAAS Atendimento'

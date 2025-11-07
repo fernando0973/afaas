@@ -48,10 +48,15 @@ const buscarProfissionais = async () => {
         
         if (profissionalLogado) {
           profissional.value = profissionalLogado
-          // Só atualizar o store se for diferente do atual
           const profId = profissionalLogado.profissional_id || profissionalLogado.id
+          
+          // Só atualizar o store se for diferente do atual
           if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
             agendamentoStore.setProfissionalSelecionado(profId)
+            console.log(`👤 Profissional selecionado: ${profissional.value.nome_profissional} (ID: ${profId})`)
+            
+            // Tentar carregar agendamentos se não existirem
+            await tentarCarregarAgendamentos(profId)
           }
           return
         }
@@ -65,6 +70,10 @@ const buscarProfissionais = async () => {
         const profId = profissional.value.profissional_id || profissional.value.id
         if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
           agendamentoStore.setProfissionalSelecionado(profId)
+          console.log(`👤 Profissional padrão selecionado: ${profissional.value.nome_profissional} (ID: ${profId})`)
+          
+          // Tentar carregar agendamentos se não existirem
+          await tentarCarregarAgendamentos(profId)
         }
       }
     } else {
@@ -76,6 +85,39 @@ const buscarProfissionais = async () => {
     profissional.value = null
   } finally {
     loading.value = false
+  }
+}
+
+/**
+ * Tenta carregar agendamentos se não existirem no store
+ * Evita carregar desnecessariamente se já tem dados
+ */
+const tentarCarregarAgendamentos = async (profId: number) => {
+  try {
+    // Verificar se já tem agendamentos no store
+    const agendamentosAtuais = agendamentoStore.agendamentos
+    const jaTemDados = agendamentosAtuais.length > 0
+    
+    if (jaTemDados) {
+      console.log('✅ Agendamentos já carregados, não recarregando')
+      return
+    }
+    
+    // Verificar cache primeiro
+    const agendamentosCache = agendamentoStore.buscarNoCache(profId, agendamentoStore.diasSemana)
+    if (agendamentosCache) {
+      console.log('💾 Restaurando agendamentos do cache')
+      agendamentoStore.setAgendamentos(agendamentosCache)
+      return
+    }
+    
+    // Se não tem cache nem dados, carregar do banco
+    console.log('🔄 Carregando agendamentos para profissional selecionado')
+    const { buscarAgendamentosSemana } = useAgendamentos()
+    await buscarAgendamentosSemana(profId, agendamentoStore.diasSemana, false)
+    
+  } catch (error) {
+    console.error('Erro ao carregar agendamentos:', error)
   }
 }
 

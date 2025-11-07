@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type { AgendamentoFormatado } from '~/composables/useAgendamentos'
 
 /**
  * Store para gerenciar agendamentos e navegação semanal
@@ -8,6 +9,7 @@ import { defineStore } from 'pinia'
  * - Calcula automaticamente os 7 dias da semana (domingo a sábado)
  * - Permite navegar entre semanas (avançar/voltar)
  * - Mantém reatividade automática entre data de referência e dias da semana
+ * - Cache persistente de agendamentos durante navegação
  */
 export const useAgendamentoStore = defineStore('agendamento', () => {
   // ===== ESTADO REATIVO =====
@@ -24,6 +26,24 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
    * Inicializado como null - deve ser definido quando um profissional for selecionado
    */
   const profissionalSelecionadoId = ref<number | null>(null)
+
+  /**
+   * Lista de agendamentos carregados do profissional atual
+   * Mantém os dados mesmo durante navegação entre páginas
+   */
+  const agendamentos = ref<AgendamentoFormatado[]>([])
+  
+  /**
+   * Estados de carregamento e erro
+   */
+  const carregandoAgendamentos = ref(false)
+  const erroAgendamentos = ref<string | null>(null)
+
+  /**
+   * Cache de agendamentos por chave (profissional + semana)
+   * Mantém cache in-memory que sobrevive à navegação
+   */
+  const cacheAgendamentos = ref(new Map<string, AgendamentoFormatado[]>())
 
   // ===== COMPUTED (DADOS DERIVADOS) =====
   
@@ -60,6 +80,35 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     return dias
   })
 
+  /**
+   * Mapeia agendamentos por data para acesso otimizado
+   * Evita reprocessamento em cada componente filho
+   */
+  const agendamentosPorData = computed(() => {
+    const mapa = new Map<string, AgendamentoFormatado[]>()
+    
+    agendamentos.value.forEach(agendamento => {
+      const data = agendamento.dataInicio
+      const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
+      
+      if (!mapa.has(chave)) {
+        mapa.set(chave, [])
+      }
+      mapa.get(chave)!.push(agendamento)
+    })
+    
+    return mapa
+  })
+
+  /**
+   * Gerar chave de cache baseada no profissional e período da semana
+   */
+  const gerarChaveCache = (profissionalId: number, dataInicio: Date, dataFim: Date): string => {
+    const inicio = dataInicio.toISOString().split('T')[0]
+    const fim = dataFim.toISOString().split('T')[0]
+    return `prof-${profissionalId}-${inicio}-${fim}`
+  }
+
   // ===== ACTIONS (FUNÇÕES) =====
   
   /**
@@ -94,19 +143,125 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     profissionalSelecionadoId.value = profissionalId
   }
 
+  /**
+   * Função para obter agendamentos de uma data específica
+   * Utiliza o mapa otimizado para acesso rápido
+   */
+  const obterAgendamentosDoDia = (data: Date): AgendamentoFormatado[] => {
+    const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
+    return agendamentosPorData.value.get(chave) || []
+  }
+
+  /**
+   * Definir agendamentos no store
+   * @param novosAgendamentos - Lista de agendamentos para definir
+   */
+  const setAgendamentos = (novosAgendamentos: AgendamentoFormatado[]) => {
+    agendamentos.value = novosAgendamentos
+  }
+
+  /**
+   * Definir estado de carregamento
+   * @param carregando - Verdadeiro se está carregando
+   */
+  const setCarregando = (carregando: boolean) => {
+    carregandoAgendamentos.value = carregando
+  }
+
+  /**
+   * Definir erro
+   * @param erro - Mensagem de erro ou null
+   */
+  const setErro = (erro: string | null) => {
+    erroAgendamentos.value = erro
+  }
+
+  /**
+   * Buscar agendamentos no cache
+   * @param profissionalId - ID do profissional
+   * @param diasSemana - Array de dias da semana
+   * @returns Agendamentos do cache ou null se não encontrado
+   */
+  const buscarNoCache = (profissionalId: number, diasSemana: Date[]): AgendamentoFormatado[] | null => {
+    if (diasSemana.length !== 7) return null
+    
+    const dataInicio = diasSemana[0]!
+    const dataFim = diasSemana[6]!
+    const chave = gerarChaveCache(profissionalId, dataInicio, dataFim)
+    
+    return cacheAgendamentos.value.get(chave) || null
+  }
+
+  /**
+   * Armazenar agendamentos no cache
+   * @param profissionalId - ID do profissional
+   * @param diasSemana - Array de dias da semana  
+   * @param agendamentos - Lista de agendamentos para cachear
+   */
+  const armazenarNoCache = (profissionalId: number, diasSemana: Date[], agendamentosParaCache: AgendamentoFormatado[]) => {
+    if (diasSemana.length !== 7) return
+    
+    const dataInicio = diasSemana[0]!
+    const dataFim = diasSemana[6]!
+    const chave = gerarChaveCache(profissionalId, dataInicio, dataFim)
+    
+    cacheAgendamentos.value.set(chave, agendamentosParaCache)
+    console.log(`💾 Cache armazenado: ${chave} (${agendamentosParaCache.length} agendamentos)`)
+  }
+
+  /**
+   * Limpar cache de agendamentos
+   * @param profissionalId - ID do profissional específico ou undefined para limpar tudo
+   */
+  const limparCache = (profissionalId?: number) => {
+    if (profissionalId) {
+      // Limpar apenas caches deste profissional
+      const chavesParaRemover = Array.from(cacheAgendamentos.value.keys())
+        .filter(chave => chave.startsWith(`prof-${profissionalId}-`))
+      
+      chavesParaRemover.forEach(chave => cacheAgendamentos.value.delete(chave))
+      console.log(`🧹 Cache limpo para profissional ${profissionalId}: ${chavesParaRemover.length} entradas removidas`)
+    } else {
+      // Limpar todo o cache
+      const totalEntradas = cacheAgendamentos.value.size
+      cacheAgendamentos.value.clear()
+      console.log(`🧹 Cache totalmente limpo: ${totalEntradas} entradas removidas`)
+    }
+  }
+
+  /**
+   * Limpar dados de agendamentos (útil ao trocar profissional)
+   */
+  const limparAgendamentos = () => {
+    agendamentos.value = []
+    erroAgendamentos.value = null
+  }
+
   // ===== RETORNO DO STORE =====
   
   return {
     // Estado reativo
     dataReferencia,
     profissionalSelecionadoId,
+    agendamentos: readonly(agendamentos),
+    carregandoAgendamentos: readonly(carregandoAgendamentos),
+    erroAgendamentos: readonly(erroAgendamentos),
     
     // Dados derivados (computed)
     diasSemana,
+    agendamentosPorData,
     
     // Ações/funções
     avancarSemana,
     voltarSemana,
-    setProfissionalSelecionado
+    setProfissionalSelecionado,
+    obterAgendamentosDoDia,
+    setAgendamentos,
+    setCarregando,
+    setErro,
+    buscarNoCache,
+    armazenarNoCache,
+    limparCache,
+    limparAgendamentos
   }
 })

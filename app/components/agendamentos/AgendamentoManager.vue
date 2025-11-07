@@ -82,8 +82,15 @@ const supabase = useSupabaseClient()
 
 // ===== STORES E COMPOSABLES =====
 const agendamentoStore = useAgendamentoStore()
-const { diasSemana, profissionalSelecionadoId, dataReferencia } = storeToRefs(agendamentoStore)
-
+const { 
+  diasSemana, 
+  profissionalSelecionadoId, 
+  dataReferencia, 
+  agendamentos,
+  carregandoAgendamentos,
+  erroAgendamentos,
+  agendamentosPorData
+} = storeToRefs(agendamentoStore)
 
 const { buscarAgendamentosSemana, limparCache } = useAgendamentos()
 const { buscarClientes } = useProfissionais()
@@ -91,11 +98,7 @@ const { buscarClientes } = useProfissionais()
 // Usar store de profissionais (cache centralizado)
 const profissionaisStore = useProfissionaisStore()
 
-// ===== ESTADO REATIVO =====
-const agendamentos = ref<AgendamentoFormatado[]>([])
-const carregandoAgendamentos = ref(false)
-const erroAgendamentos = ref<string | null>(null)
-
+// ===== ESTADO REATIVO LOCAL =====
 // Estados do modal
 const modalNovoAgendamentoAberto = ref(false)
 const profissionalAtual = ref<any>(null)
@@ -105,71 +108,31 @@ const clientes = ref<any[]>([])
 const carregandoClientes = ref(false)
 const erroClientes = ref<string | null>(null)
 
-// ===== COMPUTED PARA OTIMIZAR FILTROS =====
-
-/**
- * Mapeia agendamentos por data para acesso otimizado
- * Evita reprocessamento em cada componente filho
- */
-const agendamentosPorData = computed(() => {
-  const mapa = new Map<string, AgendamentoFormatado[]>()
-  
-  agendamentos.value.forEach(agendamento => {
-    const data = agendamento.dataInicio
-    const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
-    
-    if (!mapa.has(chave)) {
-      mapa.set(chave, [])
-    }
-    mapa.get(chave)!.push(agendamento)
-  })
-  
-  return mapa
-})
-
-/**
- * Função para obter agendamentos de uma data específica
- * Será fornecida via provide/inject para os componentes filhos
- */
-const obterAgendamentosDoDia = (data: Date): AgendamentoFormatado[] => {
-  const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
-  return agendamentosPorData.value.get(chave) || []
-}
-
 // ===== PROVIDE/INJECT PARA COMPONENTES FILHOS =====
-provide('agendamentosDoDia', obterAgendamentosDoDia)
-provide('carregandoAgendamentos', readonly(carregandoAgendamentos))
-provide('erroAgendamentos', readonly(erroAgendamentos))
+provide('agendamentosDoDia', agendamentoStore.obterAgendamentosDoDia)
+provide('carregandoAgendamentos', carregandoAgendamentos)
+provide('erroAgendamentos', erroAgendamentos)
 
 // ===== FUNÇÕES DE BUSCA =====
 
 /**
  * Buscar todos os agendamentos do profissional selecionado
- * Sempre busca dados frescos do banco quando solicitado
+ * Usa o store centralizado para manter dados durante navegação
  */
 const carregarAgendamentos = async (forcarAtualizacao = true) => {
   const profId = profissionalSelecionadoId.value
   const semanaAtual = diasSemana.value
   
   if (!profId || semanaAtual.length !== 7) {
-    agendamentos.value = []
+    agendamentoStore.limparAgendamentos()
     return
   }
   
   try {
-    carregandoAgendamentos.value = true
-    erroAgendamentos.value = null
-    
-    // Sempre força atualização para garantir dados sincronizados
-    const resultado = await buscarAgendamentosSemana(profId, semanaAtual, forcarAtualizacao)
-    agendamentos.value = resultado
-    
+    // Delega para o composable que usa o store
+    await buscarAgendamentosSemana(profId, semanaAtual, forcarAtualizacao)
   } catch (error) {
     console.error('Erro ao carregar agendamentos:', error)
-    erroAgendamentos.value = 'Erro ao carregar agendamentos'
-    agendamentos.value = []
-  } finally {
-    carregandoAgendamentos.value = false
   }
 }
 
@@ -177,30 +140,40 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
 
 /**
  * Recarregar quando o profissional selecionado mudar
- * Reatividade automática e otimizada
+ * Verifica cache primeiro, carrega só se necessário
  */
 watch(profissionalSelecionadoId, async (novoProfId, profAnterior) => {
-  // Só carregar se realmente mudou e não está carregando
-  if (novoProfId && novoProfId !== profAnterior && !carregandoAgendamentos.value) {
-    await carregarAgendamentos()
+  if (novoProfId && novoProfId !== profAnterior) {
+    // Verifica se já tem dados em cache primeiro
+    const agendamentosCache = agendamentoStore.buscarNoCache(novoProfId, diasSemana.value)
+    if (agendamentosCache) {
+      console.log('✅ Usando cache para novo profissional')
+      agendamentoStore.setAgendamentos(agendamentosCache)
+    } else {
+      console.log('🔄 Carregando dados para novo profissional')
+      await carregarAgendamentos(true)
+    }
   }
 }, { immediate: false })
 
 /**
  * Recarregar quando a semana (dataReferencia) mudar
- * SEMPRE busca dados frescos no banco para garantir sincronização
+ * Verifica cache primeiro, carrega só se necessário
  */
 watch(dataReferencia, async (novaData, dataAnterior) => {
-  // Só recarregar se a data realmente mudou e temos profissional selecionado
   if (novaData && dataAnterior && 
       novaData.getTime() !== dataAnterior.getTime() && 
-      profissionalSelecionadoId.value &&
-      !carregandoAgendamentos.value) {
+      profissionalSelecionadoId.value) {
     
-
-    // Limpar cache para garantir dados atualizados
-    limparCache(profissionalSelecionadoId.value)
-    await carregarAgendamentos()
+    // Verifica se já tem dados em cache para esta semana
+    const agendamentosCache = agendamentoStore.buscarNoCache(profissionalSelecionadoId.value, diasSemana.value)
+    if (agendamentosCache) {
+      console.log('✅ Usando cache para nova semana')
+      agendamentoStore.setAgendamentos(agendamentosCache)
+    } else {
+      console.log('🔄 Carregando dados para nova semana')
+      await carregarAgendamentos(true)
+    }
   }
 }, { immediate: false })
 
@@ -248,17 +221,16 @@ onMounted(async () => {
 
 /**
  * Função para recarregar agendamentos manualmente
- * Útil para atualizar após criar/editar/deletar agendamento
  * @param limparCacheAntes - Se true, limpa o cache antes de recarregar
  */
 const recarregarAgendamentos = async (limparCacheAntes = false) => {
   if (limparCacheAntes && profissionalSelecionadoId.value) {
     console.log('🧹 Limpando cache antes do recarregamento')
-    limparCache(profissionalSelecionadoId.value)
+    agendamentoStore.limparCache(profissionalSelecionadoId.value)
   }
   
   console.log('🔄 Recarregamento manual de agendamentos')
-  await carregarAgendamentos()
+  await carregarAgendamentos(true)
 }
 
 // ===== FUNÇÕES DO MODAL =====
@@ -327,12 +299,14 @@ const handleAgendamentoCriado = async () => {
   console.log('🔄 Agendamento criado! Forçando atualização da lista...')
   
   // Limpar cache completamente para garantir dados frescos
-  if (profissionalSelecionadoId.value) {
-    limparCache(profissionalSelecionadoId.value)
+  const profId = profissionalSelecionadoId.value
+  if (profId) {
+    console.log(`🧹 Limpando cache para profissional ${profId}`)
+    agendamentoStore.limparCache(profId)
   }
   
   // Recarregar agendamentos forçando busca no banco
-  await recarregarAgendamentos(true)
+  await carregarAgendamentos(true)
   
   // Fechar modal
   modalNovoAgendamentoAberto.value = false
@@ -343,7 +317,7 @@ const handleAgendamentoCriado = async () => {
 // Expor funções para uso externo se necessário
 defineExpose({
   recarregarAgendamentos,
-  agendamentos: computed(() => agendamentos.value),
-  carregandoAgendamentos: computed(() => carregandoAgendamentos.value)
+  agendamentos,
+  carregandoAgendamentos
 })
 </script>

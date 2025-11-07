@@ -16,18 +16,7 @@ export interface AgendamentoFormatado {
 
 export const useAgendamentos = () => {
   const supabase = useSupabaseClient()
-  
-  // Cache para armazenar agendamentos por profissional e semana
-  const cacheAgendamentos = new Map<string, AgendamentoFormatado[]>()
-  
-  /**
-   * Gerar chave de cache baseada no profissional e período da semana
-   */
-  const gerarChaveCache = (profissionalId: number, dataInicio: Date, dataFim: Date): string => {
-    const inicio = dataInicio.toISOString().split('T')[0]
-    const fim = dataFim.toISOString().split('T')[0]
-    return `prof-${profissionalId}-${inicio}-${fim}`
-  }
+  const agendamentoStore = useAgendamentoStore()
   
   /**
    * Busca agendamentos por profissional e período específico
@@ -118,17 +107,8 @@ export const useAgendamentos = () => {
   }
 
   /**
-   * Buscar e formatar agendamentos por profissional (sem filtro de data - legacy)
-   * @deprecated Use buscarAgendamentosSemana para melhor performance
-   */
-  const buscarAgendamentosFormatados = async (profissionalId: number): Promise<AgendamentoFormatado[]> => {
-    const agendamentos = await buscarAgendamentosPorProfissional(profissionalId)
-    return formatarAgendamentos(agendamentos)
-  }
-
-  /**
-   * Buscar agendamentos de uma semana específica sempre do banco
-   * Cache é usado apenas durante a mesma sessão para evitar requests duplicados
+   * Buscar agendamentos de uma semana específica
+   * Usa cache do store para otimizar performance e manter dados durante navegação
    */
   const buscarAgendamentosSemana = async (
     profissionalId: number, 
@@ -141,53 +121,53 @@ export const useAgendamentos = () => {
 
     const dataInicio = diasSemana[0]! // Domingo
     const dataFim = diasSemana[6]!   // Sábado
-    const chaveCache = gerarChaveCache(profissionalId, dataInicio, dataFim)
 
-    // Verificar cache apenas se não foi solicitada atualização forçada
-    if (!forcarAtualizacao && cacheAgendamentos.has(chaveCache)) {
-      console.log(`💾 Cache hit: Usando agendamentos temporários para ${chaveCache}`)
-      return cacheAgendamentos.get(chaveCache)!
+    // Verificar cache no store primeiro
+    if (!forcarAtualizacao) {
+      const agendamentosCache = agendamentoStore.buscarNoCache(profissionalId, diasSemana)
+      if (agendamentosCache) {
+        console.log(`💾 Cache hit: Usando agendamentos do store`)
+        agendamentoStore.setAgendamentos(agendamentosCache)
+        return agendamentosCache
+      }
     }
 
     try {
-      console.log(`� Buscando dados frescos no banco para ${chaveCache}`)
+      console.log(`🔄 Buscando dados frescos no banco`)
+      agendamentoStore.setCarregando(true)
+      agendamentoStore.setErro(null)
       
       const agendamentos = await buscarAgendamentosPorProfissional(profissionalId, dataInicio, dataFim)
       const agendamentosFormatados = formatarAgendamentos(agendamentos)
       
-      // Armazenar no cache temporário (apenas para evitar requests duplicados na mesma operação)
-      cacheAgendamentos.set(chaveCache, agendamentosFormatados)
+      // Armazenar no cache do store
+      agendamentoStore.armazenarNoCache(profissionalId, diasSemana, agendamentosFormatados)
+      
+      // Atualizar store com os dados
+      agendamentoStore.setAgendamentos(agendamentosFormatados)
       
       console.log(`✅ Dados frescos carregados: ${agendamentosFormatados.length} agendamentos`)
       
       return agendamentosFormatados
     } catch (error) {
       console.error('Erro ao buscar agendamentos da semana:', error)
+      agendamentoStore.setErro('Erro ao carregar agendamentos')
       throw error
+    } finally {
+      agendamentoStore.setCarregando(false)
     }
   }
 
   /**
-   * Limpar cache de agendamentos (útil quando dados são alterados)
+   * Limpar cache de agendamentos (delega para o store)
    */
   const limparCache = (profissionalId?: number) => {
-    if (profissionalId) {
-      // Limpar apenas caches deste profissional
-      const chavesParaRemover = Array.from(cacheAgendamentos.keys())
-        .filter(chave => chave.startsWith(`prof-${profissionalId}-`))
-      
-      chavesParaRemover.forEach(chave => cacheAgendamentos.delete(chave))
-      console.log(`🧹 Cache limpo para profissional ${profissionalId}: ${chavesParaRemover.length} entradas removidas`)
-    } else {
-      // Limpar todo o cache
-      const totalEntradas = cacheAgendamentos.size
-      cacheAgendamentos.clear()
-      console.log(`🧹 Cache totalmente limpo: ${totalEntradas} entradas removidas`)
-    }
+    agendamentoStore.limparCache(profissionalId)
   }
 
   return {
     buscarAgendamentosSemana,
-    limparCache
+    limparCache,
+    formatarAgendamentos
   }
 }

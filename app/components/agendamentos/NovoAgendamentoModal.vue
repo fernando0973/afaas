@@ -123,30 +123,44 @@
           <!-- Dropdown das cores -->
           <div 
             v-if="dropdownCoresAberto"
-            class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+            class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg"
           >
-            <button
-              v-for="cor in coresPredefinidas"
-              :key="cor.valor"
-              type="button"
-              @click="selecionarCor(cor)"
-              class="w-full px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none flex items-center space-x-3 transition-colors duration-150"
-              :class="{ 'bg-blue-50': form.cor === cor.valor }"
-            >
-              <div 
-                class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"
-                :style="{ backgroundColor: cor.valor }"
-              ></div>
-              <span class="text-sm text-gray-700 truncate">{{ cor.nome }}</span>
-              <svg 
-                v-if="form.cor === cor.valor"
-                class="w-4 h-4 text-blue-600 ml-auto flex-shrink-0" 
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </button>
+            <div class="p-3">
+              <div class="grid grid-cols-4 gap-2">
+                <button
+                  v-for="cor in coresPredefinidas"
+                  :key="cor.valor"
+                  type="button"
+                  @click="selecionarCor(cor)"
+                  class="relative group p-2 rounded-md hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150 flex flex-col items-center space-y-1"
+                  :title="cor.nome"
+                >
+                  <!-- Badge da cor -->
+                  <div 
+                    class="w-8 h-8 rounded-full border-2 transition-all duration-150"
+                    :class="form.cor === cor.valor ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300 group-hover:border-gray-400'"
+                    :style="{ backgroundColor: cor.valor }"
+                  >
+                    <!-- Ícone de check para cor selecionada -->
+                    <svg 
+                      v-if="form.cor === cor.valor"
+                      class="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 drop-shadow-sm" 
+                      fill="currentColor" 
+                      viewBox="0 0 20 20"
+                    >
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <!-- Nome da cor (apenas nas primeiras 8 para não sobrecarregar) -->
+                  <span 
+                    v-if="coresPredefinidas.indexOf(cor) < 8"
+                    class="text-xs text-gray-600 truncate max-w-full text-center leading-tight"
+                  >
+                    {{ cor.nome.split(' ')[0] }}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         

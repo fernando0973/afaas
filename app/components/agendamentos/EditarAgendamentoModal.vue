@@ -178,7 +178,7 @@
             type="button"
             variant="danger"
             size="sm"
-            @click="cancelarAgendamento"
+            @click="mostrarConfirmacaoCancelamento = true"
             :loading="cancelando"
           >
             Cancelar
@@ -206,6 +206,18 @@
       </div>
     </form>
   </BaseModal>
+
+  <!-- Modal de Confirmação de Cancelamento -->
+  <BaseConfirmModal
+    v-model="mostrarConfirmacaoCancelamento"
+    title="Cancelar Agendamento"
+    message="Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita e o agendamento será marcado como cancelado permanentemente. Confirma o cancelamento?"
+    confirm-text="Sim, Cancelar"
+    cancel-text="Não, Manter"
+    type="danger"
+    :loading="cancelando"
+    @confirm="cancelarAgendamento"
+  />
 </template>
 
 <script setup lang="ts">
@@ -236,6 +248,7 @@ const toast = useToastNotification()
 // Estados
 const loading = ref(false)
 const cancelando = ref(false)
+const mostrarConfirmacaoCancelamento = ref(false)
 const profissionalInfo = ref<any>(null)
 const clienteInfo = ref<any>(null)
 
@@ -524,29 +537,91 @@ const handleConfirm = async () => {
 }
 
 const cancelarAgendamento = async () => {
-  if (!props.agendamento) return
+  if (!props.agendamento) {
+    console.error('Nenhum agendamento selecionado para cancelar')
+    return
+  }
 
   cancelando.value = true
+  console.log('=== INÍCIO CANCELAMENTO ===')
+  console.log('Agendamento ID:', props.agendamento.id)
 
   try {
-    const { error } = await supabase
+    // Verificar o usuário atual
+    const { data: { user } } = await supabase.auth.getUser()
+    console.log('Usuário atual:', user?.id)
+
+    // Criar timestamp no formato brasileiro com timezone
+    const now = new Date()
+    const timestampLocal = now.toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/, '$3-$2-$1 $4-03')
+    
+    // Tentar com client normal primeiro
+    console.log('Tentando cancelamento com client normal...')
+    let { data, error } = await supabase
       .from('afaas_agendamentos')
       .update({
         cancelado: true,
-        cancelado_as: new Date().toISOString()
+        cancelado_as: timestampLocal
       })
       .eq('id', props.agendamento.id)
+      .select()
 
-    if (error) throw error
+    console.log('Resultado client normal:', { data, error })
 
+    // Se falhou por permissões, tentar via API server
+    if (error || !data || data.length === 0) {
+      console.log('Client normal falhou, tentando via API server...')
+      
+      try {
+        const response = await $fetch('/api/agendamentos/cancelar', {
+          method: 'POST',
+          body: {
+            id: props.agendamento.id,
+            cancelado_as: timestampLocal
+          }
+        }) as any
+        
+        console.log('Resposta da API server:', response)
+        
+        if (response.success) {
+          data = response.data ? [response.data] : []
+        } else {
+          throw new Error(response.error || 'Erro na API server')
+        }
+      } catch (apiError: any) {
+        console.error('Erro na API server:', apiError)
+        throw new Error(`Erro ao cancelar via API: ${apiError.message}`)
+      }
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error('Nenhum registro foi atualizado. Contate o administrador.')
+    }
+
+    console.log('✅ Cancelamento realizado com sucesso!')
+    
+    // Fechar modal de confirmação
+    mostrarConfirmacaoCancelamento.value = false
+    
     toast.success('Agendamento cancelado com sucesso!')
     emit('agendamento-cancelado')
     handleClose()
+    
   } catch (error: any) {
-    console.error('Erro ao cancelar agendamento:', error)
-    toast.error(`Erro ao cancelar agendamento: ${error.message}`)
+    console.error('❌ ERRO NO CANCELAMENTO:', error)
+    toast.error(`Erro ao cancelar: ${error.message || 'Erro desconhecido'}`)
   } finally {
     cancelando.value = false
+    console.log('=== FIM CANCELAMENTO ===')
   }
 }
 

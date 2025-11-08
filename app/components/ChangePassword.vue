@@ -95,7 +95,7 @@ import {
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 
 // Composables
-const { updatePassword } = useAuth()
+const { alterarSenha } = useAuth()
 const toast = useToast()
 
 // Estados dos campos
@@ -132,7 +132,7 @@ async function handleSubmit() {
   isLoading.value = true
   
   try {
-    const result = await updatePassword(newPassword.value)
+    const result = await alterarSenha(newPassword.value)
 
     if (result.success) {
       toast.success('Senha alterada com sucesso!')

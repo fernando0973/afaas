@@ -178,7 +178,7 @@
         <!-- Componente de Alteração de Senha -->
         <div class="space-y-8">
           <ChangePassword 
-            @password-change="handlePasswordChange"
+            @password-changed="handlePasswordChange"
             @cancel="handlePasswordCancel"
           />
 
@@ -336,11 +336,12 @@ async function toggleEditName() {
 }
 
 // Funções para lidar com eventos do componente ChangePassword
-function handlePasswordChange(data: { newPassword: string }) {
-  console.log('Alteração de senha solicitada:', { 
-    hasNewPassword: !!data.newPassword 
-  })
-  // TODO: Implementar alteração de senha
+function handlePasswordChange(success: boolean) {
+  if (success) {
+    console.log('Senha alterada com sucesso!')
+  } else {
+    console.log('Erro ao alterar senha')
+  }
 }
 
 function handlePasswordCancel() {

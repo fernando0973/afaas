@@ -300,6 +300,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      afaas_update_infos_user: {
+        Args: {
+          p_nome: string
+        }
+        Returns: {
+          success: boolean
+          message: string
+        }
+      }
     }
     Enums: {
       [_ in never]: never

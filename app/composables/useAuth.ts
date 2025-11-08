@@ -140,18 +140,44 @@ export const useAuth = () => {
 
   const atualizarInfosUsuario = async (novoNome: string) => {
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        data: {
-          full_name: novoNome
-        }
+      console.log('🔄 [useAuth] Iniciando atualização do nome:', novoNome)
+      
+      // Usar a RPC customizada para atualizar informações do usuário
+      const { data, error } = await supabase.rpc('afaas_update_infos_user', {
+        p_nome: novoNome
       })
       
       if (error) {
+        console.error('❌ [useAuth] Erro na RPC afaas_update_infos_user:', error)
         return { success: false, error: error.message, message: error.message }
       }
       
-      return { success: true, user: data.user, message: 'Nome atualizado com sucesso!' }
+      console.log('✅ [useAuth] Resultado da RPC:', data)
+      
+      // A RPC retorna {success: bool, message: mensagem informativa}
+      if (data && typeof data === 'object' && 'success' in data) {
+        const result = data as { success: boolean; message: string }
+        if (result.success) {
+          return { 
+            success: true, 
+            message: result.message || 'Nome atualizado com sucesso!' 
+          }
+        } else {
+          return { 
+            success: false, 
+            error: result.message || 'Erro desconhecido ao atualizar nome',
+            message: result.message || 'Erro desconhecido ao atualizar nome'
+          }
+        }
+      } else {
+        return { 
+          success: false, 
+          error: 'Resposta inválida da função de atualização',
+          message: 'Resposta inválida da função de atualização'
+        }
+      }
     } catch (error: any) {
+      console.error('❌ [useAuth] Erro inesperado ao atualizar nome:', error)
       return { success: false, error: error.message, message: error.message }
     }
   }

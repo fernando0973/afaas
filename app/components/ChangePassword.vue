@@ -5,7 +5,13 @@
       <h3 class="text-lg font-medium text-neutral-900">Alterar Senha</h3>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-4">
+    <form @submit.prevent="handleSubmit" class="space-y-4" autocomplete="off">
+      <!-- Campos dummy para confundir autocomplete -->
+      <div style="display: none;">
+        <input type="text" name="fake-username" autocomplete="username" />
+        <input type="password" name="fake-password" autocomplete="current-password" />
+      </div>
+      
       <!-- Nova Senha -->
       <div>
         <label for="newPassword" class="block text-sm font-medium text-neutral-700 mb-2">
@@ -14,12 +20,20 @@
         <div class="relative">
           <input
             id="newPassword"
+            ref="newPasswordInput"
             v-model="newPassword"
             :type="showNewPassword ? 'text' : 'password'"
             class="w-full px-3 py-2 pr-10 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Digite sua nova senha"
             required
             minlength="6"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-form-type="other"
+            :value="newPassword"
+            @input="newPassword = ($event.target as HTMLInputElement).value"
           />
           <button
             type="button"
@@ -43,11 +57,19 @@
         <div class="relative">
           <input
             id="confirmPassword"
+            ref="confirmPasswordInput"
             v-model="confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
             class="w-full px-3 py-2 pr-10 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Confirme sua nova senha"
             required
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-form-type="other"
+            :value="confirmPassword"
+            @input="confirmPassword = ($event.target as HTMLInputElement).value"
           />
           <button
             type="button"
@@ -98,7 +120,11 @@ import { useToastNotification as useToast } from '~/composables/useToastNotifica
 const { alterarSenha } = useAuth()
 const toast = useToast()
 
-// Estados dos campos
+// Refs para os inputs
+const newPasswordInput = ref<HTMLInputElement>()
+const confirmPasswordInput = ref<HTMLInputElement>()
+
+// Estados dos campos - garantir que sempre iniciem vazios
 const newPassword = ref('')
 const confirmPassword = ref('')
 
@@ -108,6 +134,36 @@ const showConfirmPassword = ref(false)
 
 // Estado de loading
 const isLoading = ref(false)
+
+// Função para garantir que os campos estejam sempre limpos na inicialização
+const initializeFields = () => {
+  newPassword.value = ''
+  confirmPassword.value = ''
+  showNewPassword.value = false
+  showConfirmPassword.value = false
+  
+  // Forçar limpeza dos inputs DOM também
+  nextTick(() => {
+    if (newPasswordInput.value) {
+      newPasswordInput.value.value = ''
+      newPasswordInput.value.defaultValue = ''
+    }
+    if (confirmPasswordInput.value) {
+      confirmPasswordInput.value.value = ''
+      confirmPasswordInput.value.defaultValue = ''
+    }
+  })
+}
+
+// Inicializar campos ao montar o componente
+onMounted(() => {
+  initializeFields()
+  
+  // Aguardar um pouco e forçar limpeza novamente para garantir
+  setTimeout(() => {
+    initializeFields()
+  }, 100)
+})
 
 // Computed para validação do formulário
 const isFormValid = computed(() => {
@@ -137,11 +193,8 @@ async function handleSubmit() {
     if (result.success) {
       toast.success('Senha alterada com sucesso!')
       
-      // Limpar campos após sucesso
-      newPassword.value = ''
-      confirmPassword.value = ''
-      showNewPassword.value = false
-      showConfirmPassword.value = false
+      // Limpar campos após sucesso usando a função de inicialização
+      initializeFields()
       
       // Emitir evento de sucesso
       emit('password-changed', true)
@@ -160,11 +213,8 @@ async function handleSubmit() {
 
 // Função para cancelar
 function handleCancel() {
-  // Limpar campos
-  newPassword.value = ''
-  confirmPassword.value = ''
-  showNewPassword.value = false
-  showConfirmPassword.value = false
+  // Garantir limpeza completa dos campos
+  initializeFields()
   
   // Emitir evento de cancelamento
   emit('cancel')

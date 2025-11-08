@@ -270,6 +270,31 @@ const user = useSupabaseUser()
 // Estado reativo para controlar se é admin
 const isAdmin = ref(false)
 
+// Função para verificar se usuário é admin (deve vir antes dos watchers)
+const checkAdminStatus = async () => {
+  if (!process.client) return
+  
+  try {
+    console.log('🔍 [Sidebar] Verificando status de admin...')
+    // SEMPRE força nova verificação sem usar cache para sidebar
+    const result = await checkIsAdmin(false)
+    console.log('📊 [Sidebar] Resultado da verificação:', result)
+    
+    // Garantir que o valor seja sempre boolean
+    const newAdminStatus = !!(result.success && result.isAdmin)
+    
+    if (isAdmin.value !== newAdminStatus) {
+      isAdmin.value = newAdminStatus
+      console.log('✅ [Sidebar] Status admin atualizado para:', isAdmin.value)
+    } else {
+      console.log('ℹ️ [Sidebar] Status admin mantido:', isAdmin.value)
+    }
+  } catch (error) {
+    console.error('❌ [Sidebar] Erro ao verificar status de admin:', error)
+    isAdmin.value = false
+  }
+}
+
 // Watcher para detectar mudanças no usuário e atualizar status de admin
 watch(user, async (newUser, oldUser) => {
   console.log('👤 [Sidebar] Mudança detectada no usuário:', { newUser: !!newUser, oldUser: !!oldUser })
@@ -315,31 +340,6 @@ const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
   if (showConfigDropdown.value && !target.closest('.config-dropdown') && !target.closest('.config-button')) {
     showConfigDropdown.value = false
-  }
-}
-
-// Função para verificar se usuário é admin
-const checkAdminStatus = async () => {
-  if (!process.client) return
-  
-  try {
-    console.log('🔍 [Sidebar] Verificando status de admin...')
-    // SEMPRE força nova verificação sem usar cache para sidebar
-    const result = await checkIsAdmin(false)
-    console.log('📊 [Sidebar] Resultado da verificação:', result)
-    
-    // Garantir que o valor seja sempre boolean
-    const newAdminStatus = !!(result.success && result.isAdmin)
-    
-    if (isAdmin.value !== newAdminStatus) {
-      isAdmin.value = newAdminStatus
-      console.log('✅ [Sidebar] Status admin atualizado para:', isAdmin.value)
-    } else {
-      console.log('ℹ️ [Sidebar] Status admin mantido:', isAdmin.value)
-    }
-  } catch (error) {
-    console.error('❌ [Sidebar] Erro ao verificar status de admin:', error)
-    isAdmin.value = false
   }
 }
 

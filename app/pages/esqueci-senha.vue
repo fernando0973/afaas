@@ -121,7 +121,7 @@ interface ModalConfig {
 }
 
 // Composables
-const { esqueceuSenha } = useAuth()
+const { recuperarSenha } = useAuth()
 const router = useRouter()
 
 // Estados reativos para o formulário
@@ -164,7 +164,7 @@ async function processPasswordReset() {
   loading.value = true
   
   try {
-    const result = await esqueceuSenha(email.value)
+    const result = await recuperarSenha(email.value)
     
     if (result.success) {
       // Sempre mostrar sucesso por segurança, mesmo se e-mail não existir

@@ -255,6 +255,44 @@ export const useAuth = () => {
     }
   }
 
+  const deletarUsuario = async (userId: string) => {
+    try {
+      console.log('🗑️ [useAuth] Iniciando deleção do usuário:', userId)
+      
+      // Fazer requisição para a API de deleção
+      const response = await $fetch('/api/usuarios', {
+        method: 'DELETE',
+        body: {
+          user_id: userId
+        }
+      })
+      
+      console.log('✅ [useAuth] Usuário deletado com sucesso:', response)
+      
+      return {
+        success: true,
+        message: response.message || 'Usuário deletado com sucesso'
+      }
+    } catch (error: any) {
+      console.error('❌ [useAuth] Erro ao deletar usuário:', error)
+      
+      // Tratar diferentes tipos de erro
+      let errorMessage = 'Erro inesperado ao deletar usuário'
+      
+      if (error.data?.message) {
+        errorMessage = error.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      return {
+        success: false,
+        error: errorMessage,
+        message: errorMessage
+      }
+    }
+  }
+
   return {
     user: readonly(user),
     isAuthenticated,
@@ -265,6 +303,7 @@ export const useAuth = () => {
     atualizarInfosUsuario,
     alterarSenha,
     recuperarSenha,
-    redefinirSenha
+    redefinirSenha,
+    deletarUsuario
   }
 }

@@ -94,8 +94,8 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Partes Usadas
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Ações
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Indicações
             </th>
           </tr>
         </thead>
@@ -143,30 +143,9 @@
                 </span>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex items-center justify-end space-x-2">
-                <BaseButton 
-                  variant="outline"
-                  size="sm"
-                  :disabled="!props.isAdmin"
-                  @click.stop="editarPlanta(planta)"
-                >
-                  <template #iconLeft>
-                    <PencilIcon class="w-3 h-3" />
-                  </template>
-                  Editar
-                </BaseButton>
-                <BaseButton 
-                  variant="danger"
-                  size="sm"
-                  :disabled="!props.isAdmin"
-                  @click.stop="confirmarRemocao(planta)"
-                >
-                  <template #iconLeft>
-                    <TrashIcon class="w-3 h-3" />
-                  </template>
-                  Remover
-                </BaseButton>
+            <td class="px-6 py-4">
+              <div class="text-sm text-neutral-600 max-w-md">
+                {{ planta.indicacoes || '-' }}
               </div>
             </td>
           </tr>
@@ -192,9 +171,7 @@ import {
   BeakerIcon,
   ArrowPathIcon, 
   ExclamationTriangleIcon,
-  PlusIcon,
-  PencilIcon,
-  TrashIcon
+  PlusIcon
 } from '@heroicons/vue/24/outline'
 import type { PlantaMedicinal } from '~/types/planta'
 
@@ -212,8 +189,6 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  editar: [planta: PlantaMedicinal]
-  remover: [planta: PlantaMedicinal]
   visualizar: [planta: PlantaMedicinal]
   recarregar: []
   adicionar: []
@@ -277,16 +252,6 @@ const carregarDados = async () => {
 const recarregarDados = async () => {
   await carregarDados()
   emit('recarregar')
-}
-
-// Função para editar planta
-const editarPlanta = (planta: PlantaMedicinal) => {
-  emit('editar', planta)
-}
-
-// Função para confirmar remoção
-const confirmarRemocao = (planta: PlantaMedicinal) => {
-  emit('remover', planta)
 }
 
 // Função para visualizar planta

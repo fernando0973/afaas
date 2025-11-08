@@ -5,7 +5,7 @@
     @close="$emit('update:modelValue', false)"
     :title="tituloModal"
     size="xl"
-    :show-footer="false"
+    :show-footer="true"
   >
     <div v-if="carregando" class="flex items-center justify-center py-12">
       <div class="text-center">
@@ -202,7 +202,18 @@
 
     <!-- Footer customizado -->
     <template #footer>
-      <div class="flex justify-end">
+      <div class="flex justify-between">
+        <BaseButton
+          v-if="planta"
+          variant="primary"
+          @click="editarPlanta"
+        >
+          <template #iconLeft>
+            <PencilIcon class="w-4 h-4" />
+          </template>
+          Editar
+        </BaseButton>
+        <div v-else></div>
         <BaseButton
           variant="secondary"
           @click="$emit('update:modelValue', false)"
@@ -223,7 +234,8 @@ import {
   MapIcon,
   HeartIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  PencilIcon
 } from '@heroicons/vue/24/outline'
 import type { PlantaMedicinal } from '~/types/planta'
 
@@ -244,6 +256,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
+  'editar': [planta: PlantaMedicinal]
 }>()
 
 // ===== COMPOSABLES =====
@@ -296,6 +309,13 @@ const limparEstado = () => {
   planta.value = null
   carregando.value = false
   erro.value = null
+}
+
+const editarPlanta = () => {
+  if (planta.value) {
+    emit('editar', planta.value)
+    emit('update:modelValue', false)
+  }
 }
 
 // ===== WATCHERS =====

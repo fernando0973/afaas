@@ -64,7 +64,6 @@
         :is-admin="isAdmin"
         :termo-busca="termoBuscaTabela"
         @editar="editarCliente"
-        @remover="confirmarRemoverCliente"
         @recarregar="recarregarTabela"
         @adicionar="adicionarCliente"
       />
@@ -79,19 +78,6 @@
         @close="fecharModal"
       />
 
-      <!-- Modal de confirmação para deleção -->
-      <BaseConfirmModal
-        v-model="modalConfirmacaoAberto"
-        type="danger"
-        title="Confirmar Exclusão"
-        :message="`Tem certeza que deseja remover o cliente '${clienteParaDeletar?.nome_completo}'? Esta ação não pode ser desfeita.`"
-        confirm-text="Sim, Remover"
-        cancel-text="Cancelar"
-        :loading="deletandoCliente"
-        @confirm="confirmarDelecao"
-        @cancel="cancelarDelecao"
-        @close="cancelarDelecao"
-      />
     </div>
   </div>
 </template>
@@ -105,8 +91,7 @@ import type { Cliente } from '~/types/cliente'
 // Meta da página
 definePageMeta({
   title: 'Clientes',
-  description: 'Gerencie os clientes cadastrados no sistema',
-  middleware: 'auth'
+  description: 'Gerencie os clientes cadastrados no sistema'
 })
 
 // Título da página
@@ -115,7 +100,7 @@ useHead({
 })
 
 // Composables
-const { buscarClientes, removerCliente } = useProfissionais()
+const { buscarClientes } = useProfissionais()
 
 // Estados reativos
 const isAdmin = ref(true) // TODO: Implementar verificação de admin real
@@ -124,15 +109,10 @@ const tabelaRef = ref<any>(null)
 // Estado da busca
 const termoBuscaTabela = ref('')
 
-// Estados do modal (para implementação futura)
+// Estados do modal
 const modalAberto = ref(false)
 const modoEdicao = ref(false)
 const clienteSelecionado = ref<Cliente | null>(null)
-
-// Estados do modal de confirmação
-const modalConfirmacaoAberto = ref(false)
-const clienteParaDeletar = ref<Cliente | null>(null)
-const deletandoCliente = ref(false)
 
 // Funções para manipulação dos clientes
 const adicionarCliente = () => {
@@ -150,42 +130,6 @@ const editarCliente = (cliente: Cliente) => {
   
   console.log('Cliente selecionado:', clienteSelecionado.value)
   modalAberto.value = true
-}
-
-const confirmarRemoverCliente = (cliente: Cliente) => {
-  clienteParaDeletar.value = cliente
-  modalConfirmacaoAberto.value = true
-}
-
-const cancelarDelecao = () => {
-  modalConfirmacaoAberto.value = false
-  clienteParaDeletar.value = null
-  deletandoCliente.value = false
-}
-
-const confirmarDelecao = async () => {
-  if (!clienteParaDeletar.value?.id) {
-    return
-  }
-
-  deletandoCliente.value = true
-
-  try {
-    const resultado = await removerCliente(clienteParaDeletar.value.id)
-    if (resultado.success) {
-      toast.success('Cliente removido com sucesso!')
-      cancelarDelecao()
-      if (tabelaRef.value?.recarregarDados) {
-        await tabelaRef.value.recarregarDados()
-      }
-    } else {
-      toast.error(resultado.message || 'Erro ao remover cliente!')
-    }
-  } catch (error: any) {
-    toast.error(`Erro inesperado: ${error.message || error}`)
-  } finally {
-    deletandoCliente.value = false
-  }
 }
 
 const fecharModal = () => {

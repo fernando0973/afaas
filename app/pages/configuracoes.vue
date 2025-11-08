@@ -8,7 +8,6 @@
 // Meta da página
 definePageMeta({
   title: 'Configurações',
-  description: 'Configurações do sistema',
-  middleware: 'auth'
+  description: 'Configurações do sistema'
 })
 </script>

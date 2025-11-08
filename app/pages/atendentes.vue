@@ -84,8 +84,7 @@ import { useToastNotification as useToast } from '~/composables/useToastNotifica
 // Meta da página
 definePageMeta({
   title: 'Profissionais',
-  description: 'Gerencie os profissionais e suas especialidades',
-  middleware: 'auth'
+  description: 'Gerencie os profissionais e suas especialidades'
 })
 
 // Título da página
@@ -97,7 +96,7 @@ useHead({
 const userStore = useUserStore()
 
 // Composables
-const { buscarPerfis, buscarEspecialidades, removerProfissional } = useProfissionais()
+const { buscarPerfis, buscarEspecialidades, removerProfissional, inserirProfissional } = useProfissionais()
 
 // Referência para o componente da tabela
 const tabelaRef = ref()
@@ -194,16 +193,25 @@ const fecharModal = () => {
 }
 
 const aoSalvarProfissional = async (dadosProfissional: any) => {
-  console.log('Profissional salvo:', dadosProfissional)
+  console.log('Salvando profissional:', dadosProfissional)
   
-  // Aguardar um pouco para garantir que o toast seja exibido antes de fechar o modal
-  setTimeout(() => {
-    fecharModal()
-  }, 500)
-  
-  // Recarregar a tabela de profissionais
-  if (tabelaRef.value && typeof tabelaRef.value.recarregarDados === 'function') {
-    await tabelaRef.value.recarregarDados()
+  try {
+    const resultado = await inserirProfissional(dadosProfissional.profile_id, dadosProfissional.especialidade_id)
+    
+    if (resultado.success) {
+      toast.success(resultado.message)
+      fecharModal()
+      
+      // Recarregar a tabela de profissionais
+      if (tabelaRef.value && typeof tabelaRef.value.recarregarDados === 'function') {
+        await tabelaRef.value.recarregarDados()
+      }
+    } else {
+      toast.error(resultado.message || 'Erro ao adicionar profissional')
+    }
+  } catch (error: any) {
+    console.error('Erro ao salvar profissional:', error)
+    toast.error('Erro interno ao adicionar profissional')
   }
 }
 

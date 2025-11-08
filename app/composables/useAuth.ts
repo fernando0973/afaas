@@ -2,16 +2,13 @@ export const useAuth = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
   
-  // Cache para resultado da verificação de admin
   const adminCheckCache = ref<{ isAdmin: boolean; timestamp: number } | null>(null)
-  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos
+  const CACHE_DURATION = 5 * 60 * 1000
 
-  // Verifica se o usuário é válido
   const isValidUser = (user: any) => {
     return user && user.id && user.email
   }
 
-  // Verifica se o usuário está autenticado
   const isAuthenticated = computed(() => {
     return !!user.value && isValidUser(user.value)
   })
@@ -19,431 +16,229 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: email,
+        password: password
       })
 
-      if (error) throw error
+      if (error) {
+        return { success: false, error: error.message }
+      }
 
-      // Aguarda um momento para garantir que a sessão seja estabelecida
-      await new Promise(resolve => setTimeout(resolve, 200))
-      
-      // Força o redirecionamento imediatamente após login bem-sucedido
-      await navigateTo('/')
-      
-      return { success: true, user: data.user }
+      if (!data.session || !data.user) {
+        return { success: false, error: 'Dados de sessão inválidos' }
+      }
+
+      return { success: true, user: data.user, session: data.session }
     } catch (error: any) {
-      console.error('Erro no login:', error.message)
       return { success: false, error: error.message }
     }
   }
 
   const logout = async () => {
     try {
+      console.log('🚪 [useAuth] Iniciando logout...')
+      adminCheckCache.value = null
+      
       const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      
+      if (error) {
+        console.error('❌ [useAuth] Erro no logout:', error.message)
+        return { success: false, error: error.message }
+      }
 
-      // O redirecionamento será feito pelo plugin auth.client.ts
-      // quando detectar o evento SIGNED_OUT
+      console.log('✅ [useAuth] Logout realizado com sucesso')
+      
+      // Redirecionar para login após logout
+      await navigateTo('/login', { replace: true })
       
       return { success: true }
     } catch (error: any) {
-      console.error('Erro no logout:', error.message)
+      console.error('❌ [useAuth] Falha no logout:', error.message)
       return { success: false, error: error.message }
     }
   }
 
-  // Verifica o status da sessão atual com debounce
-  let sessionCheckTimeout: NodeJS.Timeout | null = null
-  const checkSession = async () => {
-    // Cancela verificação anterior se ainda estiver pendente
-    if (sessionCheckTimeout) {
-      clearTimeout(sessionCheckTimeout)
-    }
-    
-    return new Promise<boolean>((resolve) => {
-      sessionCheckTimeout = setTimeout(async () => {
-        try {
-          const { data: { session }, error } = await supabase.auth.getSession()
-          
-          if (error) {
-            console.error('Erro ao verificar sessão:', error.message)
-            resolve(false)
-            return
-          }
-          
-          if (session?.user && !isValidUser(session.user)) {
-            // Se a sessão existe mas o usuário não é válido, faz logout
-            await logout()
-            resolve(false)
-            return
-          }
-          
-          resolve(!!session?.user)
-        } catch (error: any) {
-          console.error('Erro ao verificar sessão:', error.message)
-          resolve(false)
-        }
-      }, 50) // Pequeno delay para evitar múltiplas chamadas
-    })
-  }
-
-  // Função para obter nome de exibição do usuário
-  const getUserDisplayName = () => {
-    if (!user.value) return 'Usuário'
-    
-    const userData = user.value as any
-    const userMetadata = userData.user_metadata || {}
-    const appMetadata = userData.app_metadata || {}
-    
-    // Busca APENAS dados reais da tabela, sem formatação de email
-    return (
-      userMetadata.full_name ||
-      userMetadata.name ||
-      userMetadata.display_name ||
-      (userMetadata.first_name && userMetadata.last_name ? 
-        `${userMetadata.first_name} ${userMetadata.last_name}` : null) ||
-      userMetadata.first_name ||
-      appMetadata.full_name ||
-      appMetadata.name ||
-      'Usuário sem nome' // Se não há nome na tabela, mostra isso
-    )
-  }
-
-  // Função para atualizar o perfil do usuário
-  const updateUserProfile = async (profileData: { full_name?: string; display_name?: string }) => {
-    try {
-      const { data, error } = await supabase.auth.updateUser({
-        data: profileData
-      })
-      
-      if (error) throw error
-      
-      return { success: true, user: data.user }
-    } catch (error: any) {
-      console.error('Erro ao atualizar perfil:', error.message)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Função para alterar a senha do usuário
-  const updatePassword = async (newPassword: string) => {
+  const isAdmin = async () => {
     try {
       if (!user.value) {
-        return { success: false, error: 'Usuário não autenticado' }
+        console.log('🚫 [useAuth] isAdmin: Usuário não está logado')
+        return false
       }
 
-      if (!newPassword || newPassword.length < 6) {
-        return { success: false, error: 'Nova senha deve ter pelo menos 6 caracteres' }
+      console.log('🔍 [useAuth] Verificando admin para usuário:', user.value.id)
+
+      if (adminCheckCache.value && 
+          (Date.now() - adminCheckCache.value.timestamp) < CACHE_DURATION) {
+        console.log('📦 [useAuth] isAdmin: Usando cache:', adminCheckCache.value.isAdmin)
+        return adminCheckCache.value.isAdmin
       }
 
-      const { data, error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
-      
-      if (error) throw error
-      
-      return { success: true, user: data.user }
-    } catch (error: any) {
-      console.error('Erro ao atualizar senha:', error.message)
-      return { success: false, error: error.message }
+      // Usar a função RPC do Supabase
+      console.log('🔄 [useAuth] Chamando RPC afaas_isadmin...')
+      const { data, error } = await supabase.rpc('afaas_isadmin')
+
+      if (error) {
+        console.error('❌ [useAuth] Erro ao verificar permissão admin:', error.message)
+        return false
+      }
+
+      console.log('📊 [useAuth] Resultado bruto da RPC afaas_isadmin:', data)
+
+      // Normalizar diferentes formatos de retorno possíveis da RPC
+      let isAdminResult = false
+
+      try {
+        // Caso simples: booleano direto
+        if (data === true || (typeof data === 'string' && (data === 'true' || data === 't'))) {
+          isAdminResult = true
+        }
+
+        // Caso objeto com propriedade "isadmin": {"isadmin": true/false}
+        else if (typeof data === 'object' && data !== null && data && typeof (data as any).isadmin !== 'undefined') {
+          const adminValue = (data as any).isadmin
+          isAdminResult = Boolean(adminValue)
+          console.log('📊 [useAuth] Formato {"isadmin": X} detectado:', adminValue)
+        }
+
+        // Caso array retornado pelo supabase (ex.: [{ afaasisadmin: true }])
+        else if (Array.isArray(data) && data.length > 0) {
+          const first = data[0]
+          if (typeof first === 'boolean') {
+            isAdminResult = first
+          } else if (typeof first === 'object' && first !== null) {
+            const firstVal = Object.values(first)[0]
+            isAdminResult = firstVal === true || (typeof firstVal === 'string' && (firstVal === 'true' || firstVal === 't'))
+          }
+        }
+
+        // Caso objeto genérico: { afaasisadmin: true } ou { is_admin: true }
+        else if (typeof data === 'object' && data !== null) {
+          const vals = Object.values(data)
+          if (vals.length > 0) {
+            const firstVal = vals[0]
+            isAdminResult = firstVal === true || (typeof firstVal === 'string' && (firstVal === 'true' || firstVal === 't'))
+          }
+        }
+      } catch (parseErr) {
+        console.error('❌ [useAuth] Erro ao normalizar resultado da RPC afaas_isadmin:', parseErr)
+        isAdminResult = false
+      }
+
+      adminCheckCache.value = {
+        isAdmin: isAdminResult,
+        timestamp: Date.now()
+      }
+
+      console.log('✅ [useAuth] Resultado final isAdmin (normalizado):', isAdminResult)
+
+      return isAdminResult
+    } catch (error) {
+      console.error('❌ [useAuth] Erro na verificação de admin:', error)
+      return false
     }
   }
 
-  // Função para verificar se o usuário é admin via RPC
+  const atualizarInfosUsuario = async (novoNome: string) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: {
+          full_name: novoNome
+        }
+      })
+      
+      if (error) {
+        return { success: false, error: error.message, message: error.message }
+      }
+      
+      return { success: true, user: data.user, message: 'Nome atualizado com sucesso!' }
+    } catch (error: any) {
+      return { success: false, error: error.message, message: error.message }
+    }
+  }
+
+  // Função auxiliar para verificar admin com opções
   const checkIsAdmin = async (useCache = true) => {
     try {
       if (!user.value) {
+        console.log('🚫 [useAuth] checkIsAdmin: Usuário não autenticado')
         return { success: false, isAdmin: false, error: 'Usuário não autenticado' }
       }
 
-      // Verificar cache se solicitado
-      if (useCache && adminCheckCache.value) {
-        const now = Date.now()
-        if (now - adminCheckCache.value.timestamp < CACHE_DURATION) {
-          return { success: true, isAdmin: adminCheckCache.value.isAdmin }
-        }
+      console.log('🔍 [useAuth] checkIsAdmin chamada com useCache:', useCache)
+
+      // Se não usar cache, limpar cache e fazer nova consulta
+      if (!useCache) {
+        console.log('🧹 [useAuth] Limpando cache de admin...')
+        adminCheckCache.value = null
       }
 
-      // Usar any para contornar limitações de tipagem da RPC
-      const { data, error } = await (supabase as any).rpc('afaas_isadmin')
-      
-      if (error) {
-        console.error('Erro ao verificar se usuário é admin:', error.message)
-        return { success: false, isAdmin: false, error: error.message }
-      }
-      
-      // A RPC retorna {"isadmin": true/false}
-      const isAdmin = data?.isadmin === true
-      
-      // Atualizar cache
-      adminCheckCache.value = {
-        isAdmin,
-        timestamp: Date.now()
-      }
-      
-      return { success: true, isAdmin }
+      const isAdminResult = await isAdmin()
+      console.log('📊 [useAuth] checkIsAdmin resultado:', isAdminResult)
+      return { success: true, isAdmin: isAdminResult }
     } catch (error: any) {
-      console.error('Erro ao verificar se usuário é admin:', error.message)
+      console.error('❌ [useAuth] Erro em checkIsAdmin:', error)
       return { success: false, isAdmin: false, error: error.message }
     }
   }
 
-  // ==========================================
-  // Funcionalidades de gestão de usuários
-  // ==========================================
-
-  /**
-   * Criar um novo usuário no sistema
-   */
-  const criarUsuario = async (dados: {
-    nome: string
-    email: string
-    senha: string
-    role: string
-  }): Promise<{
-    success: boolean
-    message: string
-    user?: {
-      id: string
-      email: string
-    }
-    profile?: {
-      id: number
-      user_id: string | null
-      nome: string | null
-      email: string | null
-      role: string | null
-    }
-  }> => {
+  const alterarSenha = async (novaSenha: string) => {
     try {
-      const response = await $fetch<{
-        success: boolean
-        message: string
-        user?: {
-          id: string
-          email: string
-        }
-        profile?: {
-          id: number
-          user_id: string | null
-          nome: string | null
-          email: string | null
-          role: string | null
-        }
-      }>('/api/usuarios', {
-        method: 'POST',
-        body: dados
+      const { data, error } = await supabase.auth.updateUser({
+        password: novaSenha
       })
-
-      return response
-    } catch (error: any) {
-      console.error('Erro ao criar usuário:', error)
       
-      // Se for um erro da API, retornar a mensagem
-      if (error.data?.message) {
-        return {
-          success: false,
-          message: error.data.message
-        }
-      }
-
-      // Erro genérico
-      return {
-        success: false,
-        message: 'Erro interno do servidor'
-      }
-    }
-  }
-
-  /**
-   * Deletar usuário do sistema
-   */
-  const deletarUsuario = async (user_id: string): Promise<{
-    success: boolean
-    message: string
-  }> => {
-    try {
-      const response = await $fetch<{
-        success: boolean
-        message: string
-      }>('/api/usuarios', {
-        method: 'DELETE',
-        body: { user_id }
-      })
-
-      return response
-    } catch (error: any) {
-      console.error('Erro ao deletar usuário:', error)
-      
-      // Se for um erro da API, retornar a mensagem
-      if (error.data?.statusMessage) {
-        return {
-          success: false,
-          message: error.data.statusMessage
-        }
-      }
-
-      // Erro genérico
-      return {
-        success: false,
-        message: 'Erro interno do servidor'
-      }
-    }
-  }
-
-  /**
-   * Editar usuário no sistema
-   */
-  const editarUsuario = async (dados: {
-    user_id: string
-    nome: string
-    email: string
-    senha?: string
-  }): Promise<{
-    success: boolean
-    message: string
-    data?: any
-  }> => {
-    try {
-      const response = await $fetch<{
-        success: boolean
-        message: string
-        data?: any
-      }>('/api/usuarios', {
-        method: 'PUT',
-        body: dados
-      })
-
-      return response
-    } catch (error: any) {
-      console.error('Erro ao editar usuário:', error)
-      
-      // Se for um erro da API, retornar a mensagem
-      if (error.data?.statusMessage) {
-        return {
-          success: false,
-          message: error.data.statusMessage
-        }
-      }
-
-      // Erro genérico
-      return {
-        success: false,
-        message: 'Erro interno do servidor'
-      }
-    }
-  }
-
-  /**
-   * Atualizar informações do próprio usuário logado
-   */
-  const atualizarInfosUsuario = async (nome: string): Promise<{
-    success: boolean
-    message: string
-  }> => {
-    try {
-      if (!user.value) {
-        return { success: false, message: 'Usuário não autenticado' }
-      }
-
-      if (!nome || nome.trim().length < 2) {
-        return { success: false, message: 'Nome deve ter pelo menos 2 caracteres' }
-      }
-
-      // Usar any para contornar limitações de tipagem da RPC
-      const { data, error } = await (supabase as any).rpc('afaas_update_infos_user', {
-        p_nome: nome.trim()
-      })
-
       if (error) {
-        console.error('Erro ao atualizar informações do usuário:', error)
-        return {
-          success: false,
-          message: error.message || 'Erro ao atualizar informações'
-        }
+        return { success: false, error: error.message }
       }
-
-      return data || { success: true, message: 'Informações atualizadas com sucesso' }
+      
+      return { success: true, user: data.user }
     } catch (error: any) {
-      console.error('Erro ao atualizar informações do usuário:', error)
-      return {
-        success: false,
-        message: 'Erro interno do servidor'
-      }
+      return { success: false, error: error.message }
     }
   }
 
-  /**
-   * Enviar e-mail de recuperação de senha
-   * 
-   * Envia um link de recuperação de senha para o e-mail especificado.
-   * Por segurança, sempre retorna sucesso, mesmo se o e-mail não existir.
-   * 
-   * Estados de link de recuperação:
-   * - Válido: Link pode ser usado uma única vez dentro de 1 hora
-   * - Expirado: Link passou de 1 hora desde a criação
-   * - Já utilizado: Link já foi usado para alterar a senha
-   * - Inválido: Link com formato incorreto ou corrompido
-   */
-  const esqueceuSenha = async (email: string): Promise<{
-    success: boolean
-    message: string
-  }> => {
+  const recuperarSenha = async (email: string) => {
     try {
-      if (!email || !email.trim()) {
-        return { success: false, message: 'E-mail é obrigatório' }
-      }
-
-      // Validação básica de formato de e-mail
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(email.trim())) {
-        return { success: false, message: 'Formato de e-mail inválido' }
-      }
-
-      // Configurar a URL de redirecionamento para a página de recuperação
-      const redirectTo = `${window.location.origin}/recuperar-senha`
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/recuperar-senha`
       })
-
+      
       if (error) {
-        console.error('Erro ao enviar e-mail de recuperação:', error.message)
-        return {
-          success: false,
-          message: error.message || 'Erro ao enviar e-mail de recuperação'
-        }
+        return { success: false, error: error.message }
       }
-
-      return {
-        success: true,
-        message: 'E-mail de recuperação enviado com sucesso'
-      }
+      
+      return { success: true }
     } catch (error: any) {
-      console.error('Erro ao processar recuperação de senha:', error.message)
-      return {
-        success: false,
-        message: 'Erro interno do servidor'
+      return { success: false, error: error.message }
+    }
+  }
+
+  const redefinirSenha = async (novaSenha: string) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: novaSenha
+      })
+      
+      if (error) {
+        return { success: false, error: error.message }
       }
+      
+      return { success: true, user: data.user }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   }
 
   return {
-    user,
+    user: readonly(user),
     isAuthenticated,
-    isValidUser,
     login,
     logout,
-    checkSession,
-    getUserDisplayName,
-    updateUserProfile,
-    updatePassword,
+    isAdmin,
     checkIsAdmin,
-    criarUsuario,
-    deletarUsuario,
-    editarUsuario,
     atualizarInfosUsuario,
-    esqueceuSenha
+    alterarSenha,
+    recuperarSenha,
+    redefinirSenha
   }
 }

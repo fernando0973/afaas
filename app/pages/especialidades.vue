@@ -81,8 +81,7 @@ import { useToastNotification as useToast } from '~/composables/useToastNotifica
 // Meta da página
 definePageMeta({
   title: 'Especialidades',
-  description: 'Gerencie as especialidades e áreas de atuação dos profissionais',
-  middleware: 'auth'
+  description: 'Gerencie as especialidades e áreas de atuação dos profissionais'
 })
 
 // Título da página

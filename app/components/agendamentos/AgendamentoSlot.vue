@@ -1,7 +1,7 @@
 <template>
   <div 
     :style="estilosSlot"
-    class="rounded-lg p-2 cursor-pointer transition-all duration-200 h-full flex flex-col overflow-hidden hover:shadow-lg hover:scale-[1.02] border-l-4"
+    class="rounded-lg p-2 cursor-pointer transition-all duration-200 h-full flex flex-col overflow-hidden hover:shadow-lg hover:scale-[1.02] border"
     :class="classesSlot"
   >
     <!-- Horário do agendamento -->
@@ -19,11 +19,6 @@
       <div class="line-clamp-3 leading-relaxed">
         {{ agendamento.descricao || 'Sem descrição' }}
       </div>
-    </div>
-
-    <!-- Indicador visual adicional (futuro: status, profissional, etc.) -->
-    <div class="mt-auto pt-1 flex-shrink-0">
-      <div class="w-full h-0.5 bg-white/30 rounded-full"></div>
     </div>
   </div>
 </template>
@@ -46,7 +41,7 @@ const estilosSlot = computed(() => {
   
   return {
     backgroundColor: cor,
-    borderLeftColor: darkenColor(cor, 0.3)
+    borderColor: darkenColor(cor, 0.25)
   }
 })
 

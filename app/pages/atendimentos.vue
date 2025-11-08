@@ -8,7 +8,6 @@
 // Meta da página
 definePageMeta({
   title: 'Atendimentos',
-  description: 'Gerencie os atendimentos agendados',
-  middleware: 'auth'
+  description: 'Gerencie os atendimentos agendados'
 })
 </script>

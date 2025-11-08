@@ -233,11 +233,6 @@ import {
 import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import { useUserData } from '~/composables/useUserData'
 
-// Definir meta da página
-definePageMeta({
-  middleware: 'auth'
-})
-
 // Usar dados do usuário do store
 const { userName, userRole, profile, loadUserProfile } = useUserData()
 const { user, atualizarInfosUsuario } = useAuth()
@@ -307,7 +302,7 @@ async function toggleEditName() {
             nameUpdateMessage.value = ''
           }, 3000)
         } else {
-          toast.error(resultado.message || 'Erro ao atualizar nome')
+          toast.error(resultado.error || 'Erro ao atualizar nome')
           // Reverter para o nome original
           editableUserName.value = userName.value
         }

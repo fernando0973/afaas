@@ -144,8 +144,7 @@
 // Meta da página
 definePageMeta({
   title: 'Ajuda',
-  description: 'Central de ajuda e suporte',
-  middleware: 'auth'
+  description: 'Central de ajuda e suporte'
 })
 
 // Título da página

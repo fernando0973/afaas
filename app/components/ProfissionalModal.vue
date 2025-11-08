@@ -98,13 +98,13 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  salvar: [data: { perfil_id: number; especialidade_id: number }]
+  salvar: [data: { profile_id: number; especialidade_id: number }]
   cancelar: []
   fechar: []
 }>()
 
 // Composables
-const { inserirProfissional, editarProfissional } = useProfissionais()
+const { editarProfissional } = useProfissionais()
 const toast = useToast()
 
 // Estado do formulário
@@ -173,20 +173,8 @@ const handleSave = async () => {
   try {
     // Para criação de novo profissional
     if (!props.isEdicao) {
-      const resultado = await inserirProfissional(perfil_id, especialidade_id)
-      console.log('Resultado ao inserir profissional:', resultado)
-      
-      if (resultado.success) {
-        console.log('Exibindo toast de sucesso:', resultado.message)
-        toast.success(resultado.message)
-        // Aguardar um pouco para garantir que o toast seja exibido
-        setTimeout(() => {
-          emit('salvar', { perfil_id, especialidade_id })
-        }, 300)
-      } else {
-        console.log('Exibindo toast de erro:', resultado.message)
-        toast.error(resultado.message)
-      }
+      // Apenas emite o evento para o componente pai tratar a inserção
+      emit('salvar', { profile_id: perfil_id, especialidade_id })
     } else {
       // Para edição de profissional existente
       if (!props.profissional?.profissional_id) {
@@ -202,7 +190,7 @@ const handleSave = async () => {
         toast.success(resultado.message)
         // Aguardar um pouco para garantir que o toast seja exibido
         setTimeout(() => {
-          emit('salvar', { perfil_id, especialidade_id })
+          emit('salvar', { profile_id: perfil_id, especialidade_id })
         }, 300)
       } else {
         console.log('Exibindo toast de erro:', resultado.message)

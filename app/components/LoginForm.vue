@@ -118,7 +118,9 @@ const handleLogin = async () => {
 
     if (result.success) {
       toast.success('Login realizado com sucesso!')
-      // O redirecionamento já é feito no composable useAuth
+      
+      // Redirecionamento manual para a página principal
+      await navigateTo('/', { replace: true })
     } else {
       toast.error(result.error || 'Erro ao fazer login. Verifique suas credenciais.')
     }

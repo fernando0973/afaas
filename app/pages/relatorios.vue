@@ -8,7 +8,6 @@
 // Meta da página
 definePageMeta({
   title: 'Relatórios',
-  description: 'Relatórios e estatísticas do sistema',
-  middleware: 'auth'
+  description: 'Relatórios e estatísticas do sistema'
 })
 </script>

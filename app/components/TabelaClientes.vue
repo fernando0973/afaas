@@ -100,9 +100,6 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
               Data Nascimento
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Ações
-            </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-neutral-200">
@@ -178,32 +175,6 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-700">
               {{ formatData(cliente.data_nascimento) }}
             </td>
-
-            <!-- Ações -->
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex items-center justify-end space-x-2">
-                <BaseButton 
-                  variant="ghost"
-                  size="sm"
-                  @click="$emit('editar', cliente)"
-                  :disabled="!props.isAdmin"
-                  title="Editar cliente"
-                >
-                  <PencilIcon class="w-4 h-4" />
-                </BaseButton>
-                
-                <BaseButton 
-                  variant="ghost"
-                  size="sm"
-                  @click="$emit('remover', cliente)"
-                  :disabled="!props.isAdmin"
-                  title="Remover cliente"
-                  class="text-red-600 hover:text-red-700"
-                >
-                  <TrashIcon class="w-4 h-4" />
-                </BaseButton>
-              </div>
-            </td>
           </tr>
         </tbody>
       </table>
@@ -218,9 +189,7 @@ import {
   ExclamationTriangleIcon, 
   UserGroupIcon,
   PlusIcon,
-  UserIcon,
-  PencilIcon,
-  TrashIcon
+  UserIcon
 } from '@heroicons/vue/24/outline'
 import type { Cliente } from '~/types/cliente'
 
@@ -239,7 +208,6 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 const emit = defineEmits<{
   editar: [cliente: Cliente]
-  remover: [cliente: Cliente]
   recarregar: []
   adicionar: []
 }>()

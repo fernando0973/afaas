@@ -235,12 +235,12 @@ export const useProfissionais = () => {
     }
   }
 
-  const inserirProfissional = async (perfil_id: number, especialidade_id: number) => {
+  const inserirProfissional = async (profile_id: number, especialidade_id: number) => {
     try {
       const { data, error } = await (supabase as any)
         .from('afaas_profissionais')
         .insert({
-          perfil_id,
+          profile_id,
           especialidade_id
         })
         .select()

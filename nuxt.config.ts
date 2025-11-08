@@ -25,7 +25,17 @@ export default defineNuxtConfig({
   srcDir: 'app',
   components: [{ path: '~/components', pathPrefix: false }],
   supabase: {
-    redirect: false
+    redirect: true,
+    redirectOptions: {
+      login: '/login',
+      callback: '/',
+      exclude: ['/login', '/esqueci-senha', '/recuperar-senha']
+    },
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 7, // 7 dias
+      sameSite: 'lax',
+      secure: true
+    }
   },
   vue: {
     compilerOptions: {

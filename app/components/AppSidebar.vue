@@ -260,11 +260,35 @@ const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const { logout, checkIsAdmin } = useAuth()
 const { userName, loadUserProfile } = useUserData()
+
+// Composables
+const userStore = useUserStore()
+const { logout, checkIsAdmin } = useAuth()
+const user = useSupabaseUser()
 
 // Estado reativo para controlar se é admin
 const isAdmin = ref(false)
+
+// Watcher para detectar mudanças no usuário e atualizar status de admin
+watch(user, async (newUser, oldUser) => {
+  console.log('👤 [Sidebar] Mudança detectada no usuário:', { newUser: !!newUser, oldUser: !!oldUser })
+  
+  if (newUser) {
+    // Usuário logou ou mudou, verificar status de admin
+    console.log('🔄 [Sidebar] Usuário presente, verificando status de admin...')
+    await checkAdminStatus()
+  } else {
+    // Usuário deslogou, resetar status de admin
+    console.log('🚪 [Sidebar] Usuário deslogou, resetando status de admin')
+    isAdmin.value = false
+  }
+}, { immediate: true })
+
+// Watcher para detectar mudanças no status de admin
+watch(isAdmin, (newValue, oldValue) => {
+  console.log('🔄 [Sidebar] Status admin alterado:', { de: oldValue, para: newValue })
+})
 
 // Definir os itens do dropdown
 const dropdownItems: DropdownItem[] = [
@@ -299,10 +323,22 @@ const checkAdminStatus = async () => {
   if (!process.client) return
   
   try {
-    const result = await checkIsAdmin()
-    isAdmin.value = result.success && result.isAdmin
+    console.log('🔍 [Sidebar] Verificando status de admin...')
+    // SEMPRE força nova verificação sem usar cache para sidebar
+    const result = await checkIsAdmin(false)
+    console.log('📊 [Sidebar] Resultado da verificação:', result)
+    
+    // Garantir que o valor seja sempre boolean
+    const newAdminStatus = !!(result.success && result.isAdmin)
+    
+    if (isAdmin.value !== newAdminStatus) {
+      isAdmin.value = newAdminStatus
+      console.log('✅ [Sidebar] Status admin atualizado para:', isAdmin.value)
+    } else {
+      console.log('ℹ️ [Sidebar] Status admin mantido:', isAdmin.value)
+    }
   } catch (error) {
-    console.error('Erro ao verificar status de admin:', error)
+    console.error('❌ [Sidebar] Erro ao verificar status de admin:', error)
     isAdmin.value = false
   }
 }
@@ -311,11 +347,14 @@ const checkAdminStatus = async () => {
 onMounted(async () => {
   if (!process.client) return
 
+  console.log('🚀 [Sidebar] Componente montado, inicializando...')
+
   // Carrega dados do perfil
   await nextTick()
   await loadUserProfile()
   
-  // Verifica status de admin
+  // Verifica status de admin inicial
+  console.log('🔄 [Sidebar] Verificação inicial de admin...')
   await checkAdminStatus()
 
   // Adicionar event listener

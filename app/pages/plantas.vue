@@ -153,8 +153,7 @@ import type { PlantaMedicinal } from '~/types/planta'
 // Meta da página
 definePageMeta({
   title: 'Plantas Medicinais',
-  description: 'Gerencie informações sobre plantas medicinais',
-  middleware: 'auth'
+  description: 'Gerencie informações sobre plantas medicinais'
 })
 
 // Título da página

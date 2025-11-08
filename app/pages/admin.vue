@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isLoading && isAdmin" class="p-6">
+  <div class="p-6">
     <div class="max-w-7xl mx-auto">
       <!-- Cabeçalho -->
       <div class="mb-8">
@@ -150,35 +150,7 @@ import {
 // Definir meta da página
 definePageMeta({
   layout: 'default',
-  middleware: ['auth', 'admin']
-})
-
-// Estados da página
-const isLoading = ref(false) // Não mostrar loading
-const isAdmin = ref(false)
-
-// Composables
-const { checkIsAdmin } = useAuth()
-
-// Verificar se é admin ao montar o componente
-onMounted(async () => {
-  try {
-    const result = await checkIsAdmin(false) // Sem cache para verificação em tempo real
-    
-    if (!result.success || !result.isAdmin) {
-      // Se não for admin, redireciona imediatamente sem mostrar nada
-      await navigateTo('/')
-      return
-    }
-    
-    // Se chegou aqui, é admin
-    isAdmin.value = true
-  } catch (error) {
-    console.error('Erro ao verificar permissão de admin:', error)
-    // Em caso de erro, redireciona imediatamente
-    await navigateTo('/')
-    return
-  }
+  middleware: 'admin'
 })
 
 // Definir título da página

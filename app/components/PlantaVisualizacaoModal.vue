@@ -202,23 +202,23 @@
 
     <!-- Footer customizado -->
     <template #footer>
-      <div class="flex justify-between">
+      <div class="flex items-center justify-end space-x-3">
+        <BaseButton
+          variant="outline"
+          @click="$emit('update:modelValue', false)"
+        >
+          Fechar
+        </BaseButton>
         <BaseButton
           v-if="planta"
           variant="primary"
+          class="!bg-green-600 hover:!bg-green-700 focus:!ring-green-500"
           @click="editarPlanta"
         >
           <template #iconLeft>
             <PencilIcon class="w-4 h-4" />
           </template>
           Editar
-        </BaseButton>
-        <div v-else></div>
-        <BaseButton
-          variant="secondary"
-          @click="$emit('update:modelValue', false)"
-        >
-          Fechar
         </BaseButton>
       </div>
     </template>

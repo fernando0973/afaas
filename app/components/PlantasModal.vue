@@ -264,6 +264,19 @@ const form = reactive({
   renisus: false
 })
 
+// Estado para armazenar dados originais (para detectar mudanças)
+const originalData = reactive({
+  nome_popular: '',
+  nome_cientifico: '',
+  partes_usadas: [] as string[],
+  sabor_propriedade: [] as string[],
+  meridianos: [] as string[],
+  acao_terapeutica: '',
+  indicacoes: '',
+  contraindicacoes: '',
+  renisus: false
+})
+
 // Estados para novos itens (removidos)
 
 // Estado de loading e erros
@@ -291,8 +304,37 @@ const confirmButtonText = computed(() =>
   props.isEdicao ? 'Salvar Alterações' : 'Criar Planta'
 )
 
+// Detectar se houve mudanças no formulário (para modo edição)
+const hasChanges = computed(() => {
+  if (!props.isEdicao) return true // No modo criação, sempre permitir salvar se válido
+  
+  // Comparar cada campo
+  const fieldsChanged = 
+    form.nome_popular !== originalData.nome_popular ||
+    form.nome_cientifico !== originalData.nome_cientifico ||
+    form.acao_terapeutica !== originalData.acao_terapeutica ||
+    form.indicacoes !== originalData.indicacoes ||
+    form.contraindicacoes !== originalData.contraindicacoes ||
+    form.renisus !== originalData.renisus
+  
+  // Comparar arrays (verificar se têm o mesmo conteúdo)
+  const arraysChanged = 
+    JSON.stringify([...form.partes_usadas].sort()) !== JSON.stringify([...originalData.partes_usadas].sort()) ||
+    JSON.stringify([...form.sabor_propriedade].sort()) !== JSON.stringify([...originalData.sabor_propriedade].sort()) ||
+    JSON.stringify([...form.meridianos].sort()) !== JSON.stringify([...originalData.meridianos].sort())
+  
+  return fieldsChanged || arraysChanged
+})
+
 const isFormValid = computed(() => {
-  return form.nome_popular.trim().length > 0 && !Object.values(errors).some(error => error)
+  const isValid = form.nome_popular.trim().length > 0 && !Object.values(errors).some(error => error)
+  
+  // No modo edição, também verificar se há mudanças
+  if (props.isEdicao) {
+    return isValid && hasChanges.value
+  }
+  
+  return isValid
 })
 
 // Funções para toggle de arrays
@@ -435,6 +477,17 @@ const resetForm = () => {
   form.contraindicacoes = ''
   form.renisus = false
   
+  // Resetar dados originais também
+  originalData.nome_popular = ''
+  originalData.nome_cientifico = ''
+  originalData.partes_usadas = []
+  originalData.sabor_propriedade = []
+  originalData.meridianos = []
+  originalData.acao_terapeutica = ''
+  originalData.indicacoes = ''
+  originalData.contraindicacoes = ''
+  originalData.renisus = false
+  
   Object.keys(errors).forEach(key => {
     errors[key as keyof typeof errors] = ''
   })
@@ -447,26 +500,40 @@ const loadPlantaData = () => {
   if (props.isEdicao && props.plantaData) {
     console.log('Carregando dados da planta para edição:', props.plantaData)
     
-    form.nome_popular = props.plantaData.nome_popular || ''
-    form.nome_cientifico = props.plantaData.nome_cientifico || ''
+    const plantaData = props.plantaData
+    
+    // Carregando dados no formulário
+    form.nome_popular = plantaData.nome_popular || ''
+    form.nome_cientifico = plantaData.nome_cientifico || ''
     
     // Tratamento especial para arrays - garantir que são arrays válidos
-    form.partes_usadas = Array.isArray(props.plantaData.partes_usadas) 
-      ? [...props.plantaData.partes_usadas] 
+    form.partes_usadas = Array.isArray(plantaData.partes_usadas) 
+      ? [...plantaData.partes_usadas] 
       : []
       
-    form.sabor_propriedade = Array.isArray(props.plantaData.sabor_propriedade) 
-      ? [...props.plantaData.sabor_propriedade] 
+    form.sabor_propriedade = Array.isArray(plantaData.sabor_propriedade) 
+      ? [...plantaData.sabor_propriedade] 
       : []
       
-    form.meridianos = Array.isArray(props.plantaData.meridianos) 
-      ? [...props.plantaData.meridianos] 
+    form.meridianos = Array.isArray(plantaData.meridianos) 
+      ? [...plantaData.meridianos] 
       : []
     
-    form.acao_terapeutica = props.plantaData.acao_terapeutica || ''
-    form.indicacoes = props.plantaData.indicacoes || ''
-    form.contraindicacoes = props.plantaData.contraindicacoes || ''
-    form.renisus = props.plantaData.renisus || false
+    form.acao_terapeutica = plantaData.acao_terapeutica || ''
+    form.indicacoes = plantaData.indicacoes || ''
+    form.contraindicacoes = plantaData.contraindicacoes || ''
+    form.renisus = plantaData.renisus || false
+    
+    // Salvar dados originais para detectar mudanças
+    originalData.nome_popular = form.nome_popular
+    originalData.nome_cientifico = form.nome_cientifico
+    originalData.partes_usadas = [...form.partes_usadas]
+    originalData.sabor_propriedade = [...form.sabor_propriedade]
+    originalData.meridianos = [...form.meridianos]
+    originalData.acao_terapeutica = form.acao_terapeutica
+    originalData.indicacoes = form.indicacoes
+    originalData.contraindicacoes = form.contraindicacoes
+    originalData.renisus = form.renisus
     
     console.log('Dados carregados no formulário:', {
       partes_usadas: form.partes_usadas,

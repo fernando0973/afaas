@@ -3,6 +3,7 @@
     :style="estilosSlot"
     class="rounded-lg p-2 cursor-pointer transition-all duration-200 h-full flex flex-col overflow-hidden hover:shadow-lg hover:scale-[1.02] border"
     :class="classesSlot"
+    @click="$emit('click', agendamento)"
   >
     <!-- Horário do agendamento -->
     <div class="text-xs font-bold mb-1 flex-shrink-0 text-neutral-700 tracking-wide">
@@ -32,6 +33,10 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  click: [agendamento: AgendamentoFormatado]
+}>()
 
 /**
  * Estilos do slot baseados na cor hexadecimal

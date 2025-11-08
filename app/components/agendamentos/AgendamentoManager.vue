@@ -43,6 +43,7 @@
           v-for="(dia, index) in diasSemana" 
           :key="index"
           :data="dia"
+          @agendamento-click="editarAgendamento"
         />
       </div>
     </div>
@@ -66,8 +67,16 @@
       :clientes="clientes"
       :carregando-clientes="carregandoClientes"
       :agendamentos="agendamentos"
-      :carregando-agendamentos="carregandoAgendamentos"
+      :carregando-agendamentos="carregando"
       @agendamento-criado="handleAgendamentoCriado"
+    />
+
+    <!-- Modal de Editar Agendamento -->
+    <EditarAgendamentoModal
+      v-model="modalEditarAgendamentoAberto"
+      :agendamento="agendamentoSelecionado"
+      @agendamento-atualizado="handleAgendamentoAtualizado"
+      @agendamento-cancelado="handleAgendamentoCancelado"
     />
   </div>
 </template>
@@ -87,8 +96,8 @@ const {
   profissionalSelecionadoId, 
   dataReferencia, 
   agendamentos,
-  carregandoAgendamentos,
-  erroAgendamentos,
+  carregando,
+  erro,
   agendamentosPorData
 } = storeToRefs(agendamentoStore)
 
@@ -101,7 +110,9 @@ const profissionaisStore = useProfissionaisStore()
 // ===== ESTADO REATIVO LOCAL =====
 // Estados do modal
 const modalNovoAgendamentoAberto = ref(false)
+const modalEditarAgendamentoAberto = ref(false)
 const profissionalAtual = ref<any>(null)
+const agendamentoSelecionado = ref<AgendamentoFormatado | null>(null)
 
 // Estados dos clientes
 const clientes = ref<any[]>([])
@@ -110,8 +121,8 @@ const erroClientes = ref<string | null>(null)
 
 // ===== PROVIDE/INJECT PARA COMPONENTES FILHOS =====
 provide('agendamentosDoDia', agendamentoStore.obterAgendamentosDoDia)
-provide('carregandoAgendamentos', carregandoAgendamentos)
-provide('erroAgendamentos', erroAgendamentos)
+provide('carregandoAgendamentos', carregando)
+provide('erroAgendamentos', erro)
 
 // ===== FUNÇÕES DE BUSCA =====
 
@@ -249,6 +260,36 @@ const buscarProfissionalAtual = async () => {
   }
 }
 
+// Função para editar agendamento existente
+const editarAgendamento = (agendamento: AgendamentoFormatado) => {
+  agendamentoSelecionado.value = agendamento
+  modalEditarAgendamentoAberto.value = true
+}
+
+// Handlers para eventos do modal de edição
+const handleAgendamentoAtualizado = async (agendamentoAtualizado?: any) => {
+  modalEditarAgendamentoAberto.value = false
+  
+  // Se recebemos os dados atualizados, tentar atualizar diretamente no store
+  if (agendamentoAtualizado) {
+    agendamentoStore.atualizarAgendamento(agendamentoAtualizado)
+  } else {
+    // Fallback: limpar cache e recarregar
+    agendamentoStore.limparCache()
+    await carregarAgendamentos(true)
+  }
+  
+  // Limpar referência ao agendamento selecionado depois para evitar problemas de reatividade
+  agendamentoSelecionado.value = null
+}
+
+const handleAgendamentoCancelado = async () => {
+  modalEditarAgendamentoAberto.value = false
+  agendamentoSelecionado.value = null
+  // Recarregar agendamentos para mostrar as mudanças
+  await carregarAgendamentos(true)
+}
+
 // Função para criar novo agendamento
 const novoAgendamento = async () => {
 
@@ -318,6 +359,6 @@ const handleAgendamentoCriado = async () => {
 defineExpose({
   recarregarAgendamentos,
   agendamentos,
-  carregandoAgendamentos
+  carregando
 })
 </script>

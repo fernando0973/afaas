@@ -237,15 +237,29 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     erroAgendamentos.value = null
   }
 
-  // ===== RETORNO DO STORE =====
-  
+    /**
+   * Atualiza um agendamento específico no estado atual
+   */
+  const atualizarAgendamento = (agendamentoAtualizado: AgendamentoFormatado) => {
+    const agendamentosAtuais = agendamentos.value
+    const index = agendamentosAtuais.findIndex(ag => ag.id === agendamentoAtualizado.id)
+    
+    if (index !== -1) {
+      // Criar novo array com o agendamento atualizado
+      const novosAgendamentos = [...agendamentosAtuais]
+      novosAgendamentos[index] = agendamentoAtualizado
+      agendamentos.value = novosAgendamentos
+    }
+  }
+
+  // ===== RETORNO PÚBLICO =====
   return {
-    // Estado reativo
-    dataReferencia,
-    profissionalSelecionadoId,
+    // Estados reativos
+    dataReferencia: readonly(dataReferencia),
+    profissionalSelecionadoId: readonly(profissionalSelecionadoId),
     agendamentos: readonly(agendamentos),
-    carregandoAgendamentos: readonly(carregandoAgendamentos),
-    erroAgendamentos: readonly(erroAgendamentos),
+    carregando: readonly(carregandoAgendamentos),
+    erro: readonly(erroAgendamentos),
     
     // Dados derivados (computed)
     diasSemana,
@@ -262,6 +276,7 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     buscarNoCache,
     armazenarNoCache,
     limparCache,
-    limparAgendamentos
+    limparAgendamentos,
+    atualizarAgendamento
   }
 })

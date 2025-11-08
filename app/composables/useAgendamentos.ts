@@ -12,6 +12,8 @@ export interface AgendamentoFormatado {
   clienteId: number | null
   profissionalId: number | null
   cor: string
+  cancelado?: boolean | null
+  dataCancelamento?: Date | null
 }
 
 export const useAgendamentos = () => {
@@ -101,7 +103,9 @@ export const useAgendamentos = () => {
         descricao: agendamento.descricao || 'Sem descrição',
         clienteId: agendamento.cliente_id,
         profissionalId: agendamento.profissional_id,
-        cor: agendamento.cor || '#DBE9FE'
+        cor: agendamento.cor || '#DBE9FE',
+        cancelado: agendamento.cancelado,
+        dataCancelamento: agendamento.cancelado_as ? new Date(agendamento.cancelado_as) : null
       }
     })
   }

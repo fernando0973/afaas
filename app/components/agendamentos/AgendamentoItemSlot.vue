@@ -8,6 +8,7 @@
         :agendamento="agendamento"
         :style="calcularPosicaoAgendamento(agendamento)"
         class="absolute left-1 right-1"
+        @click="$emit('agendamento-click', $event)"
       />
     </div>
   </div>
@@ -23,6 +24,10 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  'agendamento-click': [agendamento: AgendamentoFormatado]
+}>()
 
 // ===== INJECT DOS DADOS DO COMPONENTE PAI =====
 

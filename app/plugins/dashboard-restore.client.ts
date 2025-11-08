@@ -31,14 +31,14 @@ export default defineNuxtPlugin(() => {
         profissionalSelecionadoId, 
         agendamentos, 
         diasSemana,
-        carregandoAgendamentos 
+        carregando 
       } = storeToRefs(agendamentoStore)
       
       // Verificar se precisa carregar dados
       const profId = profissionalSelecionadoId.value
       const temProfissional = !!profId
       const semAgendamentos = agendamentos.value.length === 0
-      const naoEstaCarregando = !carregandoAgendamentos.value
+      const naoEstaCarregando = !carregando.value
       
       if (temProfissional && profId && semAgendamentos && naoEstaCarregando) {
         console.log('📊 Dashboard: Restaurando agendamentos...')

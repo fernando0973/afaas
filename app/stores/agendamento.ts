@@ -206,7 +206,6 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     const chave = gerarChaveCache(profissionalId, dataInicio, dataFim)
     
     cacheAgendamentos.value.set(chave, agendamentosParaCache)
-    console.log(`💾 Cache armazenado: ${chave} (${agendamentosParaCache.length} agendamentos)`)
   }
 
   /**
@@ -220,12 +219,10 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
         .filter(chave => chave.startsWith(`prof-${profissionalId}-`))
       
       chavesParaRemover.forEach(chave => cacheAgendamentos.value.delete(chave))
-      console.log(`🧹 Cache limpo para profissional ${profissionalId}: ${chavesParaRemover.length} entradas removidas`)
     } else {
       // Limpar todo o cache
       const totalEntradas = cacheAgendamentos.value.size
       cacheAgendamentos.value.clear()
-      console.log(`🧹 Cache totalmente limpo: ${totalEntradas} entradas removidas`)
     }
   }
 

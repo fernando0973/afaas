@@ -153,7 +153,6 @@ const adicionarPlanta = () => {
 }
 
 const editarPlanta = (planta: PlantaMedicinal) => {
-  console.log('Editando planta:', planta)
   modoEdicao.value = true
   
   // Deep clone para garantir que arrays são copiados corretamente
@@ -165,7 +164,6 @@ const editarPlanta = (planta: PlantaMedicinal) => {
     renisus: planta.renisus || false
   }
   
-  console.log('Planta selecionada:', plantaSelecionada.value)
   modalAberto.value = true
 }
 
@@ -191,7 +189,6 @@ const confirmarDelecao = async () => {
     const resultado = await deletarPlanta(plantaParaDeletar.value.id)
 
     if (resultado.success) {
-      console.log('Planta deletada com sucesso:', resultado.data)
       
       // Exibir toast de sucesso
       toast.success('Planta removida com sucesso!')
@@ -209,11 +206,9 @@ const confirmarDelecao = async () => {
       
     } else {
       // Exibir erro
-      console.error('Erro ao deletar planta:', resultado.error)
       toast.error(`Erro ao remover planta: ${resultado.error}`)
     }
   } catch (error: any) {
-    console.error('Erro inesperado ao deletar planta:', error)
     toast.error(`Erro inesperado: ${error.message || error}`)
   } finally {
     deletandoPlanta.value = false
@@ -230,7 +225,6 @@ const fecharModal = () => {
 
 const salvarPlanta = async (dadosPlanta: Omit<PlantaMedicinal, 'id' | 'created_at' | 'deleted_at'> & { id?: number }) => {
   try {
-    console.log('Salvando planta:', dadosPlanta)
     
     let resultado
     
@@ -243,7 +237,6 @@ const salvarPlanta = async (dadosPlanta: Omit<PlantaMedicinal, 'id' | 'created_a
     }
     
     if (resultado.success) {
-      console.log('Planta salva com sucesso:', resultado.data)
       
       // Exibir toast de sucesso primeiro
       toast.success(`Planta ${modoEdicao.value ? 'editada' : 'criada'} com sucesso!`)
@@ -261,18 +254,15 @@ const salvarPlanta = async (dadosPlanta: Omit<PlantaMedicinal, 'id' | 'created_a
       
     } else {
       // Exibir erro
-      console.error('Erro ao salvar planta:', resultado.error)
       toast.error(`Erro ao ${modoEdicao.value ? 'editar' : 'criar'} planta: ${resultado.error}`)
     }
     
   } catch (error: any) {
-    console.error('Erro inesperado ao salvar planta:', error)
     toast.error(`Erro inesperado: ${error.message || error}`)
   }
 }
 
 const recarregarTabela = () => {
-  console.log('Tabela recarregada')
   // Lógica adicional se necessário após recarregar
 }
 
@@ -296,7 +286,6 @@ const limparBusca = () => {
 
 // Funções do modal de visualização
 const visualizarPlanta = (planta: PlantaMedicinal) => {
-  console.log('Visualizando planta:', planta)
   plantaVisualizacao.value = planta
   modalVisualizacaoAberto.value = true
 }

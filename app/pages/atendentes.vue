@@ -128,11 +128,9 @@ const carregarPerfis = async () => {
     if (resultado.success) {
       perfis.value = resultado.data
     } else {
-      console.error('Erro ao carregar perfis:', resultado.error)
       toast.error('Erro ao carregar usuários/perfis')
     }
   } catch (error) {
-    console.error('Erro ao carregar perfis:', error)
     toast.error('Erro ao carregar usuários/perfis')
   }
 }
@@ -143,11 +141,9 @@ const carregarEspecialidades = async () => {
     if (resultado.success) {
       especialidades.value = resultado.data
     } else {
-      console.error('Erro ao carregar especialidades:', resultado.error)
       toast.error('Erro ao carregar especialidades')
     }
   } catch (error) {
-    console.error('Erro ao carregar especialidades:', error)
     toast.error('Erro ao carregar especialidades')
   }
 }
@@ -162,7 +158,6 @@ const carregarDadosModal = async () => {
       carregarEspecialidades()
     ])
   } catch (error) {
-    console.error('Erro ao carregar dados do modal:', error)
     toast.error('Erro ao carregar dados necessários')
   } finally {
     carregandoDados.value = false
@@ -193,7 +188,6 @@ const fecharModal = () => {
 }
 
 const aoSalvarProfissional = async (dadosProfissional: any) => {
-  console.log('Salvando profissional:', dadosProfissional)
   
   try {
     const resultado = await inserirProfissional(dadosProfissional.profile_id, dadosProfissional.especialidade_id)
@@ -210,7 +204,6 @@ const aoSalvarProfissional = async (dadosProfissional: any) => {
       toast.error(resultado.message || 'Erro ao adicionar profissional')
     }
   } catch (error: any) {
-    console.error('Erro ao salvar profissional:', error)
     toast.error('Erro interno ao adicionar profissional')
   }
 }
@@ -243,7 +236,6 @@ const handleConfirmRemocao = async () => {
       toast.error(resultado.message)
     }
   } catch (error) {
-    console.error('Erro ao remover profissional:', error)
     toast.error('Erro inesperado ao remover profissional')
   } finally {
     // Fechar modal e limpar estado
@@ -259,7 +251,6 @@ const handleCancelRemocao = () => {
 }
 
 const handleRecarregar = () => {
-  console.log('Dados recarregados')
   // TODO: Implementar feedback de sucesso se necessário
 }
 
@@ -269,13 +260,11 @@ const handleAdicionar = () => {
 
 // Handlers para os botões do cabeçalho
 const filtrarProfissionais = () => {
-  console.log('Filtrar profissionais')
   // TODO: Implementar filtros
   toast.info('Funcionalidade de filtro em desenvolvimento')
 }
 
 const adicionarProfissional = () => {
-  console.log('Adicionar novo profissional')
   // TODO: Implementar modal de adição
   toast.info('Funcionalidade de adição em desenvolvimento')
 }

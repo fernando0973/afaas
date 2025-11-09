@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+// @ts-ignore
 import { MagnifyingGlassIcon, ChevronRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/outline'
 import type { PlantaMedicinal } from '~/types/planta'
 
@@ -209,11 +209,9 @@ const realizarBusca = async () => {
       resultados.value = resultado.data
       mostrarDropdown.value = inputFocado.value
     } else {
-      console.error('Erro ao buscar plantas:', resultado.error)
       resultados.value = []
     }
   } catch (error) {
-    console.error('Erro inesperado na busca:', error)
     resultados.value = []
   } finally {
     carregando.value = false
@@ -299,7 +297,7 @@ const fecharDropdown = () => {
 }
 
 // ===== WATCHERS =====
-watch(termoBusca, (novoTermo) => {
+watch(termoBusca, (novoTermo: string) => {
   if (!novoTermo.trim()) {
     resultados.value = []
     mostrarDropdown.value = false

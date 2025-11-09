@@ -297,7 +297,6 @@ const carregarPlanta = async () => {
         erro.value = resultado.error || 'Planta não encontrada'
       }
     } catch (error: any) {
-      console.error('Erro ao carregar planta:', error)
       erro.value = 'Erro inesperado ao carregar planta'
     } finally {
       carregando.value = false

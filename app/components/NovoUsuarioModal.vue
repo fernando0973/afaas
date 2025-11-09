@@ -282,17 +282,14 @@ const criarUsuario = async () => {
       emit('usuario-criado')
       fecharModal()
       
-      console.log('Usuário criado com sucesso:', resultado.user)
     } else {
       // Erro da API - mostrar toast de erro e mensagem no modal
       toast.error(resultado.message || 'Erro ao criar usuário')
       
-      console.error('Erro ao criar usuário:', resultado.message)
       errors.value.geral = resultado.message || 'Erro ao criar usuário'
     }
     
   } catch (error: any) {
-    console.error('Erro ao criar usuário:', error)
     
     let mensagemErro = 'Erro interno. Tente novamente.'
     

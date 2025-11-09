@@ -281,7 +281,6 @@ async function salvarUsuario() {
     fecharModal()
 
   } catch (error: any) {
-    console.error('Erro ao atualizar usuário:', error)
     
     const mensagemErro = error?.data?.message || error?.message || 'Erro ao atualizar usuário'
     

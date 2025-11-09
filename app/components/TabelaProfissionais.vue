@@ -205,7 +205,6 @@ const carregarDados = async () => {
       erro.value = resultado.error || 'Erro desconhecido ao carregar profissionais'
     }
   } catch (error: any) {
-    console.error('Erro ao carregar profissionais:', error)
     erro.value = error.message || 'Erro interno do sistema'
   } finally {
     carregando.value = false

@@ -52,13 +52,11 @@ export const useAgendamentos = () => {
         .order('hora_inicio', { ascending: true })
 
       if (error) {
-        console.error('Erro ao buscar agendamentos:', error)
         throw error
       }
 
       return data || []
     } catch (error) {
-      console.error('Erro no composable useAgendamentos:', error)
       throw error
     }
   }
@@ -75,15 +73,6 @@ export const useAgendamentos = () => {
       // Remove o timezone e mantém apenas a parte do horário (HH:MM:SS)
       const horaInicioLimpa = agendamento.hora_inicio?.split(/[-+]/)[0] || agendamento.hora_inicio
       const horaFimLimpa = agendamento.hora_fim?.split(/[-+]/)[0] || agendamento.hora_fim
-      
-      console.log('🔄 Formatando agendamento:', {
-        id: agendamento.id,
-        data: agendamento.data,
-        horaInicioOriginal: agendamento.hora_inicio,
-        horaFimOriginal: agendamento.hora_fim,
-        horaInicioLimpa,
-        horaFimLimpa
-      })
       
       // Combinar data + hora_inicio para criar Date
       const dataInicio = agendamento.data && horaInicioLimpa
@@ -130,14 +119,12 @@ export const useAgendamentos = () => {
     if (!forcarAtualizacao) {
       const agendamentosCache = agendamentoStore.buscarNoCache(profissionalId, diasSemana)
       if (agendamentosCache) {
-        console.log(`💾 Cache hit: Usando agendamentos do store`)
         agendamentoStore.setAgendamentos(agendamentosCache)
         return agendamentosCache
       }
     }
 
     try {
-      console.log(`🔄 Buscando dados frescos no banco`)
       agendamentoStore.setCarregando(true)
       agendamentoStore.setErro(null)
       
@@ -150,11 +137,9 @@ export const useAgendamentos = () => {
       // Atualizar store com os dados
       agendamentoStore.setAgendamentos(agendamentosFormatados)
       
-      console.log(`✅ Dados frescos carregados: ${agendamentosFormatados.length} agendamentos`)
       
       return agendamentosFormatados
     } catch (error) {
-      console.error('Erro ao buscar agendamentos da semana:', error)
       agendamentoStore.setErro('Erro ao carregar agendamentos')
       throw error
     } finally {

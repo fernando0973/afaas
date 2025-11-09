@@ -297,14 +297,12 @@ const buscarProfissionalLogado = async () => {
     carregandoProfissional.value = true
     
     if (!profile.value?.id) {
-      console.warn('⚠️ Perfil do usuário não está disponível ainda')
       return
     }
 
     const { success, data } = await buscarProfissionais()
     
     if (!success || !data) {
-      console.error('❌ Erro ao buscar profissionais')
       return
     }
 
@@ -312,15 +310,12 @@ const buscarProfissionalLogado = async () => {
     const profissional = data.find(p => p.perfil_id === profile.value?.id)
     
     if (!profissional) {
-      console.error('❌ Usuário atual não é um profissional cadastrado')
       return
     }
 
     profissionalLogado.value = profissional.profissional_id
-    console.log('✅ Profissional logado identificado:', profissionalLogado.value)
     
   } catch (error) {
-    console.error('❌ Erro ao buscar profissional logado:', error)
   } finally {
     carregandoProfissional.value = false
   }
@@ -334,12 +329,10 @@ const salvar = async () => {
     return
   }
 
-  console.log('🔄 Iniciando criação do agendamento para profissional:', profissionalLogado.value)
 
   const resultado = await criarAgendamento(profissionalLogado.value)
   
   if (resultado.success) {
-    console.log('✅ Agendamento criado com sucesso!')
     toast.success(resultado.message || 'Agendamento criado com sucesso!')
     
     // Emitir evento para forçar atualização dos agendamentos
@@ -348,7 +341,6 @@ const salvar = async () => {
     // Fechar modal
     isOpen.value = false
   } else {
-    console.error('❌ Erro ao criar agendamento:', resultado.error)
     toast.error(resultado.error || 'Erro ao criar agendamento')
   }
 }

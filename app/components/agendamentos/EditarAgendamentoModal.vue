@@ -452,7 +452,6 @@ const carregarInformacoesExtras = async () => {
         }
       }
     } catch (error) {
-      console.warn('Erro ao buscar profissional:', error)
     }
   }
 
@@ -469,7 +468,6 @@ const carregarInformacoesExtras = async () => {
         clienteInfo.value = cliente
       }
     } catch (error) {
-      console.warn('Erro ao buscar cliente:', error)
     }
   }
 }
@@ -529,7 +527,6 @@ const handleConfirm = async () => {
     emit('agendamento-atualizado', agendamentoAtualizado)
     handleClose()
   } catch (error: any) {
-    console.error('Erro ao atualizar agendamento:', error)
     toast.error(`Erro ao atualizar agendamento: ${error.message}`)
   } finally {
     loading.value = false
@@ -538,18 +535,14 @@ const handleConfirm = async () => {
 
 const cancelarAgendamento = async () => {
   if (!props.agendamento) {
-    console.error('Nenhum agendamento selecionado para cancelar')
     return
   }
 
   cancelando.value = true
-  console.log('=== INÍCIO CANCELAMENTO ===')
-  console.log('Agendamento ID:', props.agendamento.id)
 
   try {
     // Verificar o usuário atual
     const { data: { user } } = await supabase.auth.getUser()
-    console.log('Usuário atual:', user?.id)
 
     // Criar timestamp no formato brasileiro com timezone
     const now = new Date()
@@ -565,7 +558,6 @@ const cancelarAgendamento = async () => {
     }).replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/, '$3-$2-$1 $4-03')
     
     // Tentar com client normal primeiro
-    console.log('Tentando cancelamento com client normal...')
     let { data, error } = await supabase
       .from('afaas_agendamentos')
       .update({
@@ -575,11 +567,9 @@ const cancelarAgendamento = async () => {
       .eq('id', props.agendamento.id)
       .select()
 
-    console.log('Resultado client normal:', { data, error })
 
     // Se falhou por permissões, tentar via API server
     if (error || !data || data.length === 0) {
-      console.log('Client normal falhou, tentando via API server...')
       
       try {
         const response = await $fetch('/api/agendamentos/cancelar', {
@@ -590,7 +580,6 @@ const cancelarAgendamento = async () => {
           }
         }) as any
         
-        console.log('Resposta da API server:', response)
         
         if (response.success) {
           data = response.data ? [response.data] : []
@@ -598,7 +587,6 @@ const cancelarAgendamento = async () => {
           throw new Error(response.error || 'Erro na API server')
         }
       } catch (apiError: any) {
-        console.error('Erro na API server:', apiError)
         throw new Error(`Erro ao cancelar via API: ${apiError.message}`)
       }
     }
@@ -607,7 +595,6 @@ const cancelarAgendamento = async () => {
       throw new Error('Nenhum registro foi atualizado. Contate o administrador.')
     }
 
-    console.log('✅ Cancelamento realizado com sucesso!')
     
     // Fechar modal de confirmação
     mostrarConfirmacaoCancelamento.value = false
@@ -617,11 +604,9 @@ const cancelarAgendamento = async () => {
     handleClose()
     
   } catch (error: any) {
-    console.error('❌ ERRO NO CANCELAMENTO:', error)
     toast.error(`Erro ao cancelar: ${error.message || 'Erro desconhecido'}`)
   } finally {
     cancelando.value = false
-    console.log('=== FIM CANCELAMENTO ===')
   }
 }
 

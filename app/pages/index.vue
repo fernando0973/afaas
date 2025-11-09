@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { 
-  UserGroupIcon,
-  CalendarDaysIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  PlusIcon,
-  CalendarIcon,
-  DocumentTextIcon,
-  Cog6ToothIcon
-} from '@heroicons/vue/24/outline'
+// Proteger a página com autenticação
+definePageMeta({
+  middleware: 'auth'
+})
 
 const { user } = useAuth()
 

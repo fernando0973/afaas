@@ -26,17 +26,14 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
     
     try {
-      console.log('🔍 [UserStore] Iniciando fetchProfile...')
       const supabase = useSupabaseClient<any>()
       const { data: { session } } = await supabase.auth.getSession()
       
       if (!session?.user?.id) {
-        console.log('❌ [UserStore] Sem sessão válida')
         profile.value = null
         return
       }
       
-      console.log('🔍 [UserStore] Buscando perfil para:', session.user.id)
       const { data } = await supabase
         .from('afaas_profiles')
         .select('*')
@@ -44,15 +41,12 @@ export const useUserStore = defineStore('user', () => {
         .limit(1)
       
       profile.value = data?.[0] || null
-      console.log('✅ [UserStore] Perfil carregado:', profile.value ? 'encontrado' : 'não encontrado')
       
     } catch (err: any) {
-      console.error('❌ [UserStore] Erro ao buscar perfil:', err)
       error.value = err.message
       profile.value = null
     } finally {
       loading.value = false
-      console.log('🏁 [UserStore] fetchProfile finalizado')
     }
   }
   

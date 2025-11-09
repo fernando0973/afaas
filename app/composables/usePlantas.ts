@@ -39,7 +39,6 @@ export const usePlantas = () => {
 
       return { success: true, data: data as PlantaMedicinal[] }
     } catch (error: any) {
-      console.error('Erro ao buscar plantas medicinais:', error.message)
       return { success: false, error: error.message, data: [] }
     }
   }
@@ -98,7 +97,6 @@ export const usePlantas = () => {
 
       return { success: true, data: data as PlantaMedicinal }
     } catch (error: any) {
-      console.error('Erro ao inserir planta medicinal:', error.message)
       return { success: false, error: error.message, data: null }
     }
   }
@@ -175,7 +173,6 @@ export const usePlantas = () => {
 
       return { success: true, data: data as PlantaMedicinal }
     } catch (error: any) {
-      console.error('Erro ao editar planta medicinal:', error.message)
       return { success: false, error: error.message, data: null }
     }
   }
@@ -224,7 +221,6 @@ export const usePlantas = () => {
         } 
       }
     } catch (error: any) {
-      console.error('Erro ao deletar planta medicinal:', error.message)
       return { success: false, error: error.message, data: null }
     }
   }
@@ -267,7 +263,6 @@ export const usePlantas = () => {
 
       return { success: true, data: data as PlantaMedicinal[] }
     } catch (error: any) {
-      console.error('Erro ao buscar plantas por nome:', error.message)
       return { success: false, error: error.message, data: [] }
     }
   }
@@ -306,7 +301,6 @@ export const usePlantas = () => {
 
       return { success: true, data: data as PlantaMedicinal }
     } catch (error: any) {
-      console.error('Erro ao buscar planta por ID:', error.message)
       return { success: false, error: error.message, data: null }
     }
   }

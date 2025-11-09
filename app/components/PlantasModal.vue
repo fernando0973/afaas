@@ -199,6 +199,7 @@ import {
   BeakerIcon, 
   AcademicCapIcon, 
   InformationCircleIcon
+// @ts-ignore
 } from '@heroicons/vue/24/outline'
 import type { PlantaMedicinal } from '~/types/planta'
 
@@ -451,7 +452,6 @@ const handleConfirm = async () => {
     
     emit('save', saveData)
   } catch (error) {
-    console.error('Erro ao processar formulário:', error)
   } finally {
     loading.value = false
   }
@@ -498,7 +498,6 @@ const resetForm = () => {
 // Carregar dados para edição
 const loadPlantaData = () => {
   if (props.isEdicao && props.plantaData) {
-    console.log('Carregando dados da planta para edição:', props.plantaData)
     
     const plantaData = props.plantaData
     
@@ -534,17 +533,11 @@ const loadPlantaData = () => {
     originalData.indicacoes = form.indicacoes
     originalData.contraindicacoes = form.contraindicacoes
     originalData.renisus = form.renisus
-    
-    console.log('Dados carregados no formulário:', {
-      partes_usadas: form.partes_usadas,
-      sabor_propriedade: form.sabor_propriedade,
-      meridianos: form.meridianos
-    })
   }
 }
 
 // Watchers
-watch(() => props.modelValue, (isOpen) => {
+watch(() => props.modelValue, (isOpen: boolean) => {
   if (isOpen) {
     if (props.isEdicao) {
       loadPlantaData()
@@ -557,8 +550,7 @@ watch(() => props.modelValue, (isOpen) => {
   }
 })
 
-watch(() => props.plantaData, (newData) => {
-  console.log('plantaData mudou:', newData)
+watch(() => props.plantaData, (newData: any) => {
   if (props.modelValue && props.isEdicao && newData) {
     loadPlantaData()
   }

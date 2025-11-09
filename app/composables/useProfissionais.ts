@@ -17,7 +17,6 @@ export const useProfissionais = () => {
 
       return { success: true, data: data as Especialidade[] }
     } catch (error: any) {
-      console.error('Erro ao buscar especialidades:', error.message)
       return { success: false, error: error.message, data: [] }
     }
   }
@@ -75,7 +74,6 @@ export const useProfissionais = () => {
 
       return { success: true, data: data as Cliente[] }
     } catch (error: any) {
-      console.error('Erro ao buscar clientes:', error.message)
       return { success: false, error: error.message, data: [] }
     }
   }
@@ -87,14 +85,12 @@ export const useProfissionais = () => {
       })
 
       if (error) {
-        console.error('Erro ao inserir especialidade:', error)
         return { success: false, message: error.message || 'Erro ao inserir especialidade' }
       }
 
       // Expecting backend to return { success: boolean, message: string }
       return { success: data?.success ?? true, message: data?.message ?? 'Operação concluída', raw: data }
     } catch (err: any) {
-      console.error('Erro no RPC inserirEspecialidade:', err)
       return { success: false, message: err.message || 'Erro interno' }
     }
   }
@@ -107,14 +103,12 @@ export const useProfissionais = () => {
       })
 
       if (error) {
-        console.error('Erro ao editar especialidade:', error)
         return { success: false, message: error.message || 'Erro ao editar especialidade' }
       }
 
       // Expecting backend to return { success: boolean, message: string }
       return { success: data?.success ?? true, message: data?.message ?? 'Operação concluída', raw: data }
     } catch (err: any) {
-      console.error('Erro no RPC editarEspecialidade:', err)
       return { success: false, message: err.message || 'Erro interno' }
     }
   }
@@ -127,13 +121,11 @@ export const useProfissionais = () => {
         .eq('id', id)
 
       if (error) {
-        console.error('Erro ao remover especialidade:', error)
         return { success: false, message: error.message || 'Erro ao remover especialidade' }
       }
 
       return { success: true, message: 'Especialidade removida com sucesso' }
     } catch (err: any) {
-      console.error('Erro ao remover especialidade:', err)
       return { success: false, message: err.message || 'Erro interno' }
     }
   }
@@ -148,13 +140,11 @@ export const useProfissionais = () => {
         .single()
 
       if (error) {
-        console.error('Erro ao inserir cliente:', error)
         return { success: false, message: error.message || 'Erro ao inserir cliente', data: null }
       }
 
       return { success: true, message: 'Cliente inserido com sucesso', data: data as Cliente }
     } catch (err: any) {
-      console.error('Erro ao inserir cliente:', err)
       return { success: false, message: err.message || 'Erro interno', data: null }
     }
   }
@@ -170,13 +160,11 @@ export const useProfissionais = () => {
         .single()
 
       if (error) {
-        console.error('Erro ao editar cliente:', error)
         return { success: false, message: error.message || 'Erro ao editar cliente', data: null }
       }
 
       return { success: true, message: 'Cliente editado com sucesso', data: data as Cliente }
     } catch (err: any) {
-      console.error('Erro ao editar cliente:', err)
       return { success: false, message: err.message || 'Erro interno', data: null }
     }
   }
@@ -190,13 +178,11 @@ export const useProfissionais = () => {
         .eq('id', id)
 
       if (error) {
-        console.error('Erro ao remover cliente:', error)
         return { success: false, message: error.message || 'Erro ao remover cliente' }
       }
 
       return { success: true, message: 'Cliente removido com sucesso' }
     } catch (err: any) {
-      console.error('Erro ao remover cliente:', err)
       return { success: false, message: err.message || 'Erro interno' }
     }
   }
@@ -207,13 +193,11 @@ export const useProfissionais = () => {
         .rpc('afaas_get_profissionais')
 
       if (error) {
-        console.error('Erro ao buscar profissionais:', error)
         return { success: false, error: error.message || 'Erro ao buscar profissionais', data: [] as ProfissionalRPC[] }
       }
 
       return { success: true, data: (data || []) as ProfissionalRPC[] }
     } catch (error: any) {
-      console.error('Erro ao buscar profissionais:', error.message)
       return { success: false, error: error.message, data: [] as ProfissionalRPC[] }
     }
   }
@@ -224,13 +208,11 @@ export const useProfissionais = () => {
         .rpc('afaas_get_profiles_if_admin')
 
       if (error) {
-        console.error('Erro ao buscar perfis:', error)
         return { success: false, error: error.message || 'Erro ao buscar perfis', data: [] as PerfilRPC[] }
       }
 
       return { success: true, data: (data || []) as PerfilRPC[] }
     } catch (error: any) {
-      console.error('Erro ao buscar perfis:', error.message)
       return { success: false, error: error.message, data: [] as PerfilRPC[] }
     }
   }
@@ -247,13 +229,11 @@ export const useProfissionais = () => {
         .single()
 
       if (error) {
-        console.error('Erro ao inserir profissional:', error)
         return { success: false, message: error.message || 'Erro ao inserir profissional', data: null }
       }
 
       return { success: true, message: 'Profissional adicionado com sucesso', data }
     } catch (err: any) {
-      console.error('Erro ao inserir profissional:', err)
       return { success: false, message: err.message || 'Erro interno', data: null }
     }
   }
@@ -271,13 +251,11 @@ export const useProfissionais = () => {
         .single()
 
       if (error) {
-        console.error('Erro ao editar profissional:', error)
         return { success: false, message: error.message || 'Erro ao editar profissional', data: null }
       }
 
       return { success: true, message: 'Profissional atualizado com sucesso', data }
     } catch (err: any) {
-      console.error('Erro ao editar profissional:', err)
       return { success: false, message: err.message || 'Erro interno', data: null }
     }
   }
@@ -290,13 +268,11 @@ export const useProfissionais = () => {
         .eq('id', id)
 
       if (error) {
-        console.error('Erro ao remover profissional:', error)
         return { success: false, message: error.message || 'Erro ao remover profissional' }
       }
 
       return { success: true, message: 'Profissional removido com sucesso' }
     } catch (err: any) {
-      console.error('Erro ao remover profissional:', err)
       return { success: false, message: err.message || 'Erro interno' }
     }
   }

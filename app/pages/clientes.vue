@@ -122,13 +122,11 @@ const adicionarCliente = () => {
 }
 
 const editarCliente = (cliente: Cliente) => {
-  console.log('Editando cliente:', cliente)
   modoEdicao.value = true
   
   // Deep clone para garantir que não há referências compartilhadas
   clienteSelecionado.value = { ...cliente }
   
-  console.log('Cliente selecionado:', clienteSelecionado.value)
   modalAberto.value = true
 }
 
@@ -142,7 +140,6 @@ const fecharModal = () => {
 
 const salvarCliente = async (cliente: Cliente) => {
   try {
-    console.log('Cliente salvo com sucesso:', cliente)
     
     // Fechar modal
     fecharModal()
@@ -152,16 +149,13 @@ const salvarCliente = async (cliente: Cliente) => {
       await tabelaRef.value.recarregarDados()
     }
     
-    console.log(`Cliente ${modoEdicao.value ? 'editado' : 'criado'} com sucesso!`)
     
   } catch (error: any) {
-    console.error('Erro inesperado ao salvar cliente:', error)
     alert(`Erro inesperado: ${error.message || error}`)
   }
 }
 
 const recarregarTabela = () => {
-  console.log('Tabela recarregada')
   // Lógica adicional se necessário após recarregar
 }
 

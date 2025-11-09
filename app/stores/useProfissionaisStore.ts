@@ -28,13 +28,11 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
     
     // Se já tem dados em cache e não passou TTL, retorna do cache
     if (!forceRefresh && profissionais.value.length > 0 && (now - lastFetch.value) < CACHE_TTL) {
-      console.log('✅ Usando profissionais do cache')
       return profissionais.value
     }
     
     // Se já está carregando, aguarda a requisição em andamento
     if (loading.value) {
-      console.log('⏳ Aguardando requisição de profissionais em andamento...')
       await new Promise(resolve => {
         const interval = setInterval(() => {
           if (!loading.value) {
@@ -52,12 +50,10 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
     try {
       const client = useSupabaseClient()
       
-      console.log('🔄 Buscando profissionais do Supabase...')
       // @ts-ignore - RPC function não tipada no schema gerado
       const { data, error: supabaseError } = await client.rpc('afaas_get_profissionais')
       
       if (supabaseError) {
-        console.error('❌ Erro ao buscar profissionais:', supabaseError)
         error.value = supabaseError.message
         throw supabaseError
       }
@@ -66,12 +62,10 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
         const profsList = data as Profissional[]
         profissionais.value = profsList
         lastFetch.value = now
-        console.log(`✅ ${profsList.length} profissionais carregados e cacheados`)
       }
       
       return profissionais.value
     } catch (err: any) {
-      console.error('❌ Erro ao buscar profissionais:', err)
       error.value = err.message || 'Erro desconhecido'
       throw err
     } finally {
@@ -83,7 +77,6 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
    * Invalida cache e força nova busca
    */
   async function recarregarProfissionais(): Promise<Profissional[]> {
-    console.log('🔄 Forçando recarga de profissionais...')
     return await buscarProfissionais(true)
   }
   
@@ -94,7 +87,6 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
     profissionais.value = []
     lastFetch.value = 0
     error.value = null
-    console.log('🗑️ Cache de profissionais limpo')
   }
   
   /**

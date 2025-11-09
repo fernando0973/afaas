@@ -137,7 +137,6 @@ const handleConfirm = async () => {
     
     emit('save', saveData)
   } catch (error) {
-    console.error('Erro ao processar formulário:', error)
   } finally {
     loading.value = false
   }

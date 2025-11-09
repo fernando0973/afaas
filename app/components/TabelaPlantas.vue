@@ -241,7 +241,6 @@ const carregarDados = async () => {
       erro.value = resultado.error || 'Erro desconhecido ao carregar plantas medicinais'
     }
   } catch (error: any) {
-    console.error('Erro ao carregar plantas medicinais:', error)
     erro.value = error.message || 'Erro interno do sistema'
   } finally {
     carregando.value = false

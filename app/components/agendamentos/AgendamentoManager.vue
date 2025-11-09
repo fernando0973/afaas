@@ -82,8 +82,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, computed, provide, readonly } from 'vue'
-
 import { useAgendamentos, type AgendamentoFormatado } from '~/composables/useAgendamentos'
 
 // Cliente do Supabase para criação do agendamento
@@ -143,7 +141,6 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
     // Delega para o composable que usa o store
     await buscarAgendamentosSemana(profId, semanaAtual, forcarAtualizacao)
   } catch (error) {
-    console.error('Erro ao carregar agendamentos:', error)
   }
 }
 
@@ -153,15 +150,13 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
  * Recarregar quando o profissional selecionado mudar
  * Verifica cache primeiro, carrega só se necessário
  */
-watch(profissionalSelecionadoId, async (novoProfId, profAnterior) => {
+watch(profissionalSelecionadoId, async (novoProfId: string | null, profAnterior: string | null) => {
   if (novoProfId && novoProfId !== profAnterior) {
     // Verifica se já tem dados em cache primeiro
     const agendamentosCache = agendamentoStore.buscarNoCache(novoProfId, diasSemana.value)
     if (agendamentosCache) {
-      console.log('✅ Usando cache para novo profissional')
       agendamentoStore.setAgendamentos(agendamentosCache)
     } else {
-      console.log('🔄 Carregando dados para novo profissional')
       await carregarAgendamentos(true)
     }
   }
@@ -171,7 +166,7 @@ watch(profissionalSelecionadoId, async (novoProfId, profAnterior) => {
  * Recarregar quando a semana (dataReferencia) mudar
  * Verifica cache primeiro, carrega só se necessário
  */
-watch(dataReferencia, async (novaData, dataAnterior) => {
+watch(dataReferencia, async (novaData: Date | null, dataAnterior: Date | null) => {
   if (novaData && dataAnterior && 
       novaData.getTime() !== dataAnterior.getTime() && 
       profissionalSelecionadoId.value) {
@@ -179,10 +174,8 @@ watch(dataReferencia, async (novaData, dataAnterior) => {
     // Verifica se já tem dados em cache para esta semana
     const agendamentosCache = agendamentoStore.buscarNoCache(profissionalSelecionadoId.value, diasSemana.value)
     if (agendamentosCache) {
-      console.log('✅ Usando cache para nova semana')
       agendamentoStore.setAgendamentos(agendamentosCache)
     } else {
-      console.log('🔄 Carregando dados para nova semana')
       await carregarAgendamentos(true)
     }
   }
@@ -210,7 +203,6 @@ const carregarClientes = async () => {
     }
     
   } catch (error) {
-    console.error('❌ Erro ao carregar clientes:', error)
     erroClientes.value = 'Erro ao carregar lista de clientes'
     clientes.value = []
   } finally {
@@ -236,11 +228,9 @@ onMounted(async () => {
  */
 const recarregarAgendamentos = async (limparCacheAntes = false) => {
   if (limparCacheAntes && profissionalSelecionadoId.value) {
-    console.log('🧹 Limpando cache antes do recarregamento')
     agendamentoStore.limparCache(profissionalSelecionadoId.value)
   }
   
-  console.log('🔄 Recarregamento manual de agendamentos')
   await carregarAgendamentos(true)
 }
 
@@ -256,7 +246,6 @@ const buscarProfissionalAtual = async () => {
       (p: any) => p.profissional_id === profissionalSelecionadoId.value
     )
   } catch (error) {
-    console.error('Erro ao buscar profissional atual:', error)
   }
 }
 
@@ -322,7 +311,6 @@ const criarAgendamento = async (dados: any) => {
       .select()
 
     if (error) {
-      console.error('❌ Erro ao criar agendamento:', error)
       throw error
     }
 
@@ -330,19 +318,16 @@ const criarAgendamento = async (dados: any) => {
     return data
     
   } catch (error) {
-    console.error('❌ Erro na criação do agendamento:', error)
     throw error
   }
 }
 
 // Handler para quando um agendamento é criado
 const handleAgendamentoCriado = async () => {
-  console.log('🔄 Agendamento criado! Forçando atualização da lista...')
   
   // Limpar cache completamente para garantir dados frescos
   const profId = profissionalSelecionadoId.value
   if (profId) {
-    console.log(`🧹 Limpando cache para profissional ${profId}`)
     agendamentoStore.limparCache(profId)
   }
   
@@ -352,7 +337,6 @@ const handleAgendamentoCriado = async () => {
   // Fechar modal
   modalNovoAgendamentoAberto.value = false
   
-  console.log('✅ Lista de agendamentos atualizada!')
 }
 
 // Expor funções para uso externo se necessário

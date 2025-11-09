@@ -106,7 +106,6 @@ const modalEspecialidadeData = ref<Especialidade | null>(null)
 
 // Handlers para os eventos da tabela
 const handleEditar = (especialidade: Especialidade) => {
-  console.log('Editar especialidade:', especialidade)
   modalIsEdicao.value = true
   modalEspecialidadeId.value = especialidade.id
   modalEspecialidadeData.value = especialidade
@@ -114,7 +113,6 @@ const handleEditar = (especialidade: Especialidade) => {
 }
 
 const handleRemover = (especialidade: Especialidade) => {
-  console.log('Remover especialidade:', especialidade)
   especialidadeParaRemover.value = especialidade
   showConfirmModal.value = true
 }
@@ -126,14 +124,12 @@ const handleConfirmRemocao = async () => {
   const resp = await removerEspecialidade(especialidadeParaRemover.value.id)
   
   if (resp.success) {
-    console.log('Especialidade removida:', resp.message)
     toast.success(resp.message || 'Especialidade removida com sucesso!')
     // recarregar tabela
     if (tabelaRef.value?.recarregarDados) {
       await tabelaRef.value.recarregarDados()
     }
   } else {
-    console.error('Falha ao remover especialidade:', resp.message)
     toast.error(resp.message || 'Erro ao remover especialidade')
   }
   
@@ -149,12 +145,10 @@ const handleCancelRemocao = () => {
 }
 
 const handleRecarregar = () => {
-  console.log('Dados recarregados')
   // TODO: Implementar feedback de sucesso se necessário
 }
 
 const handleAdicionar = () => {
-  console.log('Adicionar especialidade via tabela')
   modalIsEdicao.value = false
   modalEspecialidadeId.value = null
   modalEspecialidadeData.value = null
@@ -163,12 +157,10 @@ const handleAdicionar = () => {
 
 // Handlers para os botões do cabeçalho
 const filtrarEspecialidades = () => {
-  console.log('Filtrar especialidades')
   // TODO: Implementar filtros
 }
 
 const adicionarEspecialidade = () => {
-  console.log('Adicionar nova especialidade')
   modalIsEdicao.value = false
   modalEspecialidadeId.value = null
   modalEspecialidadeData.value = null
@@ -184,7 +176,6 @@ const showConfirmModal = ref(false)
 const especialidadeParaRemover = ref<Especialidade | null>(null)
 
 const handleSaveEspecialidade = async (data: { especialidade: string; id?: number }) => {
-  console.log('Salvar especialidade:', data)
 
   if (!modalIsEdicao.value) {
     // Criar nova especialidade
@@ -192,7 +183,6 @@ const handleSaveEspecialidade = async (data: { especialidade: string; id?: numbe
     const resp = await inserirEspecialidade(nome)
 
     if (resp.success) {
-      console.log('Especialidade criada:', resp.message)
       toast.success(resp.message || 'Especialidade criada com sucesso!')
       // fechar modal
       showModal.value = false
@@ -202,7 +192,6 @@ const handleSaveEspecialidade = async (data: { especialidade: string; id?: numbe
       }
     } else {
       // backend pode retornar mensagem de erro (ex: sem permissão)
-      console.error('Falha ao criar especialidade:', resp.message)
       toast.error(resp.message || 'Erro ao criar especialidade')
     }
   } else {
@@ -214,7 +203,6 @@ const handleSaveEspecialidade = async (data: { especialidade: string; id?: numbe
       const resp = await editarEspecialidade(nome, id)
 
       if (resp.success) {
-        console.log('Especialidade editada:', resp.message)
         toast.success(resp.message || 'Especialidade editada com sucesso!')
         // fechar modal
         showModal.value = false
@@ -223,23 +211,19 @@ const handleSaveEspecialidade = async (data: { especialidade: string; id?: numbe
           await tabelaRef.value.recarregarDados()
         }
       } else {
-        console.error('Falha ao editar especialidade:', resp.message)
         toast.error(resp.message || 'Erro ao editar especialidade')
       }
     } else {
-      console.error('ID da especialidade não encontrado para edição')
       toast.error('ID da especialidade não encontrado')
     }
   }
 }
 
 const handleCancelModal = () => {
-  console.log('Modal cancelado')
   showModal.value = false
 }
 
 const handleCloseModal = () => {
-  console.log('Modal fechado')
   showModal.value = false
 }
 

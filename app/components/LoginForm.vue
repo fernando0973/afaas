@@ -39,7 +39,7 @@
           type="submit"
           variant="primary"
           size="lg"
-          full-width
+          :full-width="true"
           :loading="loading"
           :disabled="loading"
         >
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+// @ts-ignore
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline'
 
 const email = ref('')
@@ -118,14 +118,11 @@ const handleLogin = async () => {
 
     if (result.success) {
       toast.success('Login realizado com sucesso!')
-      
-      // Redirecionamento manual para a página principal
-      await navigateTo('/', { replace: true })
+      // O plugin auth-redirect.client.ts vai cuidar do redirecionamento
     } else {
       toast.error(result.error || 'Erro ao fazer login. Verifique suas credenciais.')
     }
   } catch (error) {
-    console.error('Erro no login:', error)
     toast.error('Erro inesperado durante o login.')
   } finally {
     loading.value = false

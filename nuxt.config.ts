@@ -1,16 +1,17 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: false },
+  devtools: { enabled: process.env.NODE_ENV === 'development' },
   modules: ['@nuxtjs/tailwindcss', '@nuxtjs/supabase', '@pinia/nuxt'],
   css: ['~/assets/css/main.css'],
   app: {
     head: {
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/png', sizes: '96x96', href: '/favicon-96x96.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' }
       ]
     }
   },
@@ -29,12 +30,13 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/',
+      include: undefined,
       exclude: ['/login', '/esqueci-senha', '/recuperar-senha']
     },
     cookieOptions: {
       maxAge: 60 * 60 * 24 * 7, // 7 dias
       sameSite: 'lax',
-      secure: true
+      secure: process.env.NODE_ENV === 'production'
     }
   },
   vue: {

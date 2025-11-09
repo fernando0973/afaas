@@ -1,5 +1,5 @@
 {
-  "name": "AFAAS_Atendimento",
+  "name": "afaas-atendimento",
   "type": "module",
   "private": true,
   "scripts": {
@@ -16,7 +16,7 @@
     "@pinia/nuxt": "^0.11.2",
     "@supabase/supabase-js": "^2.78.0",
     "@tabler/icons-vue": "^3.35.0",
-    "nuxt": "^4.2.0",
+    "nuxt": "4.1.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.22",
     "vue-router": "^4.5.1",
@@ -27,5 +27,8 @@
     "cookie-es": "^2.0.0",
     "cookie": "npm:cookie-es@^2.0.0"
   },
-  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "devDependencies": {
+    "@types/node": "^24.10.0"
+  }
 }

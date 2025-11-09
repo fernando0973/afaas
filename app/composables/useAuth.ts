@@ -15,13 +15,41 @@ export const useAuth = () => {
 
   const login = async (email: string, password: string) => {
     try {
+      // Debug: Verificar se o Supabase está inicializado
+      if (!supabase) {
+        return { success: false, error: 'Cliente Supabase não inicializado' }
+      }
+
+      // Debug: Verificar se temos uma URL válida
+      const config = useRuntimeConfig()
+      if (!config.public?.supabase?.url) {
+        return { success: false, error: 'URL do Supabase não configurada' }
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password
       })
 
       if (error) {
-        return { success: false, error: error.message }
+        // Melhorar as mensagens de erro
+        let userFriendlyMessage = 'Erro ao fazer login'
+        
+        switch (error.message) {
+          case 'Invalid login credentials':
+            userFriendlyMessage = 'E-mail ou senha incorretos'
+            break
+          case 'Email not confirmed':
+            userFriendlyMessage = 'E-mail não confirmado. Verifique sua caixa de entrada.'
+            break
+          case 'Too many requests':
+            userFriendlyMessage = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+            break
+          default:
+            userFriendlyMessage = error.message
+        }
+        
+        return { success: false, error: userFriendlyMessage }
       }
 
       if (!data.session || !data.user) {
@@ -30,30 +58,31 @@ export const useAuth = () => {
 
       return { success: true, user: data.user, session: data.session }
     } catch (error: any) {
-      return { success: false, error: error.message }
+      // Debug mais detalhado para errors de conexão
+      if (error.message.includes('fetch')) {
+        return { success: false, error: 'Erro de conexão com o servidor. Verifique sua internet.' }
+      }
+      
+      return { success: false, error: error.message || 'Erro inesperado durante o login' }
     }
   }
 
   const logout = async () => {
     try {
-      console.log('🚪 [useAuth] Iniciando logout...')
       adminCheckCache.value = null
       
       const { error } = await supabase.auth.signOut()
       
       if (error) {
-        console.error('❌ [useAuth] Erro no logout:', error.message)
         return { success: false, error: error.message }
       }
 
-      console.log('✅ [useAuth] Logout realizado com sucesso')
       
       // Redirecionar para login após logout
       await navigateTo('/login', { replace: true })
       
       return { success: true }
     } catch (error: any) {
-      console.error('❌ [useAuth] Falha no logout:', error.message)
       return { success: false, error: error.message }
     }
   }
@@ -61,28 +90,22 @@ export const useAuth = () => {
   const isAdmin = async () => {
     try {
       if (!user.value) {
-        console.log('🚫 [useAuth] isAdmin: Usuário não está logado')
         return false
       }
 
-      console.log('🔍 [useAuth] Verificando admin para usuário:', user.value.id)
 
       if (adminCheckCache.value && 
           (Date.now() - adminCheckCache.value.timestamp) < CACHE_DURATION) {
-        console.log('📦 [useAuth] isAdmin: Usando cache:', adminCheckCache.value.isAdmin)
         return adminCheckCache.value.isAdmin
       }
 
       // Usar a função RPC do Supabase
-      console.log('🔄 [useAuth] Chamando RPC afaas_isadmin...')
       const { data, error } = await supabase.rpc('afaas_isadmin')
 
       if (error) {
-        console.error('❌ [useAuth] Erro ao verificar permissão admin:', error.message)
         return false
       }
 
-      console.log('📊 [useAuth] Resultado bruto da RPC afaas_isadmin:', data)
 
       // Normalizar diferentes formatos de retorno possíveis da RPC
       let isAdminResult = false
@@ -97,7 +120,6 @@ export const useAuth = () => {
         else if (typeof data === 'object' && data !== null && data && typeof (data as any).isadmin !== 'undefined') {
           const adminValue = (data as any).isadmin
           isAdminResult = Boolean(adminValue)
-          console.log('📊 [useAuth] Formato {"isadmin": X} detectado:', adminValue)
         }
 
         // Caso array retornado pelo supabase (ex.: [{ afaasisadmin: true }])
@@ -120,7 +142,6 @@ export const useAuth = () => {
           }
         }
       } catch (parseErr) {
-        console.error('❌ [useAuth] Erro ao normalizar resultado da RPC afaas_isadmin:', parseErr)
         isAdminResult = false
       }
 
@@ -129,18 +150,15 @@ export const useAuth = () => {
         timestamp: Date.now()
       }
 
-      console.log('✅ [useAuth] Resultado final isAdmin (normalizado):', isAdminResult)
 
       return isAdminResult
     } catch (error) {
-      console.error('❌ [useAuth] Erro na verificação de admin:', error)
       return false
     }
   }
 
   const atualizarInfosUsuario = async (novoNome: string) => {
     try {
-      console.log('🔄 [useAuth] Iniciando atualização do nome:', novoNome)
       
       // Usar a RPC customizada para atualizar informações do usuário
       const { data, error } = await supabase.rpc('afaas_update_infos_user', {
@@ -148,11 +166,9 @@ export const useAuth = () => {
       })
       
       if (error) {
-        console.error('❌ [useAuth] Erro na RPC afaas_update_infos_user:', error)
         return { success: false, error: error.message, message: error.message }
       }
       
-      console.log('✅ [useAuth] Resultado da RPC:', data)
       
       // A RPC retorna {success: bool, message: mensagem informativa}
       if (data && typeof data === 'object' && 'success' in data) {
@@ -177,7 +193,6 @@ export const useAuth = () => {
         }
       }
     } catch (error: any) {
-      console.error('❌ [useAuth] Erro inesperado ao atualizar nome:', error)
       return { success: false, error: error.message, message: error.message }
     }
   }
@@ -186,23 +201,18 @@ export const useAuth = () => {
   const checkIsAdmin = async (useCache = true) => {
     try {
       if (!user.value) {
-        console.log('🚫 [useAuth] checkIsAdmin: Usuário não autenticado')
         return { success: false, isAdmin: false, error: 'Usuário não autenticado' }
       }
 
-      console.log('🔍 [useAuth] checkIsAdmin chamada com useCache:', useCache)
 
       // Se não usar cache, limpar cache e fazer nova consulta
       if (!useCache) {
-        console.log('🧹 [useAuth] Limpando cache de admin...')
         adminCheckCache.value = null
       }
 
       const isAdminResult = await isAdmin()
-      console.log('📊 [useAuth] checkIsAdmin resultado:', isAdminResult)
       return { success: true, isAdmin: isAdminResult }
     } catch (error: any) {
-      console.error('❌ [useAuth] Erro em checkIsAdmin:', error)
       return { success: false, isAdmin: false, error: error.message }
     }
   }
@@ -257,7 +267,6 @@ export const useAuth = () => {
 
   const deletarUsuario = async (userId: string) => {
     try {
-      console.log('🗑️ [useAuth] Iniciando deleção do usuário:', userId)
       
       // Fazer requisição para a API de deleção
       const response = await $fetch('/api/usuarios', {
@@ -267,14 +276,12 @@ export const useAuth = () => {
         }
       })
       
-      console.log('✅ [useAuth] Usuário deletado com sucesso:', response)
       
       return {
         success: true,
         message: response.message || 'Usuário deletado com sucesso'
       }
     } catch (error: any) {
-      console.error('❌ [useAuth] Erro ao deletar usuário:', error)
       
       // Tratar diferentes tipos de erro
       let errorMessage = 'Erro inesperado ao deletar usuário'

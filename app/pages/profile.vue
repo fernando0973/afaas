@@ -307,7 +307,6 @@ async function toggleEditName() {
           editableUserName.value = userName.value
         }
       } catch (error) {
-        console.error('Erro ao atualizar nome:', error)
         toast.error('Erro inesperado ao atualizar nome')
         
         // Reverter para o nome original
@@ -338,14 +337,11 @@ async function toggleEditName() {
 // Funções para lidar com eventos do componente ChangePassword
 function handlePasswordChange(success: boolean) {
   if (success) {
-    console.log('Senha alterada com sucesso!')
   } else {
-    console.log('Erro ao alterar senha')
   }
 }
 
 function handlePasswordCancel() {
-  console.log('Alteração de senha cancelada')
 }
 
 // Carregar dados do perfil ao montar o componente

@@ -265,14 +265,11 @@ const carregarDados = async () => {
     
     if (resultado.success) {
       usuarios.value = resultado.data
-      console.log('Usuários carregados:', usuarios.value.length)
     } else {
       erro.value = resultado.error || 'Erro desconhecido ao carregar usuários'
-      console.error('Erro ao carregar usuários:', resultado.error)
     }
   } catch (error: any) {
     erro.value = error.message || 'Erro inesperado ao carregar usuários'
-    console.error('Erro inesperado ao carregar usuários:', error)
   } finally {
     carregando.value = false
   }
@@ -310,7 +307,6 @@ const abrirModalNovoUsuario = () => {
 
 // Função para visualizar usuário (placeholder)
 const visualizarUsuario = (usuario: PerfilRPC) => {
-  console.log('Visualizar usuário:', usuario)
   // TODO: Implementar modal ou navegação para detalhes do usuário
 }
 
@@ -358,7 +354,6 @@ const executarExclusaoUsuario = async () => {
       toast.error(resultado.message)
     }
   } catch (error: any) {
-    console.error('Erro ao deletar usuário:', error)
     toast.error('Erro inesperado ao deletar usuário')
   } finally {
     deletandoUsuario.value = false

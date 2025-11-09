@@ -203,7 +203,6 @@ async function handleSubmit() {
       emit('password-changed', false)
     }
   } catch (error: any) {
-    console.error('Erro ao alterar senha:', error)
     toast.error('Erro inesperado ao alterar senha')
     emit('password-changed', false)
   } finally {

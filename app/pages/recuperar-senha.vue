@@ -201,7 +201,6 @@ const errors = reactive({
 
 // Watcher para detectar mudanças no estado do usuário (caso necessário para debug)
 // watch(user, (newUser, oldUser) => {
-//   console.log('Mudança no estado do usuário:', { old: !!oldUser, new: !!newUser })
 // }, { immediate: true })
 
 // Computed para verificar se as senhas correspondem
@@ -400,7 +399,6 @@ async function updatePassword() {
     })
 
     if (authError) {
-      console.error('Erro ao atualizar senha:', authError)
       
       // Verificar se é erro de link já utilizado ou sessão inválida
       if (authError.message?.includes('session_not_found') || 
@@ -424,7 +422,6 @@ async function updatePassword() {
     }, 2000)
 
   } catch (err: any) {
-    console.error('Erro inesperado:', err)
     toast.error('Erro inesperado ao atualizar senha')
   } finally {
     updating.value = false
@@ -446,7 +443,6 @@ onMounted(async () => {
     const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
     if (sessionError) {
-      console.error('Erro na verificação de sessão:', sessionError)
       
       if (sessionError.message?.includes('session_not_found') ||
           sessionError.message?.includes('invalid_token') ||
@@ -483,12 +479,10 @@ onMounted(async () => {
         return
       }
     } catch (testErr) {
-      console.warn('Erro no teste de usuário:', testErr)
     }
 
     loading.value = false
   } catch (err: any) {
-    console.error('Erro inesperado na verificação:', err)
     error.value = 'Erro inesperado ao verificar sessão'
   } finally {
     loading.value = false

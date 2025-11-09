@@ -283,11 +283,9 @@ const carregarDados = async () => {
       clientes.value = resultado.data
     } else {
       erro.value = resultado.error || 'Erro desconhecido ao carregar clientes'
-      console.error('Erro ao carregar clientes:', resultado.error)
     }
   } catch (error: any) {
     erro.value = error.message || 'Erro inesperado ao carregar clientes'
-    console.error('Erro inesperado ao carregar clientes:', error)
   } finally {
     carregando.value = false
   }

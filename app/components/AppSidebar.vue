@@ -240,6 +240,7 @@ import {
   PencilIcon,
   ShieldCheckIcon,
   AcademicCapIcon
+// @ts-ignore
 } from '@heroicons/vue/24/outline'
 import { IconLeaf } from '@tabler/icons-vue'
 import { useUserStore } from '~/stores/useUserStore'
@@ -275,44 +276,34 @@ const checkAdminStatus = async () => {
   if (!process.client) return
   
   try {
-    console.log('🔍 [Sidebar] Verificando status de admin...')
     // SEMPRE força nova verificação sem usar cache para sidebar
     const result = await checkIsAdmin(false)
-    console.log('📊 [Sidebar] Resultado da verificação:', result)
     
     // Garantir que o valor seja sempre boolean
     const newAdminStatus = !!(result.success && result.isAdmin)
     
     if (isAdmin.value !== newAdminStatus) {
       isAdmin.value = newAdminStatus
-      console.log('✅ [Sidebar] Status admin atualizado para:', isAdmin.value)
-    } else {
-      console.log('ℹ️ [Sidebar] Status admin mantido:', isAdmin.value)
     }
   } catch (error) {
-    console.error('❌ [Sidebar] Erro ao verificar status de admin:', error)
     isAdmin.value = false
   }
 }
 
 // Watcher para detectar mudanças no usuário e atualizar status de admin
-watch(user, async (newUser, oldUser) => {
-  console.log('👤 [Sidebar] Mudança detectada no usuário:', { newUser: !!newUser, oldUser: !!oldUser })
-  
+watch(user, async (newUser: any, oldUser: any) => {
   if (newUser) {
     // Usuário logou ou mudou, verificar status de admin
-    console.log('🔄 [Sidebar] Usuário presente, verificando status de admin...')
     await checkAdminStatus()
   } else {
     // Usuário deslogou, resetar status de admin
-    console.log('🚪 [Sidebar] Usuário deslogou, resetando status de admin')
     isAdmin.value = false
   }
 }, { immediate: true })
 
 // Watcher para detectar mudanças no status de admin
-watch(isAdmin, (newValue, oldValue) => {
-  console.log('🔄 [Sidebar] Status admin alterado:', { de: oldValue, para: newValue })
+watch(isAdmin, (newValue: any, oldValue: any) => {
+  // Status alterado silenciosamente
 })
 
 // Definir os itens do dropdown
@@ -347,14 +338,12 @@ const handleClickOutside = (event: Event) => {
 onMounted(async () => {
   if (!process.client) return
 
-  console.log('🚀 [Sidebar] Componente montado, inicializando...')
 
   // Carrega dados do perfil
   await nextTick()
   await loadUserProfile()
   
   // Verifica status de admin inicial
-  console.log('🔄 [Sidebar] Verificação inicial de admin...')
   await checkAdminStatus()
 
   // Adicionar event listener

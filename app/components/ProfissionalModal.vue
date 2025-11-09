@@ -183,22 +183,18 @@ const handleSave = async () => {
       }
 
       const resultado = await editarProfissional(props.profissional.profissional_id, perfil_id, especialidade_id)
-      console.log('Resultado ao editar profissional:', resultado)
       
       if (resultado.success) {
-        console.log('Exibindo toast de sucesso:', resultado.message)
         toast.success(resultado.message)
         // Aguardar um pouco para garantir que o toast seja exibido
         setTimeout(() => {
           emit('salvar', { profile_id: perfil_id, especialidade_id })
         }, 300)
       } else {
-        console.log('Exibindo toast de erro:', resultado.message)
         toast.error(resultado.message)
       }
     }
   } catch (error) {
-    console.error('Erro ao salvar profissional:', error)
     toast.error('Erro inesperado ao salvar profissional')
   }
 }

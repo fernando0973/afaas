@@ -53,7 +53,6 @@ const buscarProfissionais = async () => {
           // Só atualizar o store se for diferente do atual
           if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
             agendamentoStore.setProfissionalSelecionado(profId)
-            console.log(`👤 Profissional selecionado: ${profissional.value.nome_profissional} (ID: ${profId})`)
             
             // Tentar carregar agendamentos se não existirem
             await tentarCarregarAgendamentos(profId)
@@ -70,7 +69,6 @@ const buscarProfissionais = async () => {
         const profId = profissional.value.profissional_id || profissional.value.id
         if (profId && agendamentoStore.profissionalSelecionadoId !== profId) {
           agendamentoStore.setProfissionalSelecionado(profId)
-          console.log(`👤 Profissional padrão selecionado: ${profissional.value.nome_profissional} (ID: ${profId})`)
           
           // Tentar carregar agendamentos se não existirem
           await tentarCarregarAgendamentos(profId)
@@ -81,7 +79,6 @@ const buscarProfissionais = async () => {
     }
     
   } catch (error) {
-    console.error('Erro ao buscar profissionais:', error)
     profissional.value = null
   } finally {
     loading.value = false
@@ -99,25 +96,21 @@ const tentarCarregarAgendamentos = async (profId: number) => {
     const jaTemDados = agendamentosAtuais.length > 0
     
     if (jaTemDados) {
-      console.log('✅ Agendamentos já carregados, não recarregando')
       return
     }
     
     // Verificar cache primeiro
     const agendamentosCache = agendamentoStore.buscarNoCache(profId, agendamentoStore.diasSemana)
     if (agendamentosCache) {
-      console.log('💾 Restaurando agendamentos do cache')
       agendamentoStore.setAgendamentos(agendamentosCache)
       return
     }
     
     // Se não tem cache nem dados, carregar do banco
-    console.log('🔄 Carregando agendamentos para profissional selecionado')
     const { buscarAgendamentosSemana } = useAgendamentos()
     await buscarAgendamentosSemana(profId, agendamentoStore.diasSemana, false)
     
   } catch (error) {
-    console.error('Erro ao carregar agendamentos:', error)
   }
 }
 

@@ -194,8 +194,6 @@ export const useAgendamentoForm = () => {
         cor: form.value.cor
       }
 
-      console.log('� Data selecionada no formulário:', form.value.data)
-      console.log('�🔄 Criando agendamento com dados:', agendamentoData)
 
       const { data, error } = await supabase
         .from('afaas_agendamentos')
@@ -203,14 +201,12 @@ export const useAgendamentoForm = () => {
         .select()
 
       if (error) {
-        console.error('❌ Erro ao criar agendamento:', error)
         return { 
           success: false, 
           error: error.message || 'Erro ao criar agendamento' 
         }
       }
 
-      console.log('✅ Agendamento criado com sucesso:', data[0])
 
       // Resetar formulário após sucesso
       resetForm()
@@ -222,7 +218,6 @@ export const useAgendamentoForm = () => {
       }
       
     } catch (error) {
-      console.error('❌ Erro inesperado ao criar agendamento:', error)
       return { 
         success: false, 
         error: 'Erro inesperado ao criar agendamento' 

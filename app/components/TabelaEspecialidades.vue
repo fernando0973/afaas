@@ -190,7 +190,6 @@ const carregarDados = async () => {
       erro.value = resultado.error || 'Erro desconhecido ao carregar especialidades'
     }
   } catch (error: any) {
-    console.error('Erro ao carregar especialidades:', error)
     erro.value = error.message || 'Erro interno do sistema'
   } finally {
     carregando.value = false

@@ -175,7 +175,6 @@ async function processPasswordReset() {
       return false
     }
   } catch (error) {
-    console.error('Erro inesperado:', error)
     emailError.value = 'Erro inesperado. Tente novamente.'
     return false
   } finally {

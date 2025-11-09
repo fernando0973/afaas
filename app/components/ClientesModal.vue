@@ -1215,10 +1215,8 @@ const handleConfirm = async () => {
       emit('update:modelValue', false)
       resetForm()
     } else {
-      console.error('Erro ao salvar cliente:', resultado.message)
     }
   } catch (error) {
-    console.error('Erro inesperado ao salvar cliente:', error)
   } finally {
     loading.value = false
   }

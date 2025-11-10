@@ -111,7 +111,7 @@
         @update:model-value="form.descricao = $event"
         label="Descrição"
         placeholder="Digite uma descrição para o agendamento..."
-        rows="3"
+        :rows="3"
         :error="errors.descricao"
         @blur="validateField('descricao')"
         @input="clearFieldError('descricao')"
@@ -212,8 +212,8 @@
     v-model="mostrarConfirmacaoCancelamento"
     title="Cancelar Agendamento"
     message="Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita e o agendamento será marcado como cancelado permanentemente. Confirma o cancelamento?"
-    confirm-text="Sim, Cancelar"
-    cancel-text="Não, Manter"
+    confirm-text="Cancelar"
+    cancel-text="Manter"
     type="danger"
     :loading="cancelando"
     @confirm="cancelarAgendamento"
@@ -420,7 +420,8 @@ const loadAgendamentoData = () => {
   if (props.agendamento) {
     form.titulo = props.agendamento.titulo || ''
     form.descricao = props.agendamento.descricao || ''
-    form.cor = props.agendamento.cor || '#DBE9FE'
+    // Limpar a cor de possíveis quebras de linha ou espaços
+    form.cor = (props.agendamento.cor || '#DBE9FE').trim()
     
     // Salvar dados originais
     originalData.titulo = form.titulo
@@ -503,23 +504,48 @@ const handleConfirm = async () => {
   loading.value = true
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('afaas_agendamentos')
       .update({
         titulo: form.titulo.trim(),
         descricao: form.descricao.trim(),
-        cor: form.cor
+        cor: form.cor.trim()
       })
       .eq('id', props.agendamento!.id)
+      .select()
 
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
-    // Criar objeto com dados atualizados
+    // Verificar se algum registro foi atualizado
+    if (!data || data.length === 0) {
+      // Tentar via API server como fallback
+      try {
+        const response = await $fetch('/api/agendamentos/atualizar', {
+          method: 'POST',
+          body: {
+            id: props.agendamento!.id,
+            titulo: form.titulo.trim(),
+            descricao: form.descricao.trim(),
+            cor: form.cor.trim()
+          }
+        }) as any
+        
+        if (!response.success) {
+          throw new Error(response.message || 'Falha na API')
+        }
+      } catch (apiError: any) {
+        throw new Error(`Sem permissão para atualizar. Contate o administrador.`)
+      }
+    }
+
+    // Criar objeto com dados atualizados mantendo a estrutura original
     const agendamentoAtualizado = {
       ...props.agendamento!,
       titulo: form.titulo.trim(),
       descricao: form.descricao.trim(),
-      cor: form.cor
+      cor: form.cor.trim()
     }
 
     toast.success('Agendamento atualizado com sucesso!')

@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
+import { PlusIcon } from '@heroicons/vue/24/outline'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { PlantaMedicinal } from '~/types/planta'
 

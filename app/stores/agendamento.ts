@@ -241,10 +241,11 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     const index = agendamentosAtuais.findIndex((ag: AgendamentoFormatado) => ag.id === agendamentoAtualizado.id)
     
     if (index !== -1) {
-      // Criar novo array com o agendamento atualizado
-      const novosAgendamentos = [...agendamentosAtuais]
-      novosAgendamentos[index] = agendamentoAtualizado
-      agendamentos.value = novosAgendamentos
+      // Atualizar diretamente o item no array reativo
+      agendamentosAtuais[index] = agendamentoAtualizado
+      
+      // Forçar reatividade
+      triggerRef(agendamentos)
     }
   }
 

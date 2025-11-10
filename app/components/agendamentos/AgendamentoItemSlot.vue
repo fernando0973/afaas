@@ -55,8 +55,8 @@ const TOTAL_SLOTS = 15  // 15 slots de horário (8:00 até 22:00)
 
 /**
  * Calcular posição e tamanho do agendamento baseado na régua de horários
- * Cada slot na régua representa 1 hora (1/15 da altura total)
- * 8:00 = posição 0%, 9:00 = posição 6.67%, etc.
+ * A régua tem 15 slots (8:00-22:00), cada um com height: 1/15 = 6.667%
+ * Cada slot da régua usa flex-1, então distribui igualmente o espaço
  */
 const calcularPosicaoAgendamento = (agendamento: AgendamentoFormatado) => {
   const horaInicio = agendamento.dataInicio.getHours() + (agendamento.dataInicio.getMinutes() / 60)

@@ -183,11 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
-import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
-import UserGroupIcon from '@heroicons/vue/24/outline/UserGroupIcon'
-import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
-import UserIcon from '@heroicons/vue/24/outline/UserIcon'
+import { ArrowPathIcon, ExclamationTriangleIcon, UserGroupIcon, PlusIcon, UserIcon } from '@heroicons/vue/24/outline'
 import type { Cliente } from '~/types/cliente'
 
 interface Props {

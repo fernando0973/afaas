@@ -23,15 +23,18 @@
 </template>
 
 <script setup lang="ts">
-import HomeIcon from '@heroicons/vue/24/outline/HomeIcon'
-import UserGroupIcon from '@heroicons/vue/24/outline/UserGroupIcon'
-import UsersIcon from '@heroicons/vue/24/outline/UsersIcon'
-import CalendarDaysIcon from '@heroicons/vue/24/outline/CalendarDaysIcon'
-import ClipboardDocumentListIcon from '@heroicons/vue/24/outline/ClipboardDocumentListIcon'
-import Cog6ToothIcon from '@heroicons/vue/24/outline/Cog6ToothIcon'
-import QuestionMarkCircleIcon from '@heroicons/vue/24/outline/QuestionMarkCircleIcon'
-import ShieldCheckIcon from '@heroicons/vue/24/outline/ShieldCheckIcon'
-import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
+// @ts-ignore
+import { 
+  HomeIcon, 
+  UserGroupIcon, 
+  UsersIcon, 
+  CalendarDaysIcon, 
+  ClipboardDocumentListIcon, 
+  Cog6ToothIcon, 
+  QuestionMarkCircleIcon, 
+  ShieldCheckIcon, 
+  AcademicCapIcon 
+} from '@heroicons/vue/24/outline'
 import { IconLeaf } from '@tabler/icons-vue'
 
 interface Props {

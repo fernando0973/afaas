@@ -100,10 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import KeyIcon from '@heroicons/vue/24/outline/KeyIcon'
-import PaperAirplaneIcon from '@heroicons/vue/24/outline/PaperAirplaneIcon'
-import ArrowLeftIcon from '@heroicons/vue/24/outline/ArrowLeftIcon'
 
+import { KeyIcon, PaperAirplaneIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline'
 // Definir meta da página (sem layout)
 definePageMeta({
   layout: false

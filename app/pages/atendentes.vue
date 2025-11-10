@@ -75,8 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import UserGroupIcon from '@heroicons/vue/24/outline/UserGroupIcon'
-import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
+import { UserGroupIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import type { ProfissionalRPC } from '~/types/user'
 import type { PerfilRPC } from '~/types/database.types'
 import type { Especialidade } from '~/types/especialidade'
@@ -96,14 +95,17 @@ useHead({
 // Store do usuário para verificar permissões
 const userStore = useUserStore()
 
+// Hidratação segura para evitar mismatches
+const { safeValue } = useSafeHydration()
+
 // Composables
 const { buscarPerfis, buscarEspecialidades, removerProfissional, inserirProfissional } = useProfissionais()
 
 // Referência para o componente da tabela
 const tabelaRef = ref()
 
-// Computed para verificar se é admin
-const isAdmin = computed(() => userStore.isAdmin)
+// Computed para verificar se é admin (com fallback seguro para SSR)
+const isAdmin = computed(() => safeValue(userStore.isAdmin, false))
 
 // Estados para os dados do modal
 const perfis = ref([] as PerfilRPC[])

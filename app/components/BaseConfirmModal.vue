@@ -36,10 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
-import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
-import CheckCircleIcon from '@heroicons/vue/24/outline/CheckCircleIcon'
-import XCircleIcon from '@heroicons/vue/24/outline/XCircleIcon'
+// @ts-ignore
+import { ExclamationTriangleIcon, InformationCircleIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 
 type ConfirmationType = 'danger' | 'warning' | 'info' | 'success'
 

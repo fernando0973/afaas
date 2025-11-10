@@ -226,14 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import CheckBadgeIcon from '@heroicons/vue/24/outline/CheckBadgeIcon'
-import CubeIcon from '@heroicons/vue/24/outline/CubeIcon'
-import SparklesIcon from '@heroicons/vue/24/outline/SparklesIcon'
-import MapIcon from '@heroicons/vue/24/outline/MapIcon'
-import HeartIcon from '@heroicons/vue/24/outline/HeartIcon'
-import CheckCircleIcon from '@heroicons/vue/24/outline/CheckCircleIcon'
-import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
-import PencilIcon from '@heroicons/vue/24/outline/PencilIcon'
+import { CheckBadgeIcon, CubeIcon, SparklesIcon, MapIcon, HeartIcon, CheckCircleIcon, ExclamationTriangleIcon, PencilIcon } from '@heroicons/vue/24/outline'
 import type { PlantaMedicinal } from '~/types/planta'
 
 

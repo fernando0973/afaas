@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
+import { InformationCircleIcon } from '@heroicons/vue/24/outline'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { Especialidade } from '~/types/especialidade'
 import type { PerfilRPC } from '~/types/database.types'

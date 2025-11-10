@@ -73,8 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
-import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
+import { AcademicCapIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import type { Especialidade } from '~/types/especialidade'
 import { useProfissionais } from '~/composables/useProfissionais'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
@@ -93,11 +92,14 @@ useHead({
 // Store do usuário para verificar permissões
 const userStore = useUserStore()
 
+// Hidratação segura para evitar mismatches
+const { safeValue } = useSafeHydration()
+
 // Referência para o componente da tabela
 const tabelaRef = ref()
 
-// Computed para verificar se é admin
-const isAdmin = computed(() => userStore.isAdmin)
+// Computed para verificar se é admin (com fallback seguro para SSR)
+const isAdmin = computed(() => safeValue(userStore.isAdmin, false))
 
 // Estados do modal
 const showModal = ref(false)

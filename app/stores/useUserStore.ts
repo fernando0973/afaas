@@ -84,9 +84,9 @@ export const useUserStore = defineStore('user', () => {
   
   return {
     // Estado
-    profile: readonly(profile),
-    loading: readonly(loading),
-    error: readonly(error),
+    profile,
+    loading,
+    error,
     
     // Getters
     userName,

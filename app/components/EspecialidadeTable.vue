@@ -60,7 +60,7 @@
         <p class="text-neutral-600 mb-4">Comece adicionando a primeira especialidade do sistema.</p>
         <BaseButton 
           variant="primary"
-          :disabled="!props.isAdmin"
+          :disabled="!isAdminSafe"
           @click="$emit('adicionar')"
         >
           <template #iconLeft>
@@ -105,7 +105,7 @@
                 <BaseButton 
                   variant="outline"
                   size="sm"
-                  :disabled="!props.isAdmin"
+                  :disabled="!isAdminSafe"
                   @click="editarEspecialidade(especialidade)"
                 >
                   <template #iconLeft>
@@ -116,7 +116,7 @@
                 <BaseButton 
                   variant="danger"
                   size="sm"
-                  :disabled="!props.isAdmin"
+                  :disabled="!isAdminSafe"
                   @click="confirmarRemocao(especialidade)"
                 >
                   <template #iconLeft>
@@ -146,12 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
-import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
-import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
-import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
-import PencilIcon from '@heroicons/vue/24/outline/PencilIcon'
-import TrashIcon from '@heroicons/vue/24/outline/TrashIcon'
+import { AcademicCapIcon, ArrowPathIcon, ExclamationTriangleIcon, PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import type { Especialidade } from '~/types/especialidade'
 
 // Props e emits
@@ -175,10 +170,16 @@ const emit = defineEmits<{
 // Composables
 const { buscarEspecialidades } = useProfissionais()
 
+// Hidratação segura para evitar mismatches
+const { safeValue } = useSafeHydration()
+
 // Estados reativos
 const especialidades = ref<Especialidade[]>([])
 const carregando = ref(false)
 const erro = ref<string | null>(null)
+
+// Computed para isAdmin com fallback seguro
+const isAdminSafe = computed(() => safeValue(props.isAdmin, false))
 
 // Função para carregar dados
 const carregarDados = async () => {

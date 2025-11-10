@@ -138,13 +138,8 @@
 </template>
 
 <script setup lang="ts">
-import UsersIcon from '@heroicons/vue/24/outline/UsersIcon'
-import DocumentTextIcon from '@heroicons/vue/24/outline/DocumentTextIcon'
-import Cog6ToothIcon from '@heroicons/vue/24/outline/Cog6ToothIcon'
-import ServerIcon from '@heroicons/vue/24/outline/ServerIcon'
-import ChartBarIcon from '@heroicons/vue/24/outline/ChartBarIcon'
-import WrenchScrewdriverIcon from '@heroicons/vue/24/outline/WrenchScrewdriverIcon'
 
+import { UsersIcon, DocumentTextIcon, Cog6ToothIcon, ServerIcon, ChartBarIcon, WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
 // Definir meta da página
 definePageMeta({
   layout: 'default',

@@ -1,0 +1,53 @@
+declare module '@heroicons/vue/24/outline' {
+  import { DefineComponent } from 'vue'
+  
+  export const AcademicCapIcon: DefineComponent
+  export const ArrowLeftIcon: DefineComponent
+  export const ArrowPathIcon: DefineComponent
+  export const ArrowRightOnRectangleIcon: DefineComponent
+  export const BeakerIcon: DefineComponent
+  export const BriefcaseIcon: DefineComponent
+  export const CalendarDaysIcon: DefineComponent
+  export const CalendarIcon: DefineComponent
+  export const ChartBarIcon: DefineComponent
+  export const CheckBadgeIcon: DefineComponent
+  export const CheckCircleIcon: DefineComponent
+  export const CheckIcon: DefineComponent
+  export const ChevronLeftIcon: DefineComponent
+  export const ChevronRightIcon: DefineComponent
+  export const ClipboardDocumentCheckIcon: DefineComponent
+  export const ClipboardDocumentListIcon: DefineComponent
+  export const ClockIcon: DefineComponent
+  export const Cog6ToothIcon: DefineComponent
+  export const CubeIcon: DefineComponent
+  export const DocumentTextIcon: DefineComponent
+  export const EnvelopeIcon: DefineComponent
+  export const ExclamationTriangleIcon: DefineComponent
+  export const EyeIcon: DefineComponent
+  export const EyeSlashIcon: DefineComponent
+  export const HeartIcon: DefineComponent
+  export const HomeIcon: DefineComponent
+  export const IdentificationIcon: DefineComponent
+  export const InformationCircleIcon: DefineComponent
+  export const KeyIcon: DefineComponent
+  export const LockClosedIcon: DefineComponent
+  export const MagnifyingGlassIcon: DefineComponent
+  export const MapIcon: DefineComponent
+  export const MapPinIcon: DefineComponent
+  export const PaperAirplaneIcon: DefineComponent
+  export const PencilIcon: DefineComponent
+  export const PhoneIcon: DefineComponent
+  export const PhotoIcon: DefineComponent
+  export const PlusIcon: DefineComponent
+  export const QuestionMarkCircleIcon: DefineComponent
+  export const ServerIcon: DefineComponent
+  export const ShieldCheckIcon: DefineComponent
+  export const SparklesIcon: DefineComponent
+  export const TrashIcon: DefineComponent
+  export const UserGroupIcon: DefineComponent
+  export const UserIcon: DefineComponent
+  export const UsersIcon: DefineComponent
+  export const WrenchScrewdriverIcon: DefineComponent
+  export const XCircleIcon: DefineComponent
+  export const XMarkIcon: DefineComponent
+}

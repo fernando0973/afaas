@@ -109,9 +109,11 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
+import { XMarkIcon } from '@heroicons/vue/24/outline'
+
 // Prop para z-index customizado
 const zIndex = computed(() => props.zIndex ?? 50)
-import XMarkIcon from '@heroicons/vue/24/outline/XMarkIcon'
 
 interface Props {
   modelValue: boolean

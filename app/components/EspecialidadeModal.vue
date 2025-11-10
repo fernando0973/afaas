@@ -42,8 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
-import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
+import { AcademicCapIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import type { Especialidade } from '~/types/especialidade'
 
 interface Props {

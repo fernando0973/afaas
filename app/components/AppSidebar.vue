@@ -226,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { 
+import {
   HomeIcon,
   UserGroupIcon,
   UsersIcon,

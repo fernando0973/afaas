@@ -262,6 +262,17 @@ const handleAgendamentoAtualizado = async (agendamentoAtualizado?: any) => {
   // Se recebemos os dados atualizados, tentar atualizar diretamente no store
   if (agendamentoAtualizado) {
     agendamentoStore.atualizarAgendamento(agendamentoAtualizado)
+    
+    // Aguardar um tick para garantir que a reatividade funcione
+    await nextTick()
+    
+    // Verificar se a atualização funcionou
+    const agendamentosAtualizados = agendamentoStore.agendamentos
+    const agendamentoEncontrado = agendamentosAtualizados.find((ag: AgendamentoFormatado) => ag.id === agendamentoAtualizado.id)
+    if (!agendamentoEncontrado || agendamentoEncontrado.cor !== agendamentoAtualizado.cor) {
+      agendamentoStore.limparCache()
+      await carregarAgendamentos(true)
+    }
   } else {
     // Fallback: limpar cache e recarregar
     agendamentoStore.limparCache()

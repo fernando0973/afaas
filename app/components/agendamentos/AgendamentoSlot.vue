@@ -1,26 +1,36 @@
 <template>
   <div 
     :style="estilosSlot"
-    class="rounded-lg p-2 cursor-pointer transition-all duration-200 h-full flex flex-col overflow-hidden hover:shadow-lg hover:scale-[1.02] border"
-    :class="classesSlot"
+    class="rounded-lg border cursor-pointer transition-all duration-200 h-full flex flex-col overflow-hidden hover:shadow-lg hover:scale-[1.02]"
+    :class="[classesSlot, slotPaddingClasses]"
     @click="$emit('click', agendamento)"
   >
     <!-- Horário do agendamento -->
-    <div class="text-xs font-bold mb-1 flex-shrink-0 text-neutral-700 tracking-wide">
-      {{ formatarHorario(agendamento.dataInicio) }} - {{ formatarHorario(agendamento.dataFim) }}
+    <div class="flex items-center justify-between text-[11px] font-semibold text-neutral-700 tracking-wide leading-tight">
+      <span>{{ horarioInicio }}</span>
+      <span>{{ horarioFim }}</span>
     </div>
     
-    <!-- Título do agendamento -->
-    <div class="text-sm font-bold text-neutral-900 mb-1 flex-shrink-0 overflow-hidden leading-snug">
-      <div class="truncate">{{ agendamento.titulo }}</div>
-    </div>
-    
-    <!-- Descrição -->
-    <div class="text-xs text-neutral-700 flex-1 overflow-hidden font-medium">
-      <div class="line-clamp-3 leading-relaxed">
-        {{ agendamento.descricao || 'Sem descrição' }}
+    <!-- Conteúdo: para slots de 30 minutos mostramos apenas o horário -->
+    <template v-if="duracaoMinutos <= 30">
+      <div class="flex-1" />
+    </template>
+    <template v-else>
+      <!-- Título do agendamento -->
+      <div :class="['font-semibold text-neutral-900 leading-tight truncate', tituloClasses]">
+        {{ agendamento.titulo || 'Sem título' }}
       </div>
-    </div>
+      
+      <!-- Descrição -->
+      <div v-if="duracaoMinutos > 45" class="text-xs text-neutral-700 flex-1 overflow-hidden font-medium">
+        <div class="line-clamp-3 leading-relaxed">
+          {{ agendamento.descricao || 'Sem descrição' }}
+        </div>
+      </div>
+      <div v-else class="text-[11px] text-neutral-600 font-medium leading-tight truncate">
+        {{ descricaoCompacta }}
+      </div>
+    </template>
   </div>
 </template>
 
@@ -62,6 +72,30 @@ const classesSlot = computed(() => {
     'shadow-sm': true
   }
 })
+
+const duracaoMinutos = computed(() => {
+  const inicio = props.agendamento.dataInicio
+  const fim = props.agendamento.dataFim
+  const diff = (fim.getTime() - inicio.getTime()) / 60000
+  return Math.max(diff, 0)
+})
+
+const slotPaddingClasses = computed(() => {
+  if (duracaoMinutos.value <= 30) {
+    return 'px-1.5 py-1'
+  }
+  if (duracaoMinutos.value <= 60) {
+    return 'px-2 py-1.5'
+  }
+  return 'p-2.5'
+})
+
+const tituloClasses = computed(() => (duracaoMinutos.value <= 60 ? 'text-sm mt-1' : 'text-base mt-1'))
+
+const horarioInicio = computed(() => formatarHorario(props.agendamento.dataInicio))
+const horarioFim = computed(() => formatarHorario(props.agendamento.dataFim))
+
+const descricaoCompacta = computed(() => props.agendamento.descricao || props.agendamento.titulo || 'Sem descrição')
 
 /**
  * Formatar horário no formato HH:MM

@@ -43,7 +43,7 @@
           v-for="(dia, index) in diasSemana" 
           :key="index"
           :data="dia"
-          @agendamento-click="editarAgendamento"
+          @agendamento-click="visualizarAgendamento"
         />
       </div>
     </div>
@@ -58,6 +58,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Visualização de Agendamento -->
+    <VisualizarAgendamentoModal
+      v-model="modalVisualizarAgendamentoAberto"
+      :agendamento="agendamentoSelecionado"
+      @editar="abrirModalEdicao"
+      @fechar="fecharModalVisualizacao"
+    />
 
     <!-- Modal de Novo Agendamento -->
     <NovoAgendamentoModal
@@ -109,6 +117,8 @@ const profissionaisStore = useProfissionaisStore()
 // Estados do modal
 const modalNovoAgendamentoAberto = ref(false)
 const modalEditarAgendamentoAberto = ref(false)
+const modalVisualizarAgendamentoAberto = ref(false)
+const manterSelecaoAposVisualizacao = ref(false)
 const profissionalAtual = ref<any>(null)
 const agendamentoSelecionado = ref<AgendamentoFormatado | null>(null)
 
@@ -250,6 +260,28 @@ const buscarProfissionalAtual = async () => {
 }
 
 // Função para editar agendamento existente
+const visualizarAgendamento = (agendamento: AgendamentoFormatado) => {
+  agendamentoSelecionado.value = agendamento
+  modalVisualizarAgendamentoAberto.value = true
+}
+
+const abrirModalEdicao = () => {
+  if (!agendamentoSelecionado.value) return
+  manterSelecaoAposVisualizacao.value = true
+  modalVisualizarAgendamentoAberto.value = false
+  nextTick(() => {
+    modalEditarAgendamentoAberto.value = true
+    manterSelecaoAposVisualizacao.value = false
+  })
+}
+
+const fecharModalVisualizacao = () => {
+  modalVisualizarAgendamentoAberto.value = false
+  if (!manterSelecaoAposVisualizacao.value) {
+    agendamentoSelecionado.value = null
+  }
+}
+
 const editarAgendamento = (agendamento: AgendamentoFormatado) => {
   agendamentoSelecionado.value = agendamento
   modalEditarAgendamentoAberto.value = true

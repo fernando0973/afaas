@@ -51,28 +51,33 @@ if (!obterAgendamentosDoDia) {
  */
 const HORA_INICIO = 8   // 8:00h - primeira hora da régua
 const HORA_FIM = 22     // 22:00h - última hora da régua
-const TOTAL_SLOTS = 15  // 15 slots de horário (8:00 até 22:00)
+const TOTAL_MINUTOS = (HORA_FIM - HORA_INICIO) * 60
+const DURACAO_MINIMA_MINUTOS = 15
 
 /**
  * Calcular posição e tamanho do agendamento baseado na régua de horários
  * A régua tem 15 slots (8:00-22:00), cada um com height: 1/15 = 6.667%
  * Cada slot da régua usa flex-1, então distribui igualmente o espaço
  */
+const normalizarMinutos = (data: Date) => {
+  const horas = data.getHours()
+  const minutos = data.getMinutes()
+  const total = ((horas - HORA_INICIO) * 60) + minutos
+  return Math.min(Math.max(total, 0), TOTAL_MINUTOS)
+}
+
 const calcularPosicaoAgendamento = (agendamento: AgendamentoFormatado) => {
-  const horaInicio = agendamento.dataInicio.getHours() + (agendamento.dataInicio.getMinutes() / 60)
-  const horaFim = agendamento.dataFim.getHours() + (agendamento.dataFim.getMinutes() / 60)
-  
-  // Calcular posição baseada em slots de 1 hora
-  // Cada slot ocupa (100% / 15 slots) = 6.67% da altura
-  const slotInicio = horaInicio - HORA_INICIO  // Ex: 9:00 = slot 1, 10:30 = slot 2.5
-  const duracao = horaFim - horaInicio         // Ex: 1.5 horas
-  
-  const posicaoTopo = (slotInicio / TOTAL_SLOTS) * 100
-  const altura = (duracao / TOTAL_SLOTS) * 100
-  
+  const inicioNormalizado = normalizarMinutos(agendamento.dataInicio)
+  const fimNormalizado = Math.max(normalizarMinutos(agendamento.dataFim), inicioNormalizado + DURACAO_MINIMA_MINUTOS)
+
+  const duracao = Math.min(fimNormalizado - inicioNormalizado, TOTAL_MINUTOS)
+
+  const posicaoTopo = (inicioNormalizado / TOTAL_MINUTOS) * 100
+  const altura = (duracao / TOTAL_MINUTOS) * 100
+
   return {
-    top: `${Math.max(0, posicaoTopo)}%`,
-    height: `${Math.max(1, altura)}%`
+    top: `${posicaoTopo}%`,
+    height: `${altura}%`
   }
 }
 

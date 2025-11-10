@@ -1,37 +1,34 @@
 <template>
-  <div class="flex flex-col h-full">
-    <!-- Lista de horários -->
-    <div 
-      v-for="(horario, index) in horarios" 
-      :key="horario"
+  <div class="relative flex flex-col h-full">
+    <div
+      v-for="(hora, index) in blocosHorarios"
+      :key="hora"
       :class="[
-        'relative flex-1',
-        index !== horarios.length - 1 ? 'border-b border-neutral-200' : ''
+        'relative flex-1 border-neutral-200',
+        index !== blocosHorarios.length - 1 ? 'border-b' : ''
       ]"
     >
-      <div class="absolute top-0 left-0 right-0 flex items-start justify-center pt-1">
+      <div class="absolute inset-x-0 top-0 flex justify-center pt-1">
         <span class="text-xs font-medium text-neutral-600">
-          {{ horario }}
+          {{ formatarHora(hora) }}
         </span>
       </div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 flex justify-center pb-1">
+      <span class="text-xs font-medium text-neutral-600">
+        {{ horarioFinal }}
+      </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * Gerar lista de horários das 8:00 às 22:00
- * Cada horário marca o INÍCIO de uma janela de agendamento
- * 8:00 = início da primeira janela, 22:00 = início da última janela
- */
-const horarios = computed(() => {
-  const listaHorarios: string[] = []
-  // Gerar horários de 8:00 até 22:00 (15 horários total)
-  // 8:00, 9:00, 10:00, ..., 21:00, 22:00
-  for (let hora = 8; hora <= 22; hora++) {
-    const horarioFormatado = `${hora.toString().padStart(2, '0')}:00`
-    listaHorarios.push(horarioFormatado)
-  }
-  return listaHorarios
-})
+const HORA_INICIO = 8
+const HORA_FIM = 22
+
+const blocosHorarios = computed(() => Array.from({ length: HORA_FIM - HORA_INICIO }, (_, index) => HORA_INICIO + index))
+const horarioFinal = `${HORA_FIM.toString().padStart(2, '0')}:00`
+
+const formatarHora = (hora: number) => `${hora.toString().padStart(2, '0')}:00`
 </script>

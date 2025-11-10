@@ -12,166 +12,151 @@
     @close="handleClose"
   >
     <!-- Conteúdo do modal -->
-    <form @submit.prevent="handleConfirm" class="space-y-6">
+  <form @submit.prevent="handleConfirm" class="space-y-4">
       <!-- Informações do agendamento (readonly) -->
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-5 space-y-4">
-        <!-- Data e horário -->
-        <div class="flex items-center space-x-3">
-          <div class="flex-shrink-0">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <section class="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm space-y-4">
+        <header class="flex items-start gap-3">
+          <div class="flex-shrink-0 h-10 w-10 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <div class="flex-1">
-            <h4 class="text-lg font-semibold text-blue-900">
-              {{ formatarDataSemHora(agendamento?.dataInicio) }}
+          <div class="flex-1 space-y-1">
+            <p class="text-xs uppercase tracking-wide text-neutral-500 font-medium">Agendamento</p>
+            <h4 class="text-xl font-semibold text-neutral-900">
+              {{ formatarDataSemHora(agendamento?.dataInicio) || 'Data não disponível' }}
             </h4>
-            <div class="flex items-center space-x-2 mt-1">
-              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span class="text-sm font-medium text-blue-800">
+            <div class="flex flex-wrap items-center gap-2 text-sm font-medium text-neutral-700">
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 {{ formatarHorario(agendamento?.dataInicio) }} - {{ formatarHorario(agendamento?.dataFim) }}
               </span>
-              <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                {{ calcularDuracao(agendamento?.dataInicio, agendamento?.dataFim) }}
+              <span class="inline-flex items-center rounded-full bg-primary-100 text-primary-700 text-xs px-3 py-1">
+                {{ calcularDuracao(agendamento?.dataInicio, agendamento?.dataFim) || 'Duração indeterminada' }}
               </span>
             </div>
           </div>
-        </div>
+        </header>
 
-        <!-- Profissional -->
-        <div v-if="profissionalInfo" class="flex items-center space-x-3 p-3 bg-white/70 rounded-lg">
-          <div class="flex-shrink-0">
-            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-              <span class="text-white font-semibold text-sm">
-                {{ obterIniciais(profissionalInfo.nome_profissional) }}
-              </span>
+  <div class="grid sm:grid-cols-2 gap-3">
+          <!-- Profissional -->
+          <div v-if="profissionalInfo" class="flex items-center gap-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-semibold">
+              {{ obterIniciais(profissionalInfo.nome_profissional) }}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-neutral-900">
+                {{ profissionalInfo.nome_profissional }}
+              </p>
+              <p class="text-xs text-neutral-600">
+                {{ profissionalInfo.especialidade || 'Profissional' }}
+              </p>
             </div>
           </div>
-          <div class="flex-1">
-            <p class="text-sm font-semibold text-gray-900">
-              {{ profissionalInfo.nome_profissional }}
-            </p>
-            <p class="text-xs text-gray-600">
-              {{ profissionalInfo.especialidade || 'Profissional' }}
-            </p>
-          </div>
-        </div>
 
-        <!-- Cliente -->
-        <div v-if="clienteInfo" class="flex items-center space-x-3 p-3 bg-white/70 rounded-lg">
-          <div class="flex-shrink-0">
-            <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-              <span class="text-white font-semibold text-sm">
-                {{ obterIniciais(clienteInfo.nome_completo) }}
-              </span>
+          <!-- Cliente -->
+          <div v-if="clienteInfo" class="flex items-center gap-3 bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+            <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+              {{ obterIniciais(clienteInfo.nome_completo) }}
             </div>
-          </div>
-          <div class="flex-1">
-            <p class="text-sm font-semibold text-gray-900">
-              {{ clienteInfo.nome_completo }}
-            </p>
-            <p class="text-xs text-gray-600">
-              {{ clienteInfo.telefone || 'Cliente' }}
-            </p>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-neutral-900">
+                {{ clienteInfo.nome_completo }}
+              </p>
+              <p class="text-xs text-neutral-600">
+                {{ clienteInfo.telefone || 'Cliente' }}
+              </p>
+            </div>
           </div>
         </div>
 
         <!-- Aviso sobre alterações -->
-        <div class="flex items-center space-x-2 text-xs text-blue-600 bg-blue-100 px-3 py-2 rounded-lg">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-start gap-3 rounded-lg bg-primary-50 border border-primary-100 px-4 py-3 text-xs text-primary-700">
+          <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Data, horário, cliente e profissional não podem ser alterados</span>
+          <span>Data, horário, cliente e profissional não podem ser editados neste modal. Para alterações estruturais, cancele e crie um novo agendamento.</span>
         </div>
-      </div>
+      </section>
 
       <!-- Título -->
-      <BaseInput
-        :model-value="form.titulo"
-        @update:model-value="form.titulo = $event"
-        label="Título do Agendamento"
-        placeholder="Digite o título..."
-        required
-        :error="errors.titulo"
-        @blur="validateField('titulo')"
-        @input="clearFieldError('titulo')"
-      >
-        <template #prefix>
-          <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z" />
-          </svg>
-        </template>
-      </BaseInput>
+  <section class="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm space-y-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-neutral-800">Título do agendamento</label>
+          <BaseInput
+            :model-value="form.titulo"
+            @update:model-value="form.titulo = $event"
+            placeholder="Digite o título..."
+            required
+            :error="errors.titulo"
+            @blur="validateField('titulo')"
+            @input="clearFieldError('titulo')"
+          >
+            <template #prefix>
+              <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </template>
+          </BaseInput>
+        </div>
 
-      <!-- Descrição -->
-      <BaseTextarea
-        :model-value="form.descricao"
-        @update:model-value="form.descricao = $event"
-        label="Descrição"
-        placeholder="Digite uma descrição para o agendamento..."
-        :rows="3"
-        :error="errors.descricao"
-        @blur="validateField('descricao')"
-        @input="clearFieldError('descricao')"
-      />
+        <!-- Descrição -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-neutral-800">Descrição</label>
+          <BaseTextarea
+            :model-value="form.descricao"
+            @update:model-value="form.descricao = $event"
+            placeholder="Adicione observações importantes..."
+            :rows="3"
+            :error="errors.descricao"
+            @blur="validateField('descricao')"
+            @input="clearFieldError('descricao')"
+          />
+        </div>
+      </section>
 
       <!-- Seletor de Cor -->
-      <div class="space-y-2">
-        <label class="block text-sm font-medium text-neutral-700">
-          Cor do Agendamento
-        </label>
-        <div class="space-y-3">
-          <!-- Primeira linha -->
-          <div class="flex gap-3 justify-between">
-            <button
-              v-for="cor in coresDisponiveis.slice(0, 6)"
-              :key="cor.valor"
-              type="button"
-              :class="[
-                'w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                form.cor === cor.valor ? 'border-neutral-900 shadow-lg ring-2 ring-blue-500' : 'border-neutral-300'
-              ]"
-              :style="{ backgroundColor: cor.valor }"
-              @click="form.cor = cor.valor"
-              :title="cor.nome"
-            />
+  <section class="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-neutral-800">Paleta do agendamento</p>
+            <p class="text-xs text-neutral-500">A cor ajuda a identificar rapidamente cada atendimento na agenda.</p>
           </div>
-          <!-- Segunda linha -->
-          <div class="flex gap-3 justify-between">
-            <button
-              v-for="cor in coresDisponiveis.slice(6)"
-              :key="cor.valor"
-              type="button"
-              :class="[
-                'w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-                form.cor === cor.valor ? 'border-neutral-900 shadow-lg ring-2 ring-blue-500' : 'border-neutral-300'
-              ]"
-              :style="{ backgroundColor: cor.valor }"
-              @click="form.cor = cor.valor"
-              :title="cor.nome"
-            />
-          </div>
+          <span class="inline-flex items-center gap-2 text-xs text-neutral-500">
+            <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: form.cor }"></span>
+            {{ form.cor }}
+          </span>
         </div>
-      </div>
+  <div class="grid grid-cols-6 gap-2.5">
+          <button
+            v-for="cor in coresDisponiveis"
+            :key="cor.valor"
+            type="button"
+            :class="[
+              'h-10 w-10 mx-auto rounded-full border transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+              form.cor === cor.valor ? 'border-neutral-900 shadow-md ring-2 ring-primary-400' : 'border-neutral-200 hover:border-neutral-400'
+            ]"
+            :style="{ backgroundColor: cor.valor }"
+            @click="form.cor = cor.valor"
+            :aria-label="`Selecionar cor ${cor.nome}`"
+          />
+        </div>
+      </section>
 
       <!-- Status do agendamento -->
-      <div v-if="agendamento && !agendamento.cancelado" class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="flex-shrink-0">
-              <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <section v-if="agendamento && !agendamento.cancelado" class="bg-white border border-red-200 rounded-xl p-3.5 shadow-sm">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="h-9 w-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <div>
-              <h4 class="text-sm font-semibold text-red-900">
-                Cancelar Agendamento
-              </h4>
-              <p class="text-xs text-red-700">
-                Esta ação não pode ser desfeita
-              </p>
+            <div class="space-y-1">
+              <h4 class="text-sm font-semibold text-red-800">Cancelar agendamento</h4>
+              <p class="text-xs text-red-600 leading-relaxed">Ao confirmar, o atendimento será marcado como cancelado e ficará indisponível na agenda do profissional.</p>
             </div>
           </div>
           <BaseButton
@@ -181,29 +166,25 @@
             @click="mostrarConfirmacaoCancelamento = true"
             :loading="cancelando"
           >
-            Cancelar
+            Cancelar agendamento
           </BaseButton>
         </div>
-      </div>
+      </section>
 
       <!-- Status cancelado -->
-      <div v-else-if="agendamento?.cancelado" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <div class="flex items-center space-x-3">
-          <div class="flex-shrink-0">
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <section v-else-if="agendamento?.cancelado" class="bg-neutral-50 border border-neutral-200 rounded-xl p-4 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="h-9 w-9 rounded-lg bg-neutral-200 text-neutral-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <div>
-            <h4 class="text-sm font-semibold text-gray-900">
-              Agendamento Cancelado
-            </h4>
-            <p class="text-xs text-gray-600">
-              Cancelado em: {{ formatarData(agendamento.dataCancelamento) }}
-            </p>
+          <div class="space-y-1">
+            <h4 class="text-sm font-semibold text-neutral-900">Agendamento cancelado</h4>
+            <p class="text-xs text-neutral-600">Cancelado em: {{ formatarData(agendamento.dataCancelamento) }}</p>
           </div>
         </div>
-      </div>
+      </section>
     </form>
   </BaseModal>
 

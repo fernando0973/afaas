@@ -221,7 +221,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
 import type { AgendamentoFormatado } from '~/composables/useAgendamentos'
 import { useToastNotification } from '~/composables/useToastNotification'
 
@@ -620,7 +619,7 @@ const handleClose = () => {
 }
 
 // Watchers
-watch(() => props.modelValue, (isOpen) => {
+watch(() => props.modelValue, (isOpen: boolean) => {
   if (isOpen && props.agendamento) {
     loadAgendamentoData()
   } else {

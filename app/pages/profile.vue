@@ -219,17 +219,15 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ArrowLeftIcon,
-  ArrowPathIcon,
-  UserIcon,
-  EnvelopeIcon,
-  ShieldCheckIcon,
-  CalendarIcon,
-  PhotoIcon,
-  PencilIcon,
-  CheckIcon
-} from '@heroicons/vue/24/outline'
+import ArrowLeftIcon from '@heroicons/vue/24/outline/ArrowLeftIcon'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import UserIcon from '@heroicons/vue/24/outline/UserIcon'
+import EnvelopeIcon from '@heroicons/vue/24/outline/EnvelopeIcon'
+import ShieldCheckIcon from '@heroicons/vue/24/outline/ShieldCheckIcon'
+import CalendarIcon from '@heroicons/vue/24/outline/CalendarIcon'
+import PhotoIcon from '@heroicons/vue/24/outline/PhotoIcon'
+import PencilIcon from '@heroicons/vue/24/outline/PencilIcon'
+import CheckIcon from '@heroicons/vue/24/outline/CheckIcon'
 import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import { useUserData } from '~/composables/useUserData'
 
@@ -271,7 +269,7 @@ const formattedCreatedAt = computed(() => {
 })
 
 // Watch para sincronizar nome editável com o store - SSR safe
-watch(userName, (newValue) => {
+watch(userName, (newValue: string) => {
   if (process.client && newValue && !isEditingName.value) {
     editableUserName.value = newValue
   }

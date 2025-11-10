@@ -15,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, type Ref } from 'vue'
 import AgendamentoSlot from './AgendamentoSlot.vue'
 import type { AgendamentoFormatado } from '~/composables/useAgendamentos'
 
@@ -36,8 +35,8 @@ const emit = defineEmits<{
  * Evita busca desnecessária no banco - dados já estão carregados no pai
  */
 const obterAgendamentosDoDia = inject<(data: Date) => AgendamentoFormatado[]>('agendamentosDoDia')
-const carregandoAgendamentos = inject<Ref<boolean>>('carregandoAgendamentos')
-const erroAgendamentos = inject<Ref<string | null>>('erroAgendamentos')
+const carregandoAgendamentos = inject<any>('carregandoAgendamentos')
+const erroAgendamentos = inject<any>('erroAgendamentos')
 
 // Validação se os dados foram injetados corretamente
 if (!obterAgendamentosDoDia) {

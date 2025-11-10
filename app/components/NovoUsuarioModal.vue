@@ -168,7 +168,7 @@ const toast = useToast()
 // Estado reativo do modal
 const modalAberto = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value: boolean) => emit('update:modelValue', value)
 })
 
 // Estado do formulário

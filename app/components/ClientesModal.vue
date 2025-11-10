@@ -626,17 +626,15 @@ const onCPFBlur = () => {
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 const toast = useToast()
 import type { Cliente } from '~/types/cliente'
-import {
-  UserIcon,
-  MapPinIcon,
-  HomeIcon,
-  HeartIcon,
-  ClipboardDocumentCheckIcon,
-  IdentificationIcon,
-  CalendarDaysIcon,
-  PhoneIcon,
-  BriefcaseIcon
-} from '@heroicons/vue/24/outline'
+import UserIcon from '@heroicons/vue/24/outline/UserIcon'
+import MapPinIcon from '@heroicons/vue/24/outline/MapPinIcon'
+import HomeIcon from '@heroicons/vue/24/outline/HomeIcon'
+import HeartIcon from '@heroicons/vue/24/outline/HeartIcon'
+import ClipboardDocumentCheckIcon from '@heroicons/vue/24/outline/ClipboardDocumentCheckIcon'
+import IdentificationIcon from '@heroicons/vue/24/outline/IdentificationIcon'
+import CalendarDaysIcon from '@heroicons/vue/24/outline/CalendarDaysIcon'
+import PhoneIcon from '@heroicons/vue/24/outline/PhoneIcon'
+import BriefcaseIcon from '@heroicons/vue/24/outline/BriefcaseIcon'
 
 // Props
 interface Props {
@@ -1401,7 +1399,7 @@ const loadClienteData = () => {
 // } else {
 //   toast.error ? toast.error(resultado.message || 'Erro ao remover cliente!') : toast(resultado.message || 'Erro ao remover cliente!')
 // }
-watch(() => props.modelValue, (newValue) => {
+watch(() => props.modelValue, (newValue: boolean) => {
   if (newValue) {
     if (props.isEdicao && props.clienteData) {
       loadClienteData()

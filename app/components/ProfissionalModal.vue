@@ -72,8 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { InformationCircleIcon } from '@heroicons/vue/24/outline'
+import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import type { Especialidade } from '~/types/especialidade'
 import type { PerfilRPC } from '~/types/database.types'
@@ -210,14 +209,14 @@ const handleClose = () => {
 }
 
 // Watch para resetar o formulário quando o modal abrir/fechar
-watch(() => props.modelValue, (newValue) => {
+watch(() => props.modelValue, (newValue: boolean) => {
   if (!newValue) {
     resetForm()
   }
 })
 
 // Carregar dados para edição (implementação futura)
-watch(() => props.profissional, (newData) => {
+watch(() => props.profissional, (newData: any) => {
   if (newData && props.isEdicao) {
     // TODO: Implementar carregamento de dados para edição
     form.value.perfil_id = newData.perfil_id?.toString() || ''

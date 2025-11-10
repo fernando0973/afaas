@@ -34,7 +34,9 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon } from '@heroicons/vue/24/outline'
+import ChevronLeftIcon from '@heroicons/vue/24/outline/ChevronLeftIcon'
+import ChevronRightIcon from '@heroicons/vue/24/outline/ChevronRightIcon'
+import CalendarIcon from '@heroicons/vue/24/outline/CalendarIcon'
 
 // Acessar o store de agendamento
 const agendamentoStore = useAgendamentoStore()

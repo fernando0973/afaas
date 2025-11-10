@@ -111,7 +111,7 @@
 <script setup lang="ts">
 // Prop para z-index customizado
 const zIndex = computed(() => props.zIndex ?? 50)
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+import XMarkIcon from '@heroicons/vue/24/outline/XMarkIcon'
 
 interface Props {
   modelValue: boolean
@@ -166,8 +166,8 @@ const sizeClasses = computed(() => {
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
     full: 'max-w-7xl'
-  }
-  return sizes[props.size]
+  } as const
+  return sizes[props.size as keyof typeof sizes]
 })
 
 // Fechar modal
@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
 })
 
 // Prevenir scroll do body quando modal está aberto
-watch(() => props.modelValue, (isOpen) => {
+watch(() => props.modelValue, (isOpen: boolean) => {
   if (!process.client) return
   
   if (isOpen) {

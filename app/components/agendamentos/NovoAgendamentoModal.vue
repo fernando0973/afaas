@@ -196,7 +196,6 @@
 
 <script setup lang="ts">
 // ===== IMPORTS =====
-import { computed, watch, nextTick, ref, onMounted } from 'vue'
 import DateTimeSelector from '~/components/agendamentos/DateTimeSelector.vue'
 import { useAgendamentoForm } from '~/composables/useAgendamentoForm'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
@@ -280,7 +279,7 @@ const iniciaisProfissional = computed(() => {
 // ===== COMPUTED =====
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+  set: (value: boolean) => emit('update:modelValue', value)
 })
 
 // ===== FUNÇÕES =====
@@ -356,7 +355,7 @@ const cancelar = () => {
 // ===== WATCHERS =====
 
 // Watcher para resetar formulário quando modal fecha e carregar profissional quando abre
-watch(() => props.modelValue, (isOpenValue) => {
+watch(() => props.modelValue, (isOpenValue: boolean) => {
   if (isOpenValue) {
     // Modal abriu - buscar profissional logado
     buscarProfissionalLogado()
@@ -369,7 +368,7 @@ watch(() => props.modelValue, (isOpenValue) => {
 })
 
 // Watcher para monitorar mudanças no profile
-watch(() => profile.value, (newProfile) => {
+watch(() => profile.value, (newProfile: any) => {
   if (newProfile?.id && !profissionalLogado.value) {
     buscarProfissionalLogado()
   }

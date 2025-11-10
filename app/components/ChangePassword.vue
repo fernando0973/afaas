@@ -109,11 +109,9 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  LockClosedIcon,
-  EyeIcon,
-  EyeSlashIcon
-} from '@heroicons/vue/24/outline'
+import LockClosedIcon from '@heroicons/vue/24/outline/LockClosedIcon'
+import EyeIcon from '@heroicons/vue/24/outline/EyeIcon'
+import EyeSlashIcon from '@heroicons/vue/24/outline/EyeSlashIcon'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 
 // Composables

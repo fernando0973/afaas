@@ -62,15 +62,19 @@ export default defineNuxtConfig({
         ignored: ['**/node_modules/**', '**/.git/**']
       }
     },
+    esbuild: {
+      target: 'node14'
+    },
     optimizeDeps: {
       include: [
         'vue',
         'vue-router',
         '@supabase/supabase-js',
         'vue-toastification',
-        '@heroicons/vue/24/outline'
+        '@tabler/icons-vue'
       ],
-      exclude: ['cookie']
+      exclude: ['cookie'],
+      force: true
     },
     ssr: {
       noExternal: ['cookie']

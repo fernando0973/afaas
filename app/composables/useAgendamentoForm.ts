@@ -1,5 +1,3 @@
-import { ref, computed } from 'vue'
-
 export interface FormData {
   clienteId: string
   titulo: string

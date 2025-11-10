@@ -36,12 +36,10 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  CheckCircleIcon,
-  XCircleIcon
-} from '@heroicons/vue/24/outline'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
+import CheckCircleIcon from '@heroicons/vue/24/outline/CheckCircleIcon'
+import XCircleIcon from '@heroicons/vue/24/outline/XCircleIcon'
 
 type ConfirmationType = 'danger' | 'warning' | 'info' | 'success'
 
@@ -77,8 +75,8 @@ const icon = computed(() => {
     warning: ExclamationTriangleIcon,
     info: InformationCircleIcon,
     success: CheckCircleIcon
-  }
-  return icons[props.type]
+  } as const
+  return icons[props.type as keyof typeof icons]
 })
 
 const iconColor = computed(() => {
@@ -87,8 +85,8 @@ const iconColor = computed(() => {
     warning: 'text-yellow-400',
     info: 'text-blue-400',
     success: 'text-green-400'
-  }
-  return colors[props.type]
+  } as const
+  return colors[props.type as keyof typeof colors]
 })
 
 const confirmVariant = computed(() => {
@@ -97,8 +95,8 @@ const confirmVariant = computed(() => {
     warning: 'danger', // usa danger para warning também
     info: 'primary',
     success: 'primary'
-  }
-  return variants[props.type] as 'danger' | 'primary' | 'secondary' | 'outline'
+  } as const
+  return variants[props.type as keyof typeof variants] as 'danger' | 'primary' | 'secondary' | 'outline'
 })
 
 // Handlers

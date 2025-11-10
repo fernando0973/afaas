@@ -138,7 +138,7 @@ const isAutoSelecting = ref(false) // Flag para evitar loops
 
 // Cliente selecionado
 const selectedClient = computed(() => {
-  return props.clients?.find(c => c.id.toString() === props.modelValue)
+  return props.clients?.find((c: Cliente) => c.id.toString() === props.modelValue)
 })
 
 // Clientes filtrados
@@ -156,7 +156,7 @@ const filteredClients = computed(() => {
   const termo = searchTerm.value.toLowerCase().trim()
 
   const filtrados = props.clients
-    .filter(cliente => {
+    .filter((cliente: Cliente) => {
       const nome = cliente.nome_completo?.toLowerCase() || ''
       const cpf = cliente.cpf?.replace(/\D/g, '') || ''
       const telefone = cliente.telefone?.replace(/\D/g, '') || ''
@@ -248,7 +248,7 @@ const performAutoSelection = () => {
   }
   
   // Filtrar clientes que correspondem à busca
-  const clientesEncontrados = props.clients.filter(cliente => {
+  const clientesEncontrados = props.clients.filter((cliente: Cliente) => {
     const nome = cliente.nome_completo?.toLowerCase() || ''
     const cpf = cliente.cpf?.replace(/\D/g, '') || ''
     const telefone = cliente.telefone?.replace(/\D/g, '') || ''
@@ -268,7 +268,7 @@ const performAutoSelection = () => {
     // Auto-seleção APENAS por CPF completo (11 dígitos exatos)
     const termoNumeros = termo.replace(/\D/g, '')
     if (termoNumeros.length === 11) {
-      const matchCPFCompleto = clientesEncontrados.find(cliente => {
+      const matchCPFCompleto = clientesEncontrados.find((cliente: Cliente) => {
         const cpf = cliente.cpf?.replace(/\D/g, '') || ''
         return cpf === termoNumeros
       })
@@ -314,9 +314,9 @@ const addNewClient = () => {
 
 
 // Watcher para sincronizar busca com cliente selecionado
-watch(() => props.modelValue, (novoClienteId) => {
+watch(() => props.modelValue, (novoClienteId: string) => {
   if (novoClienteId) {
-    const cliente = props.clients?.find(c => c.id.toString() === novoClienteId)
+    const cliente = props.clients?.find((c: Cliente) => c.id.toString() === novoClienteId)
     if (cliente && searchTerm.value !== cliente.nome_completo) {
       searchTerm.value = cliente.nome_completo
     }

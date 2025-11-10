@@ -75,7 +75,8 @@
 </template>
 
 <script setup lang="ts">
-import { UserGroupIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import UserGroupIcon from '@heroicons/vue/24/outline/UserGroupIcon'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
 import type { ProfissionalRPC } from '~/types/user'
 import type { PerfilRPC } from '~/types/database.types'
 import type { Especialidade } from '~/types/especialidade'

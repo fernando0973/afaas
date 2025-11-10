@@ -183,14 +183,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { 
-  ArrowPathIcon, 
-  ExclamationTriangleIcon, 
-  UserGroupIcon,
-  PlusIcon,
-  UserIcon
-} from '@heroicons/vue/24/outline'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import UserGroupIcon from '@heroicons/vue/24/outline/UserGroupIcon'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
+import UserIcon from '@heroicons/vue/24/outline/UserIcon'
 import type { Cliente } from '~/types/cliente'
 
 interface Props {
@@ -228,7 +225,7 @@ const clientesFiltrados = computed(() => {
 
   const termo = props.termoBusca.toLowerCase().trim()
   
-  return clientes.value.filter(cliente => {
+  return clientes.value.filter((cliente: Cliente) => {
     // Busca por nome (garantindo que nome_completo não seja null/undefined)
     const nomeCliente = cliente.nome_completo || ''
     const matchNome = nomeCliente.toLowerCase().includes(termo)

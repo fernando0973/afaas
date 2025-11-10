@@ -159,15 +159,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-  LockClosedIcon,
-  ArrowLeftIcon,
-  ArrowPathIcon,
-  ExclamationTriangleIcon,
-  CheckIcon,
-  ClockIcon,
-  XCircleIcon
-} from '@heroicons/vue/24/outline'
+import LockClosedIcon from '@heroicons/vue/24/outline/LockClosedIcon'
+import ArrowLeftIcon from '@heroicons/vue/24/outline/ArrowLeftIcon'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import CheckIcon from '@heroicons/vue/24/outline/CheckIcon'
+import ClockIcon from '@heroicons/vue/24/outline/ClockIcon'
+import XCircleIcon from '@heroicons/vue/24/outline/XCircleIcon'
 import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 
 // Definir meta da página (sem layout e middleware específico)

@@ -1,4 +1,4 @@
-import Toast, { POSITION } from 'vue-toastification'
+import VueToastificationPlugin, { POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -20,5 +20,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     newestOnTop: true
   }
 
-  nuxtApp.vueApp.use(Toast, options)
+  nuxtApp.vueApp.use(VueToastificationPlugin, options)
 })

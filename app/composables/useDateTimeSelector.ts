@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import type { AgendamentoFormatado } from '~/composables/useAgendamentos'
 
 export const useDateTimeSelector = (

@@ -42,7 +42,8 @@
 </template>
 
 <script setup lang="ts">
-import { AcademicCapIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
+import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
+import InformationCircleIcon from '@heroicons/vue/24/outline/InformationCircleIcon'
 import type { Especialidade } from '~/types/especialidade'
 
 interface Props {
@@ -165,7 +166,7 @@ const loadEspecialidadeData = () => {
 }
 
 // Watchers
-watch(() => props.modelValue, (isOpen) => {
+watch(() => props.modelValue, (isOpen: boolean) => {
   if (isOpen) {
     if (props.isEdicao) {
       loadEspecialidadeData()

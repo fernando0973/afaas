@@ -167,12 +167,10 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  BeakerIcon,
-  ArrowPathIcon, 
-  ExclamationTriangleIcon,
-  PlusIcon
-} from '@heroicons/vue/24/outline'
+import BeakerIcon from '@heroicons/vue/24/outline/BeakerIcon'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
 import type { PlantaMedicinal } from '~/types/planta'
 
 // Props e emits
@@ -213,7 +211,7 @@ const plantasFiltradas = computed(() => {
   }
 
   const termo = props.termoBusca.toLowerCase().trim()
-  return plantas.value.filter(planta => 
+  return plantas.value.filter((planta: PlantaMedicinal) => 
     planta.nome_popular?.toLowerCase().includes(termo) ||
     planta.nome_cientifico?.toLowerCase().includes(termo)
   )

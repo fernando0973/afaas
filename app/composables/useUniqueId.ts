@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-
 /**
  * Generates a unique ID that is safe for SSR
  * Creates static IDs that are the same between server and client

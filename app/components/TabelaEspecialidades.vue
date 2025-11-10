@@ -140,14 +140,12 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  AcademicCapIcon, 
-  ArrowPathIcon, 
-  ExclamationTriangleIcon,
-  PlusIcon,
-  PencilIcon,
-  TrashIcon
-} from '@heroicons/vue/24/outline'
+import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
+import PencilIcon from '@heroicons/vue/24/outline/PencilIcon'
+import TrashIcon from '@heroicons/vue/24/outline/TrashIcon'
 import type { Especialidade } from '~/types/especialidade'
 
 // Props e emits

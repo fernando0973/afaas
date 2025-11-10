@@ -85,8 +85,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
+import ChevronLeftIcon from '@heroicons/vue/24/outline/ChevronLeftIcon'
+import ChevronRightIcon from '@heroicons/vue/24/outline/ChevronRightIcon'
 
 // ===== PROPS =====
 interface Props {

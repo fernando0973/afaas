@@ -73,7 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { AcademicCapIcon, PlusIcon } from '@heroicons/vue/24/outline'
+import AcademicCapIcon from '@heroicons/vue/24/outline/AcademicCapIcon'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
 import type { Especialidade } from '~/types/especialidade'
 import { useProfissionais } from '~/composables/useProfissionais'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'

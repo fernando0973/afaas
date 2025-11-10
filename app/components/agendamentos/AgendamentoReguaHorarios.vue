@@ -19,8 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 /**
  * Gerar lista de horários das 8:00 às 22:00
  * Cada horário marca o INÍCIO de uma janela de agendamento

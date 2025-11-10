@@ -144,7 +144,7 @@ const erros = reactive({
 const carregando = ref(false)
 
 // Watchers para popular o formulário quando o usuário mudar
-watch(() => props.usuario, (novoUsuario) => {
+watch(() => props.usuario, (novoUsuario: PerfilRPC | null) => {
   if (novoUsuario) {
     formulario.nome = novoUsuario.nome || ''
     formulario.email = novoUsuario.email || ''

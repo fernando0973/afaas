@@ -56,8 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots } from 'vue'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
+import EyeIcon from '@heroicons/vue/24/outline/EyeIcon'
+import EyeSlashIcon from '@heroicons/vue/24/outline/EyeSlashIcon'
 import { useUniqueId } from '~/composables/useUniqueId'
 
 interface Props {

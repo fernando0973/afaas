@@ -221,15 +221,13 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  ArrowPathIcon, 
-  ExclamationTriangleIcon, 
-  UsersIcon,
-  UserIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon
-} from '@heroicons/vue/24/outline'
+import ArrowPathIcon from '@heroicons/vue/24/outline/ArrowPathIcon'
+import ExclamationTriangleIcon from '@heroicons/vue/24/outline/ExclamationTriangleIcon'
+import UsersIcon from '@heroicons/vue/24/outline/UsersIcon'
+import UserIcon from '@heroicons/vue/24/outline/UserIcon'
+import EyeIcon from '@heroicons/vue/24/outline/EyeIcon'
+import PencilIcon from '@heroicons/vue/24/outline/PencilIcon'
+import TrashIcon from '@heroicons/vue/24/outline/TrashIcon'
 import { useToastNotification as useToast, POSITION } from '~/composables/useToastNotification'
 import type { PerfilRPC } from '~/types/database.types'
 import type { UserRole } from '~/types/user'

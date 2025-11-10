@@ -8,7 +8,7 @@
       <select
         :modelValue="selectedDate"
         @update:modelValue="handleDateChange"
-        @change="(event) => handleDateChange((event.target as HTMLSelectElement)?.value || '')"
+        @change="(event: Event) => handleDateChange((event.target as HTMLSelectElement)?.value || '')"
         :disabled="availableDays.length === 0"
         class="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
         :class="{
@@ -111,8 +111,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-
 interface Props {
   selectedDate: string
   startTime: string
@@ -156,7 +154,7 @@ const availableDays = computed(() => {
   const hoje = new Date()
   const hojeInicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
   
-  return props.weekDays.filter(dia => {
+  return props.weekDays.filter((dia: Date) => {
     const diaInicio = new Date(dia.getFullYear(), dia.getMonth(), dia.getDate())
     return diaInicio >= hojeInicio
   })
@@ -204,7 +202,7 @@ const availableStartTimes = computed(() => {
   
   // Filtrar horários ocupados por agendamentos existentes
   if (props.appointments && props.appointments.length > 0) {
-    const agendamentosDoDia = props.appointments.filter(agendamento => {
+    const agendamentosDoDia = props.appointments.filter((agendamento: any) => {
       let dataAgendamento: Date
       
       if (agendamento.dataInicio) {
@@ -218,7 +216,7 @@ const availableStartTimes = computed(() => {
       return dataAgendamento.toDateString() === dataSelecionada.toDateString()
     })
     
-    agendamentosDoDia.forEach(agendamento => {
+    agendamentosDoDia.forEach((agendamento: any) => {
       let inicioAgendamento: Date
       let fimAgendamento: Date
       
@@ -310,7 +308,7 @@ const availableEndTimes = computed(() => {
   }
 
   // Buscar agendamentos do mesmo dia
-  const agendamentosDoDia = props.appointments.filter(agendamento => {
+  const agendamentosDoDia = props.appointments.filter((agendamento: any) => {
     // Verificar diferentes formatos de data nos agendamentos
     let dataAgendamento: Date
     
@@ -341,7 +339,7 @@ const availableEndTimes = computed(() => {
     const fimMinutos = horaFim * 60 + minutoFim
     
     // Verificar se o novo agendamento (inicioMinutos até fimMinutos) conflita
-    const temConflito = agendamentosDoDia.some(agendamento => {
+    const temConflito = agendamentosDoDia.some((agendamento: any) => {
       let inicioExistente: Date
       let fimExistente: Date
       
@@ -390,10 +388,10 @@ const existingAppointments = computed(() => {
   
   const dataSelecionada = new Date(props.selectedDate + 'T00:00:00')
   
-  return props.appointments.filter(agendamento => {
+  return props.appointments.filter((agendamento: any) => {
     const dataAgendamento = new Date(agendamento.dataInicio)
     return dataAgendamento.toDateString() === dataSelecionada.toDateString()
-  }).map(agendamento => {
+  }).map((agendamento: any) => {
     const inicio = new Date(agendamento.dataInicio)
     const fim = new Date(agendamento.dataFim)
     
@@ -402,7 +400,7 @@ const existingAppointments = computed(() => {
       horaInicio: inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       horaFim: fim.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     }
-  }).sort((a, b) => a.horaInicio.localeCompare(b.horaInicio))
+  }).sort((a: any, b: any) => a.horaInicio.localeCompare(b.horaInicio))
 })
 
 // Funções de formatação
@@ -432,7 +430,7 @@ const handleDateChange = (date: string) => {
     let temAgendamentos = false
     
     if (props.appointments && props.appointments.length > 0) {
-      temAgendamentos = props.appointments.some(agendamento => {
+      temAgendamentos = props.appointments.some((agendamento: any) => {
         let dataAgendamento: Date
         
         if (agendamento.dataInicio) {
@@ -462,7 +460,7 @@ const handleDateChange = (date: string) => {
 }
 
 // Watcher para limpar hora fim quando hora início muda
-watch(() => props.startTime, (newValue, oldValue) => {
+watch(() => props.startTime, (newValue: string, oldValue: string) => {
   if (newValue !== oldValue) {
     // Limpar hora fim quando hora início muda
     emit('update:endTime', '')

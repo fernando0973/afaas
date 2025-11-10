@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia'
 import type { Profissional } from '~/types/profissional'
 import type { Database } from '~/types/database.types'
 
@@ -93,7 +92,7 @@ export const useProfissionaisStore = defineStore('profissionais', () => {
    * Busca profissional por ID no cache
    */
   function buscarPorId(id: number): Profissional | undefined {
-    return profissionais.value.find(p => p.id === id)
+    return profissionais.value.find((p: Profissional) => p.id === id)
   }
   
   return {

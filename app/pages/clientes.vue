@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 const toast = useToast()
-import { PlusIcon } from '@heroicons/vue/24/outline'
+import PlusIcon from '@heroicons/vue/24/outline/PlusIcon'
 import type { Cliente } from '~/types/cliente'
 
 // Meta da página

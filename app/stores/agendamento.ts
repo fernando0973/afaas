@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia'
 import type { AgendamentoFormatado } from '~/composables/useAgendamentos'
 
 /**
@@ -87,7 +86,7 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
   const agendamentosPorData = computed(() => {
     const mapa = new Map<string, AgendamentoFormatado[]>()
     
-    agendamentos.value.forEach(agendamento => {
+    agendamentos.value.forEach((agendamento: AgendamentoFormatado) => {
       const data = agendamento.dataInicio
       const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
       
@@ -216,7 +215,7 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     if (profissionalId) {
       // Limpar apenas caches deste profissional
       const chavesParaRemover = Array.from(cacheAgendamentos.value.keys())
-        .filter(chave => chave.startsWith(`prof-${profissionalId}-`))
+        .filter((chave) => (chave as string).startsWith(`prof-${profissionalId}-`))
       
       chavesParaRemover.forEach(chave => cacheAgendamentos.value.delete(chave))
     } else {
@@ -239,7 +238,7 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
    */
   const atualizarAgendamento = (agendamentoAtualizado: AgendamentoFormatado) => {
     const agendamentosAtuais = agendamentos.value
-    const index = agendamentosAtuais.findIndex(ag => ag.id === agendamentoAtualizado.id)
+    const index = agendamentosAtuais.findIndex((ag: AgendamentoFormatado) => ag.id === agendamentoAtualizado.id)
     
     if (index !== -1) {
       // Criar novo array com o agendamento atualizado

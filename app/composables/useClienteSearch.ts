@@ -1,4 +1,3 @@
-import { ref, computed, watch } from 'vue'
 import type { Cliente } from '~/types/cliente'
 
 export const useClienteSearch = (clients: Cliente[], initialClientId: string) => {
@@ -83,7 +82,7 @@ export const useClienteSearch = (clients: Cliente[], initialClientId: string) =>
   }
 
   // Watchers
-  watch(() => selectedClient.value, (cliente) => {
+  watch(() => selectedClient.value, (cliente: Cliente | undefined) => {
     if (cliente && searchTerm.value !== cliente.nome_completo) {
       searchTerm.value = cliente.nome_completo
     } else if (!cliente && !isDropdownOpen.value) {

@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import type { Profissional } from '~/types/profissional'
 
 // Estado do componente

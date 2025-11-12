@@ -3,12 +3,12 @@
     :model-value="modelValue"
     title="Selecionar profissional"
     subtitle="Escolha o profissional para visualizar os agendamentos"
-    size="lg"
+  size="sm"
     :show-footer="false"
     @update:model-value="emit('update:modelValue', $event)"
     @close="emit('update:modelValue', false)"
   >
-    <div class="space-y-4">
+    <div class="space-y-4 max-w-sm mx-auto">
       <div v-if="loading" class="text-center text-neutral-500">
         Carregando profissionais...
       </div>

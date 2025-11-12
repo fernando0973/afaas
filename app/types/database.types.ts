@@ -293,7 +293,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      afaas_view_agendamentos_completos: {
+        Row: {
+          agendamento_id: number
+          created_at: string
+          user_id: string | null
+          data: string | null
+          data_formatada: string | null
+          hora_inicio: string | null
+          hora_fim: string | null
+          horario_formatado: string | null
+          titulo: string | null
+          descricao: string | null
+          cancelado: boolean | null
+          cancelado_as: string | null
+          cor: string | null
+          cliente_id: number | null
+          nome_cliente: string | null
+          cpf_cliente: string | null
+          profissional_id: number | null
+          nome_profissional: string | null
+          especialidade: string | null
+          profissional_completo: string | null
+          cliente_completo: string | null
+        }
+      }
     }
     Functions: {
       afaas_isadmin: {
@@ -405,4 +429,28 @@ export interface PerfilRPC {
   nome: string
   role: string
   email: string
+}
+
+export interface AgendamentoCompletoView {
+  agendamento_id: number
+  created_at: string
+  user_id: string | null
+  data: string | null
+  data_formatada: string | null
+  hora_inicio: string | null
+  hora_fim: string | null
+  horario_formatado: string | null
+  titulo: string | null
+  descricao: string | null
+  cancelado: boolean | null
+  cancelado_as: string | null
+  cor: string | null
+  cliente_id: number | null
+  nome_cliente: string | null
+  cpf_cliente: string | null
+  profissional_id: number | null
+  nome_profissional: string | null
+  especialidade: string | null
+  profissional_completo: string | null
+  cliente_completo: string | null
 }

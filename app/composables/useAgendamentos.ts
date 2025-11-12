@@ -1,4 +1,4 @@
-import type { Tables } from '~/types/database.types'
+import type { AgendamentoCompletoView, Tables } from '~/types/database.types'
 
 export type Agendamento = Tables<'afaas_agendamentos'>
 
@@ -14,6 +14,14 @@ export interface AgendamentoFormatado {
   cor: string
   cancelado?: boolean | null
   dataCancelamento?: Date | null
+}
+
+export interface RelatorioAgendamentosFiltro {
+  profissionalId?: number
+  clienteId?: number
+  dataInicio?: Date
+  dataFim?: Date
+  incluirCancelados?: boolean
 }
 
 export const useAgendamentos = () => {
@@ -154,9 +162,62 @@ export const useAgendamentos = () => {
     agendamentoStore.limparCache(profissionalId)
   }
 
+  const buscarRelatorioAgendamentos = async (
+    filtros: RelatorioAgendamentosFiltro = {}
+  ): Promise<AgendamentoCompletoView[]> => {
+    const {
+      profissionalId,
+      clienteId,
+      dataInicio,
+      dataFim,
+      incluirCancelados = false
+    } = filtros
+
+    try {
+      let query = supabase
+        .from('afaas_view_agendamentos_completos')
+        .select('*')
+
+      if (!incluirCancelados) {
+        query = query.eq('cancelado', false)
+      }
+
+      if (profissionalId) {
+        query = query.eq('profissional_id', profissionalId)
+      }
+
+      if (clienteId) {
+        query = query.eq('cliente_id', clienteId)
+      }
+
+      if (dataInicio) {
+        const inicio = dataInicio.toISOString().split('T')[0]
+        query = query.gte('data', inicio)
+      }
+
+      if (dataFim) {
+        const fim = dataFim.toISOString().split('T')[0]
+        query = query.lte('data', fim)
+      }
+
+      const { data, error } = await query
+        .order('data', { ascending: true })
+        .order('hora_inicio', { ascending: true })
+
+      if (error) {
+        throw error
+      }
+
+      return (data || []) as AgendamentoCompletoView[]
+    } catch (error) {
+      throw error
+    }
+  }
+
   return {
     buscarAgendamentosSemana,
     limparCache,
-    formatarAgendamentos
+    formatarAgendamentos,
+    buscarRelatorioAgendamentos
   }
 }

@@ -99,6 +99,7 @@
 </template>
 
 <script setup lang="ts">
+import type { Database } from '~/types/database.types'
 import type { Profissional } from '~/types/profissional'
 import { useAgendamentos, type AgendamentoFormatado } from '~/composables/useAgendamentos'
 import { useProfissionais } from '~/composables/useProfissionais'
@@ -116,8 +117,7 @@ const {
   dataReferencia, 
   agendamentos,
   carregando,
-  erro,
-  agendamentosPorData
+  erro
 } = storeToRefs(agendamentoStore)
 
 const { buscarAgendamentosSemana } = useAgendamentos()
@@ -402,29 +402,39 @@ const novoAgendamento = async () => {
 }
 
 // Função para criar agendamento no Supabase
-const criarAgendamento = async (dados: any) => {
+const criarAgendamento = async (dados: {
+  profissionalId: number | null
+  clienteId: number | null
+  titulo: string
+  descricao?: string | null
+  data: string
+  horaInicio: string
+  horaFim: string
+  cor?: string | null
+}) => {
   try {
+    type AgendamentoTable = Database['public']['Tables']['afaas_agendamentos']
 
-    
-    const { data, error } = await supabase
+    const payload: AgendamentoTable['Insert'] = {
+      profissional_id: dados.profissionalId ?? null,
+      cliente_id: dados.clienteId ?? null,
+      titulo: dados.titulo,
+      descricao: dados.descricao ?? null,
+      data: dados.data,
+      hora_inicio: dados.horaInicio,
+      hora_fim: dados.horaFim,
+      cor: (dados.cor ?? '#DBE9FE').trim()
+    }
+
+    // Cast required: Supabase client typings resolve this table as never; casting prevents false-positive TS errors
+    const { data, error } = await (supabase as any)
       .from('afaas_agendamentos')
-      .insert([{
-        profissional_id: dados.profissionalId,
-        cliente_id: dados.clienteId,
-        titulo: dados.titulo,
-        descricao: dados.descricao,
-        data: dados.data,
-        hora_inicio: dados.horaInicio,
-        hora_fim: dados.horaFim,
-        cor: dados.cor || '#DBE9FE'
-      }])
+      .insert([payload])
       .select()
 
     if (error) {
       throw error
     }
-
-
     return data
     
   } catch (error) {

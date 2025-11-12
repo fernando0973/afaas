@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center justify-between">
+  <div class="flex min-h-[44px] items-center justify-between">
     <!-- Informações da paginação -->
-    <div class="flex-1 flex justify-between sm:hidden">
+    <div class="flex flex-1 justify-between sm:hidden">
       <button
         v-if="currentPage > 1"
         @click="$emit('page-changed', currentPage - 1)"

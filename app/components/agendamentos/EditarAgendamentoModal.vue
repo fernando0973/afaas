@@ -223,6 +223,7 @@ const emit = defineEmits<{
 
 // Composables
 const supabase = useSupabaseClient()
+const supabaseClient = supabase as any
 const toast = useToastNotification()
 
 // Estados
@@ -485,7 +486,7 @@ const handleConfirm = async () => {
   loading.value = true
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('afaas_agendamentos')
       .update({
         titulo: form.titulo.trim(),
@@ -564,7 +565,7 @@ const cancelarAgendamento = async () => {
     }).replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2})/, '$3-$2-$1 $4-03')
     
     // Tentar com client normal primeiro
-    let { data, error } = await supabase
+    let { data, error } = await supabaseClient
       .from('afaas_agendamentos')
       .update({
         cancelado: true,

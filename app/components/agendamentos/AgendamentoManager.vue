@@ -11,7 +11,7 @@
         
         <!-- Centro: Informações do profissional -->
         <div class="flex justify-center">
-          <AgendamentoProfissionalInfo />
+          <AgendamentoProfissionalAtual />
         </div>
         
         <!-- Lado direito: Botão para novo agendamento -->
@@ -39,7 +39,7 @@
       
       <!-- Lado direito: Área principal dos agendamentos -->
       <div class="flex-1 overflow-hidden" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">
-        <AgendamentoItemSlot 
+        <AgendamentoItemAgendamento 
           v-for="(dia, index) in diasSemana" 
           :key="index"
           :data="dia"
@@ -91,6 +91,9 @@
 
 <script setup lang="ts">
 import { useAgendamentos, type AgendamentoFormatado } from '~/composables/useAgendamentos'
+import { useProfissionais } from '~/composables/useProfissionais'
+import { useAgendamentoStore } from '~/stores/agendamento'
+import { useProfissionaisStore } from '~/stores/useProfissionaisStore'
 
 // Cliente do Supabase para criação do agendamento
 const supabase = useSupabaseClient()
@@ -107,7 +110,7 @@ const {
   agendamentosPorData
 } = storeToRefs(agendamentoStore)
 
-const { buscarAgendamentosSemana, limparCache } = useAgendamentos()
+const { buscarAgendamentosSemana } = useAgendamentos()
 const { buscarClientes } = useProfissionais()
 
 // Usar store de profissionais (cache centralizado)
@@ -136,21 +139,20 @@ provide('erroAgendamentos', erro)
 
 /**
  * Buscar todos os agendamentos do profissional selecionado
- * Usa o store centralizado para manter dados durante navegação
  */
 const carregarAgendamentos = async (forcarAtualizacao = true) => {
   const profId = profissionalSelecionadoId.value
   const semanaAtual = diasSemana.value
-  
+
   if (!profId || semanaAtual.length !== 7) {
     agendamentoStore.limparAgendamentos()
     return
   }
-  
+
   try {
-    // Delega para o composable que usa o store
     await buscarAgendamentosSemana(profId, semanaAtual, forcarAtualizacao)
   } catch (error) {
+    // Erros já são tratados no composable/store
   }
 }
 
@@ -160,15 +162,16 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
  * Recarregar quando o profissional selecionado mudar
  * Verifica cache primeiro, carrega só se necessário
  */
-watch(profissionalSelecionadoId, async (novoProfId: string | null, profAnterior: string | null) => {
-  if (novoProfId && novoProfId !== profAnterior) {
-    // Verifica se já tem dados em cache primeiro
-    const agendamentosCache = agendamentoStore.buscarNoCache(novoProfId, diasSemana.value)
-    if (agendamentosCache) {
-      agendamentoStore.setAgendamentos(agendamentosCache)
-    } else {
-      await carregarAgendamentos(true)
-    }
+watch(profissionalSelecionadoId, async (novoProfId: number | null, profAnterior: number | null) => {
+  if (novoProfId == null || novoProfId === profAnterior) {
+    return
+  }
+
+  const agendamentosCache = agendamentoStore.buscarNoCache(novoProfId, diasSemana.value)
+  if (agendamentosCache) {
+    agendamentoStore.setAgendamentos(agendamentosCache)
+  } else {
+    await carregarAgendamentos(true)
   }
 }, { immediate: false })
 
@@ -182,7 +185,12 @@ watch(dataReferencia, async (novaData: Date | null, dataAnterior: Date | null) =
       profissionalSelecionadoId.value) {
     
     // Verifica se já tem dados em cache para esta semana
-    const agendamentosCache = agendamentoStore.buscarNoCache(profissionalSelecionadoId.value, diasSemana.value)
+    const profissionalId = profissionalSelecionadoId.value
+    if (profissionalId == null) {
+      return
+    }
+
+    const agendamentosCache = agendamentoStore.buscarNoCache(profissionalId, diasSemana.value)
     if (agendamentosCache) {
       agendamentoStore.setAgendamentos(agendamentosCache)
     } else {
@@ -223,7 +231,7 @@ const carregarClientes = async () => {
 // ===== LIFECYCLE HOOKS =====
 
 onMounted(async () => {
-  // O profissional será selecionado automaticamente pelo AgendamentoProfissionalInfo
+  // O profissional será selecionado automaticamente pelo AgendamentoProfissionalAtual
   // Os agendamentos serão carregados quando o profissional for selecionado via watcher
   
   // Carregar clientes em segundo plano (não bloqueia a interface)

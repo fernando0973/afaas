@@ -19,6 +19,10 @@
 
 <script setup lang="ts">
 import type { Profissional } from '~/types/profissional'
+import { useAgendamentos } from '~/composables/useAgendamentos'
+import { useAgendamentoStore } from '~/stores/agendamento'
+import { useProfissionaisStore } from '~/stores/useProfissionaisStore'
+import { useUserStore } from '~/stores/useUserStore'
 
 // Estado do componente
 const profissional = ref<Profissional | null>(null)

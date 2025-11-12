@@ -40,7 +40,7 @@ const erroAgendamentos = inject<any>('erroAgendamentos')
 
 // Validação se os dados foram injetados corretamente
 if (!obterAgendamentosDoDia) {
-  throw new Error('AgendamentoItemSlot deve ser usado dentro de AgendamentoManager')
+  throw new Error('AgendamentoItemAgendamento deve ser usado dentro de AgendamentoManager')
 }
 
 // ===== LÓGICA SIMPLIFICADA =====

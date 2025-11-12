@@ -6,7 +6,7 @@
       
       <!-- Grid dos dias da semana -->
       <div class="flex-1 grid grid-cols-7 gap-2">
-        <AgendamentoDiaItem 
+        <AgendamentoItemDia 
           v-for="(dia, index) in dias" 
           :key="index"
           :data="dia"
@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 // Import do componente filho
-import AgendamentoDiaItem from './AgendamentoDiaItem.vue'
+import AgendamentoItemDia from './AgendamentoItemDia.vue'
 
 interface Props {
   dias: Date[]

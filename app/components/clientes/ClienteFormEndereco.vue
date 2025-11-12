@@ -120,8 +120,8 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: ClienteFormData]
-  'blur': [field: string]
-  'clearError': [field: string]
+  'blur': [field: keyof ClienteFormData]
+  'clearError': [field: keyof ClienteFormData]
 }>()
 
 const updateField = (field: keyof ClienteFormData, value: any) => {

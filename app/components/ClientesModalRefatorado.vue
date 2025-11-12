@@ -41,18 +41,18 @@
         v-if="abaAtiva === 'pessoais'"
         :model-value="clienteForm.form"
         :errors="validation.errors"
-        @update:model-value="clienteForm.form = $event"
-        @blur="validation.validateField($event, clienteForm.form[$event])"
-        @clearError="validation.clearFieldError"
+  @update:model-value="clienteForm.form = $event"
+  @blur="handleFieldBlur"
+  @clearError="validation.clearFieldError"
       />
 
       <ClienteFormEndereco
         v-if="abaAtiva === 'endereco'"
         :model-value="clienteForm.form"
         :errors="validation.errors"
-        @update:model-value="clienteForm.form = $event"
-        @blur="validation.validateField($event, clienteForm.form[$event])"
-        @clearError="validation.clearFieldError"
+  @update:model-value="clienteForm.form = $event"
+  @blur="handleFieldBlur"
+  @clearError="validation.clearFieldError"
       />
 
       <ClienteFormAmbiente
@@ -95,7 +95,9 @@ import {
 import type { Cliente } from '~/types/cliente'
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import { useClienteForm } from '~/composables/useClienteForm'
+import type { ClienteFormData } from '~/composables/useClienteForm'
 import { useClienteValidation } from '~/composables/useClienteValidation'
+import { useProfissionais } from '~/composables/useProfissionais'
 
 // Componentes de formulário
 import ClienteFormPessoais from '~/components/clientes/ClienteFormPessoais.vue'
@@ -147,6 +149,10 @@ const abas = [
 const modalTitle = computed(() => props.isEdicao ? 'Editar Cliente' : 'Novo Cliente')
 const modalSubtitle = computed(() => props.isEdicao ? 'Altere as informações do cliente' : 'Preencha as informações do cliente')
 const confirmButtonText = computed(() => props.isEdicao ? 'Salvar Alterações' : 'Salvar Cliente')
+
+const handleFieldBlur = (field: keyof ClienteFormData) => {
+  validation.validateField(field as string, clienteForm.form[field])
+}
 
 // Métodos
 const handleConfirm = async () => {

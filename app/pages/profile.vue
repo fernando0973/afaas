@@ -274,6 +274,15 @@ import { useToastNotification as useToast } from '~/composables/useToastNotifica
 import { useUserData } from '~/composables/useUserData'
 import { useAuth } from '~/composables/useAuth'
 
+interface BuildInfoResponse {
+  commitDate?: string | null
+  buildTimestamp?: string | null
+  commitShort?: string | null
+  commitAuthor?: string | null
+  commitMessage?: string | null
+  branch?: string | null
+}
+
 // Usar dados do usuário do store
 const { userName, userRole, profile, loadUserProfile, isAdmin } = useUserData()
 const { user, atualizarInfosUsuario } = useAuth()
@@ -295,10 +304,14 @@ const editableUserName = ref('')
 const nameUpdateMessage = ref('')
 const updatingName = ref(false)
 
-const { data: buildInfo, pending: buildInfoPending, error: buildInfoError, refresh: refreshBuildInfo } = await useAsyncData('build-info', () => $fetch('/api/build-info'), {
-  immediate: false,
-  server: false
-})
+const { data: buildInfo, pending: buildInfoPending, error: buildInfoError, refresh: refreshBuildInfo } = await useAsyncData<BuildInfoResponse, Error>(
+  'build-info',
+  () => $fetch<BuildInfoResponse>('/api/build-info' as '/api/build-info'),
+  {
+    immediate: false,
+    server: false
+  }
+)
 
 const buildInfoFetched = ref(false)
 

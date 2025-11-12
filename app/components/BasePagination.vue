@@ -1,18 +1,24 @@
 <template>
   <div class="flex min-h-[44px] items-center justify-between flex-wrap sm:flex-nowrap">
     <!-- Informações da paginação -->
-    <div class="flex flex-1 justify-between sm:hidden">
+    <div class="flex flex-1 justify-between sm:hidden gap-3">
       <button
-        v-if="currentPage > 1"
-        @click="$emit('page-changed', currentPage - 1)"
-        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+        @click="currentPage > 1 && $emit('page-changed', currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md bg-white transition-colors"
+        :class="currentPage === 1 
+          ? 'opacity-50 text-gray-400' 
+          : 'text-gray-700 hover:bg-gray-50'"
       >
         Anterior
       </button>
       <button
-        v-if="currentPage < totalPages"
-        @click="$emit('page-changed', currentPage + 1)"
-        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+        @click="currentPage < totalPages && $emit('page-changed', currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md bg-white transition-colors"
+        :class="currentPage === totalPages 
+          ? 'opacity-50 text-gray-400' 
+          : 'text-gray-700 hover:bg-gray-50'"
       >
         Próximo
       </button>
@@ -37,10 +43,12 @@
         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginação">
           <!-- Botão Anterior -->
           <button
-            v-if="currentPage > 1"
-            @click="$emit('page-changed', currentPage - 1)"
-            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-            :class="{ 'cursor-not-allowed opacity-50': currentPage === 1 }"
+            @click="currentPage > 1 && $emit('page-changed', currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium transition-colors"
+            :class="currentPage === 1 
+              ? 'opacity-50 text-gray-400' 
+              : 'text-gray-500 hover:bg-gray-50'"
           >
             <span class="sr-only">Anterior</span>
             <ChevronLeftIcon class="h-5 w-5" />
@@ -70,10 +78,12 @@
 
           <!-- Botão Próximo -->
           <button
-            v-if="currentPage < totalPages"
-            @click="$emit('page-changed', currentPage + 1)"
-            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-            :class="{ 'cursor-not-allowed opacity-50': currentPage === totalPages }"
+            @click="currentPage < totalPages && $emit('page-changed', currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium transition-colors"
+            :class="currentPage === totalPages 
+              ? 'opacity-50 text-gray-400' 
+              : 'text-gray-500 hover:bg-gray-50'"
           >
             <span class="sr-only">Próximo</span>
             <ChevronRightIcon class="h-5 w-5" />

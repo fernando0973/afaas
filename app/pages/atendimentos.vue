@@ -1,12 +1,12 @@
 <template>
-  <div class="h-[100dvh] flex flex-col bg-neutral-50">
+  <div class="h-[95dvh] flex flex-col bg-neutral-50">
     <!-- Cabeçalho -->
-  <header class="bg-white border-b border-neutral-200 px-6 py-6 flex-shrink-0">
-      <div class="flex flex-col space-y-4">
+  <header class="bg-white border-b border-neutral-200 px-6 py-4 flex-shrink-0">
+      <div class="flex flex-col space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-semibold text-neutral-900">Atendimentos</h1>
-            <p class="text-sm text-neutral-600 mt-1">
+            <h1 class="text-xl font-semibold text-neutral-900">Atendimentos</h1>
+            <p class="text-xs text-neutral-600 mt-0.5">
               Acompanhe os atendimentos agendados, conclua tarefas e monitore status em tempo real
             </p>
           </div>
@@ -36,7 +36,7 @@
               v-model="termoBuscaTabela"
               type="text"
               placeholder="Buscar atendimentos por nome do cliente ou por CPF"
-              class="block w-full pl-10 pr-10 py-3 text-sm border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              class="block w-full pl-10 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               :class="{ 'border-blue-300 bg-blue-50': termoBuscaTabela && termoBuscaTabela.length >= 2 }"
               @input="handleBuscaInput"
             />
@@ -68,9 +68,9 @@
     </header>
 
     <!-- Conteúdo principal -->
-    <main class="flex-1 min-h-0 overflow-hidden p-6">
-      <div class="bg-white border border-neutral-200 rounded-xl shadow-sm h-full min-h-0 overflow-hidden p-6">
-        <ListaAtendimentos class="h-full" :termo-busca="termoBuscaTabela" />
+    <main class="flex-1 min-h-0 overflow-hidden px-4 py-3">
+      <div class="bg-white border border-neutral-200 rounded-xl shadow-sm h-full min-h-0 overflow-hidden px-4 py-3">
+        <ListaAtendimentos class="max-h-[calc(100vh-300px)]" :termo-busca="termoBuscaTabela" />
       </div>
     </main>
   </div>

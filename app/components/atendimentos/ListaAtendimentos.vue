@@ -1,36 +1,11 @@
 <template>
-  <div class="relative h-full flex flex-col gap-4">
-    <!-- Cabeçalho com informações - altura automática -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-neutral-100">
-      <p class="text-xs text-neutral-500">
-        <template v-if="carregando">
-          Carregando atendimentos...
-        </template>
-        <template v-else-if="erro">
-          Não foi possível carregar os atendimentos.
-        </template>
-        <template v-else-if="atendimentosFiltrados.length === 0">
-          Nenhum atendimento encontrado para os filtros atuais.
-        </template>
-        <template v-else>
-          Exibindo
-          <span class="font-semibold text-neutral-700">{{ atendimentosPaginados.length }}</span>
-          de
-          <span class="font-semibold text-neutral-700">{{ atendimentosFiltrados.length }}</span>
-          atendimento{{ atendimentosFiltrados.length === 1 ? '' : 's' }} nesta página
-        </template>
-      </p>
-      <p v-if="!carregando && !erro && atendimentosFiltrados.length > 0 && ultimaAtualizacaoFormatada" class="text-xs text-neutral-400">
-        Atualizado em {{ ultimaAtualizacaoFormatada }}
-      </p>
-    </div>
-
+  <div class="relative h-full flex flex-col">
   <!-- Área de conteúdo - ocupa todo o espaço restante; scroll isolado -->
-  <div class="min-h-0 overflow-hidden">
+  <div class="min-h-0 overflow-hidden h-full">
       <!-- Estados de loading, erro e vazio - TODOS com h-full -->
-  <div v-if="carregando" class="h-full overflow-y-auto pr-2 pb-20">
+      <div v-if="carregando" class="h-full overflow-y-auto pr-2 pb-8">
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <div v-for="indice in 6" :key="indice" class="rounded-2xl border border-neutral-200 bg-neutral-100/70 p-6 animate-pulse">
+          <div v-for="indice in 10" :key="indice" class="rounded-2xl border border-neutral-200 bg-neutral-100/70 p-6 animate-pulse">
             <div class="h-4 w-32 rounded bg-neutral-200" />
             <div class="mt-4 h-6 w-48 rounded bg-neutral-200" />
             <div class="mt-6 space-y-3">
@@ -60,78 +35,90 @@
       </div>
 
       <!-- Lista de cards scrollável - SEMPRE h-full -->
-  <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2 pb-20">
+  <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2 pb-8">
         <article
           v-for="atendimento in atendimentosPaginados"
           :key="atendimento.agendamento_id"
-          class="relative mb-3 last:mb-0 overflow-hidden rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
+          class="relative mb-2 last:mb-0 overflow-hidden rounded-xl border border-neutral-200 bg-white px-4 py-3.5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
         >
           <span class="absolute inset-y-0 left-0 w-1" :style="{ backgroundColor: atendimento.cor || '#2563eb' }" />
 
-          <div class="space-y-3">
-              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-[1.2fr_1.1fr_1.1fr_auto] lg:items-start">
-                <div class="flex items-start gap-4">
+          <div class="space-y-2.5">
+              <div class="grid gap-3.5 md:grid-cols-2 lg:grid-cols-[1.2fr_1.1fr_1.1fr_1fr_auto] lg:items-center">
+                <div class="flex items-center gap-3.5">
                   <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Agendamento</p>
-                    <p class="text-sm font-semibold text-neutral-900">{{ formatarData(atendimento.data) }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">Agendamento</p>
+                    <p class="text-sm font-semibold text-neutral-900 mb-0.5">{{ formatarData(atendimento.data) }}</p>
                     <p class="text-xs text-neutral-600">{{ formatarHorario(atendimento.hora_inicio, atendimento.hora_fim) }}</p>
                   </div>
                 </div>
 
-                <div class="flex items-start gap-3">
-                  <div class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-7.5 w-7.5 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                   <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Profissional</p>
-                    <p class="text-xs font-medium text-neutral-900">{{ atendimento.nome_profissional || 'Profissional não informado' }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">Profissional</p>
+                    <p class="text-xs font-medium text-neutral-900 mb-0.5">{{ atendimento.nome_profissional || 'Profissional não informado' }}</p>
                     <p class="text-xs text-neutral-600">{{ atendimento.especialidade || 'Especialidade não registrada' }}</p>
                   </div>
                 </div>
 
-                <div class="flex items-start gap-3">
-                  <div class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-7.5 w-7.5 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5s-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z" />
                     </svg>
                   </div>
                   <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Cliente</p>
-                    <p class="text-xs font-medium text-neutral-900">{{ atendimento.nome_cliente || 'Cliente não informado' }}</p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">Cliente</p>
+                    <p class="text-xs font-medium text-neutral-900 mb-0.5">{{ atendimento.nome_cliente || 'Cliente não informado' }}</p>
                     <p class="text-xs text-neutral-600">{{ atendimento.cpf_cliente || atendimento.cliente_completo || 'Documento não informado' }}</p>
                   </div>
                 </div>
 
-                <div class="flex flex-col items-end gap-2 lg:justify-self-end">
+                <div class="flex items-center gap-3">
+                  <template v-if="atendimento.cancelado && atendimento.cancelado_as">
+                    <div class="flex h-7.5 w-7.5 flex-shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">Cancelado em</p>
+                      <p class="text-xs font-medium text-neutral-900">{{ formatarDataHora(atendimento.cancelado_as) }}</p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="flex h-7.5 w-7.5 flex-shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-400">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">Status</p>
+                      <p class="text-xs font-medium text-neutral-900">—</p>
+                    </div>
+                  </template>
+                </div>
+
+                <div class="flex items-center lg:justify-self-end">
                   <span
                     :class="[
-                      'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide',
+                      'inline-flex items-center rounded-full border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide',
                       obterStatus(atendimento).classes
                     ]"
                   >
                     {{ obterStatus(atendimento).rotulo }}
                   </span>
-
-                  <button
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-[11px] font-semibold text-blue-600 transition hover:border-blue-200 hover:bg-blue-100 hover:text-blue-700"
-                    @click="emit('visualizar', atendimento)"
-                  >
-                    <EyeIcon class="h-3.5 w-3.5" />
-                    Visualizar
-                  </button>
                 </div>
-              </div>
-
-              <div v-if="atendimento.cancelado && atendimento.cancelado_as" class="rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-red-700">
-                <p class="text-[11px] font-semibold uppercase tracking-wide">Cancelado em</p>
-                <p class="mt-0.5 text-xs">{{ formatarDataHora(atendimento.cancelado_as) }}</p>
               </div>
             </div>
           </article>
@@ -139,7 +126,7 @@
     </div>
 
     <!-- Paginador overlay absoluto: sempre ancorado ao rodapé do container -->
-    <div class="pointer-events-auto absolute inset-x-0 bottom-0 z-10 h-20 border-t border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 flex items-center">
+    <div class="pointer-events-auto absolute inset-x-0 bottom-0 z-10 h-12 border-t border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 flex items-center">
       <div class="w-full px-0">
         <BasePagination
           :current-page="currentPage"
@@ -157,8 +144,6 @@
 import { computed, nextTick, onMounted, ref, watch } from '#imports'
 import { useAgendamentos } from '~/composables/useAgendamentos'
 import type { AgendamentoCompletoView } from '~/types/database.types'
-// @ts-ignore
-import { EyeIcon } from '@heroicons/vue/24/outline'
 import BasePagination from '../BasePagination.vue'
 
 const props = defineProps<{
@@ -176,7 +161,7 @@ const carregando = ref(true)
 const erro = ref<string | null>(null)
 const ultimaAtualizacao = ref<Date | null>(null)
 const currentPage = ref(1)
-const itemsPerPage = 6
+const itemsPerPage = 10
 
 const normalizar = (valor: string) => valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
 

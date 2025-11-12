@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
+  <div class="h-[95dvh] flex flex-col bg-neutral-50">
     <!-- Cabeçalho da página -->
-    <header class="bg-white border-b border-neutral-200 px-6 py-4">
+    <header class="bg-white border-b border-neutral-200 px-6 py-4 flex-shrink-0">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold text-neutral-900">Especialidades</h1>
@@ -35,7 +35,7 @@
     </header>
 
     <!-- Conteúdo principal -->
-    <main class="p-6">
+    <main class="flex-1 min-h-0 overflow-hidden p-6">
       <EspecialidadeTable
         ref="tabelaRef"
         :is-admin="isAdmin"

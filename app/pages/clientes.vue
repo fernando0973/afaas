@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
+  <div class="h-[95dvh] flex flex-col bg-neutral-50">
     <!-- Cabeçalho da página -->
-    <header class="bg-white border-b border-neutral-200 px-6 py-6">
+    <header class="bg-white border-b border-neutral-200 px-6 py-6 flex-shrink-0">
       <div class="flex flex-col space-y-4">
         <div class="flex items-center justify-between">
           <div>
@@ -56,8 +56,8 @@
     </header>
 
     <!-- Conteúdo principal -->
-    <main class="p-6">
-      <div class="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden">
+    <main class="flex-1 min-h-0 overflow-hidden p-6">
+      <div class="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden h-full">
         <TabelaClientes 
           ref="tabelaRef"
           :auto-load="true"

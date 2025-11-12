@@ -1,5 +1,6 @@
 <template>
-  <div class="p-6">
+  <div class="h-[95dvh] overflow-y-auto">
+    <div class="p-6">
     <div class="max-w-7xl mx-auto">
       <!-- Cabeçalho -->
       <div class="mb-8">
@@ -133,6 +134,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>

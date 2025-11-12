@@ -11,7 +11,7 @@
         
         <!-- Centro: Informações do profissional -->
         <div class="flex justify-center">
-          <AgendamentoProfissionalAtual />
+          <AgendamentoProfissionalAtual @abrir-selecao="abrirModalSelecionarProfissional" />
         </div>
         
         <!-- Lado direito: Botão para novo agendamento -->
@@ -86,10 +86,20 @@
       @agendamento-atualizado="handleAgendamentoAtualizado"
       @agendamento-cancelado="handleAgendamentoCancelado"
     />
+
+    <!-- Modal de Seleção de Profissional -->
+    <AgendamentoSelecionarProfissionalModal
+      v-model="modalSelecionarProfissionalAberto"
+      :profissionais="profissionais"
+      :loading="carregandoProfissionaisLista"
+      :profissional-selecionado-id="profissionalSelecionadoId"
+      @selecionar="selecionarProfissional"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Profissional } from '~/types/profissional'
 import { useAgendamentos, type AgendamentoFormatado } from '~/composables/useAgendamentos'
 import { useProfissionais } from '~/composables/useProfissionais'
 import { useAgendamentoStore } from '~/stores/agendamento'
@@ -115,14 +125,16 @@ const { buscarClientes } = useProfissionais()
 
 // Usar store de profissionais (cache centralizado)
 const profissionaisStore = useProfissionaisStore()
+const { profissionais, loading: carregandoProfissionaisLista } = storeToRefs(profissionaisStore)
 
 // ===== ESTADO REATIVO LOCAL =====
 // Estados do modal
 const modalNovoAgendamentoAberto = ref(false)
 const modalEditarAgendamentoAberto = ref(false)
 const modalVisualizarAgendamentoAberto = ref(false)
+const modalSelecionarProfissionalAberto = ref(false)
 const manterSelecaoAposVisualizacao = ref(false)
-const profissionalAtual = ref<any>(null)
+const profissionalAtual = ref<Profissional | null>(null)
 const agendamentoSelecionado = ref<AgendamentoFormatado | null>(null)
 
 // Estados dos clientes
@@ -156,6 +168,25 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
   }
 }
 
+const atualizarProfissionalAtual = async (profissionalId: number | null) => {
+  if (!profissionalId) {
+    profissionalAtual.value = null
+    return
+  }
+
+  try {
+    await profissionaisStore.buscarProfissionais()
+    const encontrado = profissionais.value.find((item: Profissional) => {
+      const itemId = item.profissional_id ?? item.id
+      return itemId === profissionalId
+    })
+
+    profissionalAtual.value = encontrado || null
+  } catch (error) {
+    profissionalAtual.value = null
+  }
+}
+
 // ===== WATCHERS REATIVOS =====
 
 /**
@@ -163,7 +194,17 @@ const carregarAgendamentos = async (forcarAtualizacao = true) => {
  * Verifica cache primeiro, carrega só se necessário
  */
 watch(profissionalSelecionadoId, async (novoProfId: number | null, profAnterior: number | null) => {
-  if (novoProfId == null || novoProfId === profAnterior) {
+  if (novoProfId == null) {
+    profissionalAtual.value = null
+    agendamentoStore.limparAgendamentos()
+    return
+  }
+
+  if (novoProfId !== profAnterior) {
+    await atualizarProfissionalAtual(novoProfId)
+  }
+
+  if (novoProfId === profAnterior) {
     return
   }
 
@@ -256,15 +297,7 @@ const recarregarAgendamentos = async (limparCacheAntes = false) => {
 
 // Buscar dados do profissional atual usando o store
 const buscarProfissionalAtual = async () => {
-  if (!profissionalSelecionadoId.value) return
-
-  try {
-    await profissionaisStore.buscarProfissionais()
-    profissionalAtual.value = profissionaisStore.profissionais.find(
-      (p: any) => p.profissional_id === profissionalSelecionadoId.value
-    )
-  } catch (error) {
-  }
+  await atualizarProfissionalAtual(profissionalSelecionadoId.value)
 }
 
 // Função para editar agendamento existente
@@ -328,6 +361,32 @@ const handleAgendamentoCancelado = async () => {
   agendamentoSelecionado.value = null
   // Recarregar agendamentos para mostrar as mudanças
   await carregarAgendamentos(true)
+}
+
+const abrirModalSelecionarProfissional = async () => {
+  try {
+    await profissionaisStore.buscarProfissionais()
+  } catch (error) {
+  } finally {
+    modalSelecionarProfissionalAberto.value = true
+  }
+}
+
+const selecionarProfissional = (profissionalSelecionado: Profissional) => {
+  const novoId = profissionalSelecionado.profissional_id ?? profissionalSelecionado.id ?? null
+
+  if (!novoId) {
+    modalSelecionarProfissionalAberto.value = false
+    return
+  }
+
+  if (profissionalSelecionadoId.value !== novoId) {
+    agendamentoStore.setProfissionalSelecionado(novoId)
+    agendamentoStore.limparAgendamentos()
+  }
+
+  profissionalAtual.value = profissionalSelecionado
+  modalSelecionarProfissionalAberto.value = false
 }
 
 // Função para criar novo agendamento

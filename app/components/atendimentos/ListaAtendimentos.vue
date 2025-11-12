@@ -1,5 +1,5 @@
 <template>
-  <div class="grid h-full grid-rows-[auto_1fr_auto] gap-4">
+  <div class="relative h-full flex flex-col gap-4">
     <!-- Cabeçalho com informações - altura automática -->
     <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-neutral-100">
       <p class="text-xs text-neutral-500">
@@ -25,10 +25,10 @@
       </p>
     </div>
 
-    <!-- Área de conteúdo - ocupa EXATAMENTE todo o espaço restante (1fr) -->
-    <div class="min-h-0 overflow-hidden">
+  <!-- Área de conteúdo - ocupa todo o espaço restante; scroll isolado -->
+  <div class="min-h-0 overflow-hidden">
       <!-- Estados de loading, erro e vazio - TODOS com h-full -->
-      <div v-if="carregando" class="h-full overflow-y-auto pr-2">
+  <div v-if="carregando" class="h-full overflow-y-auto pr-2 pb-20">
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div v-for="indice in 6" :key="indice" class="rounded-2xl border border-neutral-200 bg-neutral-100/70 p-6 animate-pulse">
             <div class="h-4 w-32 rounded bg-neutral-200" />
@@ -42,14 +42,14 @@
         </div>
       </div>
 
-      <div v-else-if="erro" class="flex h-full flex-col items-center justify-center gap-4 rounded-xl border border-red-200 bg-red-50 px-6 py-8 text-center text-red-700">
+  <div v-else-if="erro" class="flex h-full flex-col items-center justify-center gap-4 rounded-xl border border-red-200 bg-red-50 px-6 py-8 text-center text-red-700">
         <p class="text-sm font-medium">{{ erro }}</p>
         <button class="inline-flex items-center rounded-lg border border-red-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-600 transition hover:bg-red-100" @click="carregarAtendimentos">
           Tentar novamente
         </button>
       </div>
 
-      <div v-else-if="atendimentosFiltrados.length === 0" class="flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-6 py-12 text-center">
+  <div v-else-if="atendimentosFiltrados.length === 0" class="flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-6 py-12 text-center">
         <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m9-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -60,51 +60,51 @@
       </div>
 
       <!-- Lista de cards scrollável - SEMPRE h-full -->
-      <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2">
+  <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2 pb-20">
         <article
           v-for="atendimento in atendimentosPaginados"
           :key="atendimento.agendamento_id"
-          class="relative mb-4 last:mb-0 overflow-hidden rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
+          class="relative mb-3 last:mb-0 overflow-hidden rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
         >
           <span class="absolute inset-y-0 left-0 w-1" :style="{ backgroundColor: atendimento.cor || '#2563eb' }" />
 
-          <div class="space-y-4">
-              <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[1.2fr_1.1fr_1.1fr_auto] lg:items-start">
+          <div class="space-y-3">
+              <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-[1.2fr_1.1fr_1.1fr_auto] lg:items-start">
                 <div class="flex items-start gap-4">
-                  <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
                     <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Agendamento</p>
-                    <p class="text-base font-semibold text-neutral-900">{{ formatarData(atendimento.data) }}</p>
+                    <p class="text-sm font-semibold text-neutral-900">{{ formatarData(atendimento.data) }}</p>
                     <p class="text-xs text-neutral-600">{{ formatarHorario(atendimento.hora_inicio, atendimento.hora_fim) }}</p>
                   </div>
                 </div>
 
                 <div class="flex items-start gap-3">
-                  <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                   <div>
                     <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Profissional</p>
-                    <p class="text-sm font-medium text-neutral-900">{{ atendimento.nome_profissional || 'Profissional não informado' }}</p>
+                    <p class="text-xs font-medium text-neutral-900">{{ atendimento.nome_profissional || 'Profissional não informado' }}</p>
                     <p class="text-xs text-neutral-600">{{ atendimento.especialidade || 'Especialidade não registrada' }}</p>
                   </div>
                 </div>
 
                 <div class="flex items-start gap-3">
-                  <div class="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5s-3 1.343-3 3 1.343 3 3 3zM8 11c1.657 0 3-1.343 3-3S9.657 5 8 5 5 6.343 5 8s1.343 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z" />
                     </svg>
                   </div>
                   <div>
                     <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Cliente</p>
-                    <p class="text-sm font-medium text-neutral-900">{{ atendimento.nome_cliente || 'Cliente não informado' }}</p>
+                    <p class="text-xs font-medium text-neutral-900">{{ atendimento.nome_cliente || 'Cliente não informado' }}</p>
                     <p class="text-xs text-neutral-600">{{ atendimento.cpf_cliente || atendimento.cliente_completo || 'Documento não informado' }}</p>
                   </div>
                 </div>
@@ -120,38 +120,35 @@
                   </span>
 
                   <button
-                    class="inline-flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold text-blue-600 transition hover:border-blue-200 hover:bg-blue-100 hover:text-blue-700"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-[11px] font-semibold text-blue-600 transition hover:border-blue-200 hover:bg-blue-100 hover:text-blue-700"
                     @click="emit('visualizar', atendimento)"
                   >
-                    <EyeIcon class="h-4 w-4" />
+                    <EyeIcon class="h-3.5 w-3.5" />
                     Visualizar
                   </button>
                 </div>
               </div>
 
-              <div v-if="atendimento.descricao" class="rounded-lg bg-neutral-50 px-4 py-3 text-neutral-700">
-                <p class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">Observações</p>
-                <p class="mt-1 text-sm leading-relaxed">{{ atendimento.descricao }}</p>
-              </div>
-
-              <div v-if="atendimento.cancelado && atendimento.cancelado_as" class="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-red-700">
+              <div v-if="atendimento.cancelado && atendimento.cancelado_as" class="rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-red-700">
                 <p class="text-[11px] font-semibold uppercase tracking-wide">Cancelado em</p>
-                <p class="mt-1 text-sm">{{ formatarDataHora(atendimento.cancelado_as) }}</p>
+                <p class="mt-0.5 text-xs">{{ formatarDataHora(atendimento.cancelado_as) }}</p>
               </div>
             </div>
           </article>
       </div>
     </div>
 
-    <!-- Paginação fixa no rodapé - altura automática, posição FIXA -->
-    <div class="border-t border-neutral-100 pt-5">
-      <BasePagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        :total-items="atendimentosFiltrados.length"
-        :items-per-page="itemsPerPage"
-        @page-changed="handleTrocaPagina"
-      />
+    <!-- Paginador overlay absoluto: sempre ancorado ao rodapé do container -->
+    <div class="pointer-events-auto absolute inset-x-0 bottom-0 z-10 h-20 border-t border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 flex items-center">
+      <div class="w-full px-0">
+        <BasePagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          :total-items="atendimentosFiltrados.length"
+          :items-per-page="itemsPerPage"
+          @page-changed="handleTrocaPagina"
+        />
+      </div>
     </div>
   </div>
 </template>

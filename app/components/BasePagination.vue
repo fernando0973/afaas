@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-[44px] items-center justify-between">
+  <div class="flex min-h-[44px] items-center justify-between flex-wrap sm:flex-nowrap">
     <!-- Informações da paginação -->
     <div class="flex flex-1 justify-between sm:hidden">
       <button
@@ -20,8 +20,8 @@
 
     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
       <!-- Informações de resultados -->
-      <div>
-        <p class="text-sm text-gray-700">
+      <div class="min-w-0">
+        <p class="text-sm text-gray-700 whitespace-nowrap">
           Mostrando 
           <span class="font-medium">{{ startItem }}</span>
           até
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Navegação de páginas -->
-      <div>
+      <div class="flex-shrink-0">
         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Paginação">
           <!-- Botão Anterior -->
           <button

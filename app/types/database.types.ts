@@ -291,6 +291,192 @@ export type Database = {
           }
         ]
       }
+      afaas_atendimentos: {
+        Row: {
+          id: number
+          created_at: string
+          cliente_id: number
+          profissional_id: number
+          eh_divino_auxiliar: boolean | null
+          pode_auxiliar: boolean | null
+          pressao_sistolica: number | null
+          pressao_diastolica: number | null
+          batimento_cardiaco: number | null
+          status_cardiaco: string | null
+          energia_vital: number | null
+          imunidade: string | null
+          meridiano: string | null
+          centro_coronario: boolean
+          centro_frontal: boolean
+          centro_laringeo: boolean
+          centro_cardiaco: boolean
+          centro_plexo_solar: boolean
+          centro_umbilical: boolean
+          centro_base: boolean
+          caderno_virus: boolean
+          caderno_bacteria: boolean
+          caderno_fungos: boolean
+          caderno_parasitas: boolean
+          caderno_micoplasma: boolean
+          caderno_bacilos: boolean
+          caderno_artrites: boolean
+          caderno_doencas: boolean
+          causas_desalinhamentos: string | null
+          modificados_outros: string | null
+          enc_medico: boolean
+          enc_medico_tipo: string | null
+          enc_medico_especialista: string | null
+          enc_terapeuta: boolean
+          enc_terapeuta_especialista: string | null
+          plano_instrucoes_gerais: string | null
+          plano_dosagem_ml: number | null
+          plano_periodo_horas: number | null
+          plano_duracao_dias: number | null
+          plano_sessoes_frequencia: string | null
+          observacoes: string | null
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          cliente_id: number
+          profissional_id: number
+          eh_divino_auxiliar?: boolean | null
+          pode_auxiliar?: boolean | null
+          pressao_sistolica?: number | null
+          pressao_diastolica?: number | null
+          batimento_cardiaco?: number | null
+          status_cardiaco?: string | null
+          energia_vital?: number | null
+          imunidade?: string | null
+          meridiano?: string | null
+          centro_coronario?: boolean
+          centro_frontal?: boolean
+          centro_laringeo?: boolean
+          centro_cardiaco?: boolean
+          centro_plexo_solar?: boolean
+          centro_umbilical?: boolean
+          centro_base?: boolean
+          caderno_virus?: boolean
+          caderno_bacteria?: boolean
+          caderno_fungos?: boolean
+          caderno_parasitas?: boolean
+          caderno_micoplasma?: boolean
+          caderno_bacilos?: boolean
+          caderno_artrites?: boolean
+          caderno_doencas?: boolean
+          causas_desalinhamentos?: string | null
+          modificados_outros?: string | null
+          enc_medico?: boolean
+          enc_medico_tipo?: string | null
+          enc_medico_especialista?: string | null
+          enc_terapeuta?: boolean
+          enc_terapeuta_especialista?: string | null
+          plano_instrucoes_gerais?: string | null
+          plano_dosagem_ml?: number | null
+          plano_periodo_horas?: number | null
+          plano_duracao_dias?: number | null
+          plano_sessoes_frequencia?: string | null
+          observacoes?: string | null
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          cliente_id?: number
+          profissional_id?: number
+          eh_divino_auxiliar?: boolean | null
+          pode_auxiliar?: boolean | null
+          pressao_sistolica?: number | null
+          pressao_diastolica?: number | null
+          batimento_cardiaco?: number | null
+          status_cardiaco?: string | null
+          energia_vital?: number | null
+          imunidade?: string | null
+          meridiano?: string | null
+          centro_coronario?: boolean
+          centro_frontal?: boolean
+          centro_laringeo?: boolean
+          centro_cardiaco?: boolean
+          centro_plexo_solar?: boolean
+          centro_umbilical?: boolean
+          centro_base?: boolean
+          caderno_virus?: boolean
+          caderno_bacteria?: boolean
+          caderno_fungos?: boolean
+          caderno_parasitas?: boolean
+          caderno_micoplasma?: boolean
+          caderno_bacilos?: boolean
+          caderno_artrites?: boolean
+          caderno_doencas?: boolean
+          causas_desalinhamentos?: string | null
+          modificados_outros?: string | null
+          enc_medico?: boolean
+          enc_medico_tipo?: string | null
+          enc_medico_especialista?: string | null
+          enc_terapeuta?: boolean
+          enc_terapeuta_especialista?: string | null
+          plano_instrucoes_gerais?: string | null
+          plano_dosagem_ml?: number | null
+          plano_periodo_horas?: number | null
+          plano_duracao_dias?: number | null
+          plano_sessoes_frequencia?: string | null
+          observacoes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "afaas_atendimentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "afaas_atendimentos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_profissionais"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      afaas_atendimento_plantas: {
+        Row: {
+          id: number
+          created_at: string
+          atendimento_id: number
+          planta_id: number
+          observacao_planta: string | null
+        }
+        Insert: {
+          id?: number
+          created_at?: string
+          atendimento_id: number
+          planta_id: number
+          observacao_planta?: string | null
+        }
+        Update: {
+          id?: number
+          created_at?: string
+          atendimento_id?: number
+          planta_id?: number
+          observacao_planta?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "afaas_atendimento_plantas_atendimento_id_fkey"
+            columns: ["atendimento_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_atendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "afaas_atendimento_plantas_planta_id_fkey"
+            columns: ["planta_id"]
+            isOneToOne: false
+            referencedRelation: "afaas_plantas_medicinais"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       afaas_view_agendamentos_completos: {
@@ -453,4 +639,34 @@ export interface AgendamentoCompletoView {
   especialidade: string | null
   profissional_completo: string | null
   cliente_completo: string | null
+}
+
+/**
+ * Interface para atendimento completo com dados relacionados
+ */
+export interface AtendimentoCompleto extends Tables<'afaas_atendimentos'> {
+  cliente?: Tables<'afaas_clientes'>
+  profissional?: {
+    id: number
+    nome: string
+    especialidade: string
+  }
+  plantas?: Array<{
+    id: number
+    atendimento_plantas_id: number
+    nome_popular: string
+    nome_cientifico: string | null
+    observacao_planta: string | null
+  }>
+}
+
+/**
+ * Interface para criação de atendimento com plantas
+ */
+export interface CriarAtendimentoInput {
+  atendimento: TablesInsert<'afaas_atendimentos'>
+  plantas?: Array<{
+    planta_id: number
+    observacao_planta?: string | null
+  }>
 }

@@ -8,7 +8,7 @@
     <!-- Área Principal -->
     <main class="flex-1 flex flex-col overflow-hidden">
       <!-- Conteúdo da página -->
-      <div class="flex-1" :class="route.path === '/' ? 'overflow-hidden' : 'overflow-auto p-6'">
+      <div class="flex-1 overflow-auto">
         <slot />
       </div>
     </main>
@@ -37,6 +37,8 @@ const pageInfo = computed(() => {
       return { title: 'Atendimentos', description: 'Agendamentos e histórico de atendimentos' }
     case '/relatorios':
       return { title: 'Relatórios', description: 'Relatórios e estatísticas do sistema' }
+    case '/relatorios/agendamentos':
+      return { title: 'Relatório de Agendamentos', description: 'Visualize e analise os agendamentos realizados' }
     case '/plantas':
       return { title: 'Plantas', description: 'Gerenciamento de plantas medicinais' }
     case '/configuracoes':

@@ -123,8 +123,8 @@ export const useAuth = () => {
         }
 
         // Caso array retornado pelo supabase (ex.: [{ afaasisadmin: true }])
-        else if (Array.isArray(data) && data.length > 0) {
-          const first = data[0]
+        else if (Array.isArray(data) && (data as any[]).length > 0) {
+          const first = (data as any[])[0]
           if (typeof first === 'boolean') {
             isAdminResult = first
           } else if (typeof first === 'object' && first !== null) {
@@ -161,6 +161,7 @@ export const useAuth = () => {
     try {
       
       // Usar a RPC customizada para atualizar informações do usuário
+      // @ts-ignore - RPC afaas_update_infos_user definida no banco de dados
       const { data, error } = await supabase.rpc('afaas_update_infos_user', {
         p_nome: novoNome
       })

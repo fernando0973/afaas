@@ -29,7 +29,7 @@
             </div>
             
             <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Visualize estatísticas completas dos atendimentos realizados, incluindo dados de clientes, profissionais e plantas medicinais utilizadas.
+              Visualize estatísticas completas dos agendamentos realizados, incluindo dados de clientes, profissionais e plantas medicinais utilizadas.
             </p>
             
             <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
@@ -40,7 +40,31 @@
             </div>
           </div>
 
-          <!-- Card 2: Relatório de Clientes -->
+          <!-- Card 2: Relatório de Atendimentos -->
+          <div 
+            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-cyan-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+            @click="navegarParaRelatorio('atendimentos')"
+          >
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <ClipboardDocumentListIcon class="w-7 h-7 text-white" />
+              </div>
+              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Atendimentos</h3>
+            </div>
+            
+            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
+              Análise completa dos atendimentos concluídos, histórico de consultas, evolução de pacientes e resultados dos tratamentos.
+            </p>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
+              <span class="text-xs font-medium text-cyan-600 group-hover:text-cyan-700">
+                Ver relatório
+              </span>
+              <ArrowRightIcon class="w-4 h-4 text-cyan-600 group-hover:translate-x-1 transition-transform duration-300" />
+            </div>
+          </div>
+
+          <!-- Card 4: Relatório de Clientes -->
           <div 
             class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-green-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             @click="navegarParaRelatorio('clientes')"
@@ -64,7 +88,7 @@
             </div>
           </div>
 
-          <!-- Card 3: Relatório de Profissionais -->
+          <!-- Card 5: Relatório de Profissionais -->
           <div 
             class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-purple-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             @click="navegarParaRelatorio('profissionais')"
@@ -88,7 +112,7 @@
             </div>
           </div>
 
-          <!-- Card 4: Relatório de Plantas Medicinais -->
+          <!-- Card 6: Relatório de Plantas Medicinais -->
           <div 
             class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-emerald-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             @click="navegarParaRelatorio('plantas')"
@@ -112,7 +136,7 @@
             </div>
           </div>
 
-          <!-- Card 5: Relatório de Especialidades -->
+          <!-- Card 7: Relatório de Especialidades -->
           <div 
             class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-indigo-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             @click="navegarParaRelatorio('especialidades')"
@@ -136,7 +160,7 @@
             </div>
           </div>
 
-          <!-- Card 6: Relatório Financeiro -->
+          <!-- Card 8: Relatório Financeiro -->
           <div 
             class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-amber-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
             @click="navegarParaRelatorio('financeiro')"

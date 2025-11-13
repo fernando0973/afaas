@@ -10,6 +10,22 @@ export function useAtendimentos() {
   const supabase = useSupabaseClient()
 
   /**
+   * Conta o total de atendimentos
+   */
+  const contarAtendimentos = async (): Promise<number> => {
+    const { count, error } = await supabase
+      .from('afaas_atendimentos')
+      .select('*', { count: 'exact', head: true })
+
+    if (error) {
+      console.error('Erro ao contar atendimentos:', error)
+      return 0
+    }
+
+    return count || 0
+  }
+
+  /**
    * Busca todos os atendimentos com informações completas de cliente, profissional e plantas
    */
   const buscarAtendimentosCompletos = async (): Promise<AtendimentoCompleto[]> => {
@@ -297,6 +313,7 @@ export function useAtendimentos() {
   }
 
   return {
+    contarAtendimentos,
     buscarAtendimentosCompletos,
     buscarAtendimentoPorId,
     buscarAtendimentosPorCliente,

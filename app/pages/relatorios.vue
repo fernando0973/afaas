@@ -286,7 +286,7 @@ const router = useRouter()
 // Composables
 const { buscarPlantas } = usePlantas()
 const { buscarProfissionais, buscarClientes } = useProfissionais()
-const { buscarAtendimentosCompletos } = useAtendimentos()
+const { contarAtendimentos } = useAtendimentos()
 
 // Estados reativos
 const quantidadePlantas = ref(0)
@@ -353,10 +353,8 @@ const buscarQuantidadeClientes = async () => {
 const buscarQuantidadeAtendimentos = async () => {
   carregandoAtendimentos.value = true
   try {
-    const atendimentos = await buscarAtendimentosCompletos()
-    if (atendimentos && Array.isArray(atendimentos)) {
-      quantidadeAtendimentos.value = atendimentos.length
-    }
+    const count = await contarAtendimentos()
+    quantidadeAtendimentos.value = count
   } catch (error) {
     console.error('Erro ao buscar quantidade de atendimentos:', error)
   } finally {

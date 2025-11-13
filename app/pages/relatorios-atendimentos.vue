@@ -136,9 +136,6 @@
               <thead class="bg-neutral-50">
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                     Data
                   </th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -164,9 +161,6 @@
                   :key="atendimento.id"
                   class="hover:bg-neutral-50 transition-colors"
                 >
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neutral-900">
-                    #{{ atendimento.id }}
-                  </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
                     {{ formatarData(atendimento.created_at) }}
                   </td>
@@ -174,10 +168,10 @@
                     {{ atendimento.cliente?.nome_completo || 'N/A' }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {{ atendimento.profissional?.nome || 'N/A' }}
+                    {{ obterProfissionalPrincipal(atendimento) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {{ atendimento.profissional?.especialidade || 'N/A' }}
+                    {{ obterEspecialidadePrincipal(atendimento) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
@@ -196,7 +190,7 @@
 
                 <!-- Estado vazio -->
                 <tr v-if="atendimentosFiltrados.length === 0">
-                  <td colspan="7" class="px-6 py-12 text-center">
+                  <td colspan="6" class="px-6 py-12 text-center">
                     <div class="flex flex-col items-center justify-center text-neutral-400">
                       <ClipboardDocumentListIcon class="w-12 h-12 mb-3" />
                       <p class="text-sm font-medium">Nenhum atendimento encontrado</p>
@@ -263,6 +257,7 @@ useHead({
 })
 
 const router = useRouter()
+const supabase = useSupabaseClient()
 
 // Estados reativos
 const termoBusca = ref('')
@@ -270,36 +265,10 @@ const filtroMes = ref('')
 const filtroAno = ref('')
 const paginaAtual = ref(1)
 const itensPorPagina = 10
+const carregando = ref(false)
 
-// Dados de exemplo (depois você buscará do banco)
-const atendimentos = ref([
-  {
-    id: 1,
-    created_at: '2025-01-15T10:30:00',
-    cliente: { nome_completo: 'João Silva', cpf: '123.456.789-00' },
-    profissional: { nome: 'Dr. Carlos Mendes', especialidade: 'Acupuntura' },
-    plantas: [
-      { nome_popular: 'Camomila' },
-      { nome_popular: 'Hortelã' }
-    ]
-  },
-  {
-    id: 2,
-    created_at: '2025-01-16T14:00:00',
-    cliente: { nome_completo: 'Maria Santos', cpf: '987.654.321-00' },
-    profissional: { nome: 'Dra. Ana Paula', especialidade: 'Fitoterapia' },
-    plantas: [
-      { nome_popular: 'Boldo' }
-    ]
-  },
-  {
-    id: 3,
-    created_at: '2025-01-17T09:15:00',
-    cliente: { nome_completo: 'Pedro Oliveira', cpf: '456.789.123-00' },
-    profissional: { nome: 'Dr. Carlos Mendes', especialidade: 'Acupuntura' },
-    plantas: []
-  }
-])
+// Dados dos atendimentos
+const atendimentos = ref<any[]>([])
 
 // Estatísticas
 const estatisticas = reactive({
@@ -369,9 +338,142 @@ const exportarRelatorio = () => {
   // Implementar exportação para PDF/Excel
 }
 
+// Função para obter profissional principal
+const obterProfissionalPrincipal = (atendimento: any) => {
+  // Se houver array de profissionais, pegar o primeiro (principal)
+  if (atendimento.profissionais && atendimento.profissionais.length > 0) {
+    return atendimento.profissionais[0].nome || 'N/A'
+  }
+  // Fallback para estrutura antiga
+  return atendimento.profissional?.nome || 'N/A'
+}
+
+// Função para obter especialidade principal
+const obterEspecialidadePrincipal = (atendimento: any) => {
+  // Se houver array de profissionais, pegar a especialidade do primeiro
+  if (atendimento.profissionais && atendimento.profissionais.length > 0) {
+    return atendimento.profissionais[0].especialidade || 'N/A'
+  }
+  // Fallback para estrutura antiga
+  return atendimento.profissional?.especialidade || 'N/A'
+}
+
+// Buscar atendimentos do banco
+const buscarAtendimentos = async () => {
+  carregando.value = true
+  try {
+    // Buscar atendimentos básicos com clientes
+    const { data, error } = await supabase
+      .from('afaas_atendimentos')
+      .select(`
+        *,
+        cliente:afaas_clientes(*)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Erro ao buscar atendimentos:', error)
+      return
+    }
+
+    if (!data || data.length === 0) {
+      atendimentos.value = []
+      return
+    }
+
+    // Para cada atendimento, buscar profissionais e plantas
+    const atendimentosCompletos = await Promise.all(
+      data.map(async (atendimento: any) => {
+        // Buscar profissionais
+        const { data: profissionaisData } = await supabase
+          .from('afaas_atendimento_profissionais')
+          .select(`
+            id,
+            funcao,
+            afaas_profissionais(
+              id,
+              afaas_profiles(nome),
+              afaas_especialidades(especialidade)
+            )
+          `)
+          .eq('atendimento_id', atendimento.id)
+          .order('funcao', { ascending: true }) // Principal primeiro
+
+        // Buscar plantas
+        const { data: plantasData } = await supabase
+          .from('afaas_atendimento_plantas')
+          .select(`
+            id,
+            afaas_plantas_medicinais(
+              id,
+              nome_popular
+            )
+          `)
+          .eq('atendimento_id', atendimento.id)
+
+        return {
+          ...atendimento,
+          profissionais: (profissionaisData || []).map((ap: any) => ({
+            id: ap.afaas_profissionais?.id,
+            nome: ap.afaas_profissionais?.afaas_profiles?.nome || 'Nome não disponível',
+            especialidade: ap.afaas_profissionais?.afaas_especialidades?.especialidade || 'Especialidade não disponível',
+            funcao: ap.funcao
+          })),
+          plantas: (plantasData || []).map((ap: any) => ({
+            id: ap.afaas_plantas_medicinais?.id,
+            nome_popular: ap.afaas_plantas_medicinais?.nome_popular || ''
+          }))
+        }
+      })
+    )
+
+    atendimentos.value = atendimentosCompletos
+    
+    // Atualizar estatísticas
+    calcularEstatisticas()
+  } catch (error) {
+    console.error('Erro ao buscar atendimentos:', error)
+  } finally {
+    carregando.value = false
+  }
+}
+
+// Calcular estatísticas
+const calcularEstatisticas = () => {
+  estatisticas.total = atendimentos.value.length
+  
+  const hoje = new Date()
+  const mesAtual = hoje.getMonth()
+  const anoAtual = hoje.getFullYear()
+  
+  const atendimentosMesAtual = atendimentos.value.filter((a: any) => {
+    const data = new Date(a.created_at)
+    return data.getMonth() === mesAtual && data.getFullYear() === anoAtual
+  })
+  
+  estatisticas.esteMes = atendimentosMesAtual.length
+  
+  // Calcular média diária (últimos 30 dias)
+  const trintaDiasAtras = new Date()
+  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30)
+  
+  const atendimentosUltimos30Dias = atendimentos.value.filter((a: any) => {
+    const data = new Date(a.created_at)
+    return data >= trintaDiasAtras
+  })
+  
+  estatisticas.mediaDiaria = Math.round(atendimentosUltimos30Dias.length / 30)
+  
+  // Clientes únicos
+  const clientesUnicos = new Set(atendimentos.value.map((a: any) => a.cliente_id))
+  estatisticas.clientesUnicos = clientesUnicos.size
+  
+  // Calcular crescimento (simplificado)
+  estatisticas.crescimento = 12
+}
+
 // Buscar dados ao montar
 onMounted(() => {
-  // TODO: Buscar atendimentos do banco de dados
-  console.log('Página de relatório de atendimentos montada')
+  buscarAtendimentos()
 })
 </script>

@@ -35,7 +35,7 @@
       </div>
 
       <!-- Lista de cards scrollável - SEMPRE h-full -->
-  <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2 pb-8">
+  <div class="lista-atendimentos-scroll h-full overflow-y-auto pr-2 pb-24">
         <article
           v-for="atendimento in atendimentosPaginados"
           :key="atendimento.agendamento_id"
@@ -126,7 +126,7 @@
     </div>
 
     <!-- Paginador overlay absoluto: sempre ancorado ao rodapé do container -->
-    <div class="pointer-events-auto absolute inset-x-0 bottom-0 z-10 h-12 border-t border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 flex items-center">
+    <div class="pointer-events-auto absolute inset-x-0 bottom-0 z-10 border-t border-neutral-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 flex items-center pt-6 pb-6">
       <div class="w-full px-0">
         <BasePagination
           :current-page="currentPage"

@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
+  <div class="h-[95dvh] flex flex-col bg-neutral-50">
     <!-- Header da página -->
-    <header class="bg-white border-b border-neutral-200">
+    <header class="flex-shrink-0 bg-white border-b border-neutral-200">
       <div class="max-w-4xl mx-auto px-6 py-6">
         <div class="flex items-center">
           <ClientOnly>
@@ -22,7 +22,7 @@
     </header>
 
     <!-- Conteúdo principal -->
-    <main class="max-w-6xl mx-auto px-6 py-8">
+    <main class="flex-1 min-h-0 overflow-y-auto max-w-6xl mx-auto px-6 py-8 w-full">
       <!-- Card de Apresentação -->
       <div class="bg-white rounded-lg border border-neutral-200 p-6 mb-8">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">

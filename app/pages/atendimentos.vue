@@ -70,7 +70,7 @@
     <!-- Conteúdo principal -->
     <main class="flex-1 min-h-0 overflow-hidden px-4 py-3">
       <div class="bg-white border border-neutral-200 rounded-xl shadow-sm h-full min-h-0 overflow-hidden px-4 py-3">
-        <ListaAtendimentos class="max-h-[calc(100vh-300px)]" :termo-busca="termoBuscaTabela" />
+        <ListaAtendimentos class="h-full" :termo-busca="termoBuscaTabela" />
       </div>
     </main>
   </div>

@@ -12,10 +12,15 @@
         <slot />
       </div>
     </main>
+    
+    <!-- Vercel Speed Insights -->
+    <SpeedInsights />
   </div>
 </template>
 
 <script setup lang="ts">
+import { SpeedInsights } from '@vercel/speed-insights/nuxt'
+
 const route = useRoute()
 
 const pageInfo = computed(() => {

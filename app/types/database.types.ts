@@ -651,6 +651,12 @@ export interface AtendimentoCompleto extends Tables<'afaas_atendimentos'> {
     nome: string
     especialidade: string
   }
+  profissionais?: Array<{
+    id: number | null
+    funcao?: string | null
+    nome?: string | null
+    especialidade?: string | null
+  }>
   plantas?: Array<{
     id: number
     atendimento_plantas_id: number

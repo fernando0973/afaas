@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { createError } from 'h3'
 
 interface Atendimento {
   id: number
@@ -11,6 +12,21 @@ interface ProfissionalView {
   profissional_id: number
   nome_profissional: string | null
   especialidade: string | null
+}
+
+interface AtendimentoProfissional {
+  id: number
+  atendimento_id: number
+  profissional_id: number | null
+  funcao: string | null
+}
+
+interface AtendimentoPlanta {
+  atendimento_id: number
+  afaas_plantas_medicinais: {
+    id: number
+    nome_popular: string | null
+  } | null
 }
 
 export default defineEventHandler(async (event) => {
@@ -70,9 +86,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const profissionaisRelacionadosData = (profissionaisRelacionados ?? []) as AtendimentoProfissional[]
+
   const profissionalIds = Array.from(
     new Set(
-      (profissionaisRelacionados || [])
+      profissionaisRelacionadosData
         .map((profissional) => profissional.profissional_id)
         .filter((id): id is number => typeof id === 'number')
     )
@@ -96,15 +114,15 @@ export default defineEventHandler(async (event) => {
 
     if (profissionaisView) {
       profissionaisViewMap = new Map(
-        profissionaisView.map((item) => [item.profissional_id, item])
+        (profissionaisView as ProfissionalView[]).map((item) => [item.profissional_id, item])
       )
     }
   }
 
   const profissionaisPorAtendimento = new Map<number, any[]>()
 
-  if (profissionaisRelacionados) {
-    profissionaisRelacionados.forEach((relacao) => {
+  if (profissionaisRelacionadosData.length > 0) {
+    profissionaisRelacionadosData.forEach((relacao) => {
       const atual = profissionaisPorAtendimento.get(relacao.atendimento_id) || []
       const info = profissionaisViewMap.get(relacao.profissional_id as number)
 
@@ -121,8 +139,10 @@ export default defineEventHandler(async (event) => {
 
   const plantasPorAtendimento = new Map<number, any[]>()
 
-  if (plantasRelacionadas) {
-    plantasRelacionadas.forEach((planta) => {
+  const plantasRelacionadasData = (plantasRelacionadas ?? []) as AtendimentoPlanta[]
+
+  if (plantasRelacionadasData.length > 0) {
+    plantasRelacionadasData.forEach((planta) => {
       const atual = plantasPorAtendimento.get(planta.atendimento_id) || []
       atual.push({
         id: planta.afaas_plantas_medicinais?.id,

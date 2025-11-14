@@ -1,3 +1,5 @@
+import type { Tables } from '~/types/database.types'
+
 /**
  * Composable para funcionalidades de relatórios
  * Centraliza lógica de busca e cálculo de estatísticas para relatórios
@@ -36,6 +38,182 @@ export function useRelatorios() {
         totalProfissionais: 0,
         totalPlantas: 0
       }
+    }
+  }
+
+  /**
+   * Busca clientes e agrega dados de atendimentos para o relatório
+   */
+  const buscarClientesRelatorio = async () => {
+    type ClienteRow = Pick<
+      Tables<'afaas_clientes'>,
+      'id' | 'nome_completo' | 'cpf' | 'cidade' | 'estado' | 'created_at' | 'telefone'
+    >
+    type AtendimentoRow = Pick<Tables<'afaas_atendimentos'>, 'id' | 'cliente_id' | 'created_at'>
+    type ClienteRelatorio = ClienteRow & {
+      totalAtendimentos: number
+      ultimoAtendimento: string | null
+    }
+
+    try {
+      const [clientesRes, atendimentosRes] = await Promise.all([
+        supabase
+          .from('afaas_clientes')
+          .select('id, nome_completo, cpf, cidade, estado, created_at, telefone')
+          .order('nome_completo', { ascending: true }),
+        supabase
+          .from('afaas_atendimentos')
+          .select('id, cliente_id, created_at')
+      ])
+
+      if (clientesRes.error) {
+        throw clientesRes.error
+      }
+
+      if (atendimentosRes.error) {
+        throw atendimentosRes.error
+      }
+
+      const clientesData = (clientesRes.data ?? []) as ClienteRow[]
+      const atendimentosData = (atendimentosRes.data ?? []) as AtendimentoRow[]
+
+      const contador = new Map<number, { total: number; ultimo: string | null }>()
+
+      atendimentosData.forEach(atendimento => {
+        if (typeof atendimento.cliente_id !== 'number') {
+          return
+        }
+
+        const agregado = contador.get(atendimento.cliente_id) || { total: 0, ultimo: null }
+        agregado.total += 1
+
+        if (!agregado.ultimo || new Date(atendimento.created_at) > new Date(agregado.ultimo)) {
+          agregado.ultimo = atendimento.created_at
+        }
+
+        contador.set(atendimento.cliente_id, agregado)
+      })
+
+      return clientesData.map<ClienteRelatorio>(cliente => {
+        const agregado = contador.get(cliente.id) || { total: 0, ultimo: null }
+        return {
+          ...cliente,
+          totalAtendimentos: agregado.total,
+          ultimoAtendimento: agregado.ultimo
+        }
+      })
+    } catch (error) {
+      console.error('Erro ao buscar clientes para relatório:', error)
+      return []
+    }
+  }
+
+  /**
+   * Calcula estatísticas gerais dos clientes
+   */
+  const calcularEstatisticasClientes = (
+    clientes: Array<
+      Partial<Tables<'afaas_clientes'>> & {
+        created_at?: string | null
+        totalAtendimentos?: number
+        ultimoAtendimento?: string | null
+      }
+    >
+  ) => {
+    const totalClientes = clientes.length
+    const agora = new Date()
+    const trintaDiasAtras = new Date(agora)
+    trintaDiasAtras.setDate(agora.getDate() - 30)
+
+    const clientesComAtendimentos = clientes.filter(cliente => (cliente.totalAtendimentos ?? 0) > 0).length
+    const clientesSemAtendimento = totalClientes - clientesComAtendimentos
+    const clientesNovosUltimos30Dias = clientes.filter(cliente => {
+      if (!cliente.created_at) return false
+      return new Date(cliente.created_at) >= trintaDiasAtras
+    }).length
+
+    const totalAtendimentos = clientes.reduce(
+      (acumulado, cliente) => acumulado + (cliente.totalAtendimentos ?? 0),
+      0
+    )
+
+    const mediaAtendimentosPorCliente = totalClientes > 0
+      ? Number((totalAtendimentos / totalClientes).toFixed(1))
+      : 0
+
+    return {
+      totalClientes,
+      clientesComAtendimentos,
+      clientesSemAtendimento,
+      clientesNovosUltimos30Dias,
+      mediaAtendimentosPorCliente
+    }
+  }
+
+  /**
+   * Busca plantas cadastradas e dados auxiliares para o relatório
+   */
+  const buscarPlantasRelatorio = async () => {
+    type PlantaRow = Tables<'afaas_plantas_medicinais'>
+
+    try {
+      const { data, error } = await supabase
+        .from('afaas_plantas_medicinais')
+        .select(
+          'id, created_at, nome_popular, nome_cientifico, partes_usadas, sabor_propriedade, meridianos, acao_terapeutica, indicacoes, contraindicacoes, renisus'
+        )
+        .is('deleted_at', null)
+        .order('nome_popular', { ascending: true })
+
+      if (error) {
+        throw error
+      }
+
+      return (data ?? []) as PlantaRow[]
+    } catch (error) {
+      console.error('Erro ao buscar plantas para relatório:', error)
+      return []
+    }
+  }
+
+  /**
+   * Calcula estatísticas gerais das plantas cadastradas
+   */
+  const calcularEstatisticasPlantas = (plantas: Array<Partial<Tables<'afaas_plantas_medicinais'>>>) => {
+    const totalPlantas = plantas.length
+    const plantasRenisus = plantas.filter(planta => planta.renisus === true).length
+    const plantasComIndicacoes = plantas.filter(planta => (planta.indicacoes ?? '').toString().trim().length > 0).length
+    const plantasComContraindicacoes = plantas.filter(planta => (planta.contraindicacoes ?? '').toString().trim().length > 0).length
+
+    const conjuntoPartes = new Set<string>()
+    plantas.forEach(planta => {
+      if (Array.isArray(planta.partes_usadas)) {
+        planta.partes_usadas.forEach(parte => {
+          if (parte) {
+            conjuntoPartes.add(parte)
+          }
+        })
+      }
+    })
+
+    const agora = new Date()
+    const trintaDiasAtras = new Date(agora)
+    trintaDiasAtras.setDate(agora.getDate() - 30)
+
+    const plantasRecentes = plantas.filter(planta => {
+      if (!planta.created_at) {
+        return false
+      }
+      return new Date(planta.created_at) >= trintaDiasAtras
+    }).length
+
+    return {
+      totalPlantas,
+      plantasRenisus,
+      plantasComIndicacoes,
+      plantasComContraindicacoes,
+      totalPartesCatalogadas: conjuntoPartes.size,
+      plantasNovasUltimos30Dias: plantasRecentes
     }
   }
 
@@ -270,14 +448,18 @@ export function useRelatorios() {
 
   return {
     buscarEstatisticasGerais,
+    buscarClientesRelatorio,
+    calcularEstatisticasClientes,
+    buscarPlantasRelatorio,
+    calcularEstatisticasPlantas,
     buscarAtendimentosCompletos,
-  calcularEstatisticasAtendimentos,
-  obterProfissionalPorFuncao,
-  obterProfissionalPrincipal,
-  obterProfissionalAuxiliar,
-  obterEspecialidadePorFuncao,
-  obterEspecialidadePrincipal,
-  obterEspecialidadeAuxiliar,
+    calcularEstatisticasAtendimentos,
+    obterProfissionalPorFuncao,
+    obterProfissionalPrincipal,
+    obterProfissionalAuxiliar,
+    obterEspecialidadePorFuncao,
+    obterEspecialidadePrincipal,
+    obterEspecialidadeAuxiliar,
     formatarData,
     filtrarAtendimentosPorBusca,
     filtrarAtendimentosPorMes,

@@ -200,7 +200,7 @@
                 </div>
               </div>
               <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregandoAtendimentos" class="inline-block animate-pulse">...</span>
+                <span v-if="carregando" class="inline-block animate-pulse">...</span>
                 <span v-else>{{ quantidadeAtendimentos }}</span>
               </p>
               <p class="text-xs text-neutral-500 mt-1">atendimentos realizados</p>
@@ -215,7 +215,7 @@
                 </div>
               </div>
               <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregandoClientes" class="inline-block animate-pulse">...</span>
+                <span v-if="carregando" class="inline-block animate-pulse">...</span>
                 <span v-else>{{ quantidadeClientes }}</span>
               </p>
               <p class="text-xs text-neutral-500 mt-1">clientes cadastrados</p>
@@ -230,7 +230,7 @@
                 </div>
               </div>
               <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregandoProfissionais" class="inline-block animate-pulse">...</span>
+                <span v-if="carregando" class="inline-block animate-pulse">...</span>
                 <span v-else>{{ quantidadeProfissionais }}</span>
               </p>
               <p class="text-xs text-neutral-500 mt-1">profissionais ativos</p>
@@ -245,7 +245,7 @@
                 </div>
               </div>
               <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregandoPlantas" class="inline-block animate-pulse">...</span>
+                <span v-if="carregando" class="inline-block animate-pulse">...</span>
                 <span v-else>{{ quantidadePlantas }}</span>
               </p>
               <p class="text-xs text-neutral-500 mt-1">plantas medicinais no sistema</p>
@@ -284,89 +284,38 @@ useHead({
 const router = useRouter()
 
 // Composables
-const { buscarPlantas } = usePlantas()
-const { buscarProfissionais, buscarClientes } = useProfissionais()
-const { contarAtendimentos } = useAtendimentos()
+const { buscarEstatisticasGerais } = useRelatorios()
 
 // Estados reativos
+const carregando = ref(false)
 const quantidadePlantas = ref(0)
-const carregandoPlantas = ref(false)
 const quantidadeProfissionais = ref(0)
-const carregandoProfissionais = ref(false)
 const quantidadeClientes = ref(0)
-const carregandoClientes = ref(false)
 const quantidadeAtendimentos = ref(0)
-const carregandoAtendimentos = ref(false)
 
 // Função para navegar para relatórios específicos
 const navegarParaRelatorio = (tipo: string) => {
-  // Navegação para páginas de relatórios específicas
   router.push(`/relatorios-${tipo}`)
 }
 
-// Buscar quantidade de plantas
-const buscarQuantidadePlantas = async () => {
-  carregandoPlantas.value = true
+// Buscar todas as estatísticas de uma vez
+const buscarEstatisticas = async () => {
+  carregando.value = true
   try {
-    const resultado = await buscarPlantas()
-    if (resultado.success && resultado.data) {
-      quantidadePlantas.value = resultado.data.length
-    }
+    const stats = await buscarEstatisticasGerais()
+    quantidadeAtendimentos.value = stats.totalAtendimentos
+    quantidadeClientes.value = stats.totalClientes
+    quantidadeProfissionais.value = stats.totalProfissionais
+    quantidadePlantas.value = stats.totalPlantas
   } catch (error) {
-    console.error('Erro ao buscar quantidade de plantas:', error)
+    console.error('Erro ao buscar estatísticas:', error)
   } finally {
-    carregandoPlantas.value = false
-  }
-}
-
-// Buscar quantidade de profissionais
-const buscarQuantidadeProfissionais = async () => {
-  carregandoProfissionais.value = true
-  try {
-    const resultado = await buscarProfissionais()
-    if (resultado.success && resultado.data) {
-      quantidadeProfissionais.value = resultado.data.length
-    }
-  } catch (error) {
-    console.error('Erro ao buscar quantidade de profissionais:', error)
-  } finally {
-    carregandoProfissionais.value = false
-  }
-}
-
-// Buscar quantidade de clientes
-const buscarQuantidadeClientes = async () => {
-  carregandoClientes.value = true
-  try {
-    const resultado = await buscarClientes()
-    if (resultado.success && resultado.data) {
-      quantidadeClientes.value = resultado.data.length
-    }
-  } catch (error) {
-    console.error('Erro ao buscar quantidade de clientes:', error)
-  } finally {
-    carregandoClientes.value = false
-  }
-}
-
-// Buscar quantidade de atendimentos
-const buscarQuantidadeAtendimentos = async () => {
-  carregandoAtendimentos.value = true
-  try {
-    const count = await contarAtendimentos()
-    quantidadeAtendimentos.value = count
-  } catch (error) {
-    console.error('Erro ao buscar quantidade de atendimentos:', error)
-  } finally {
-    carregandoAtendimentos.value = false
+    carregando.value = false
   }
 }
 
 // Buscar dados ao montar o componente
 onMounted(() => {
-  buscarQuantidadePlantas()
-  buscarQuantidadeProfissionais()
-  buscarQuantidadeClientes()
-  buscarQuantidadeAtendimentos()
+  buscarEstatisticas()
 })
 </script>

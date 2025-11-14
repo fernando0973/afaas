@@ -257,7 +257,16 @@ useHead({
 })
 
 const router = useRouter()
-const supabase = useSupabaseClient()
+
+// Composables
+const { 
+  buscarAtendimentosCompletos,
+  calcularEstatisticasAtendimentos,
+  obterProfissionalPrincipal,
+  obterEspecialidadePrincipal,
+  formatarData,
+  filtrarAtendimentos
+} = useRelatorios()
 
 // Estados reativos
 const termoBusca = ref('')
@@ -272,60 +281,25 @@ const atendimentos = ref<any[]>([])
 
 // Estatísticas
 const estatisticas = reactive({
-  total: 1234,
-  esteMes: 87,
-  crescimento: 12,
-  mediaDiaria: 8,
-  clientesUnicos: 456
+  total: 0,
+  esteMes: 0,
+  crescimento: 0,
+  mediaDiaria: 0,
+  clientesUnicos: 0
 })
 
 // Computed
 const atendimentosFiltrados = computed(() => {
-  let resultado = atendimentos.value
-
-  // Filtro por busca
-  if (termoBusca.value) {
-    const termo = termoBusca.value.toLowerCase()
-    resultado = resultado.filter((a: any) => 
-      a.cliente?.nome_completo?.toLowerCase().includes(termo) ||
-      a.profissional?.nome?.toLowerCase().includes(termo) ||
-      a.id.toString().includes(termo)
-    )
-  }
-
-  // Filtro por mês
-  if (filtroMes.value) {
-    resultado = resultado.filter((a: any) => {
-      const mes = new Date(a.created_at).getMonth() + 1
-      return mes.toString().padStart(2, '0') === filtroMes.value
-    })
-  }
-
-  // Filtro por ano
-  if (filtroAno.value) {
-    resultado = resultado.filter((a: any) => {
-      const ano = new Date(a.created_at).getFullYear()
-      return ano.toString() === filtroAno.value
-    })
-  }
-
-  return resultado
+  return filtrarAtendimentos(atendimentos.value, {
+    busca: termoBusca.value,
+    mes: filtroMes.value,
+    ano: filtroAno.value
+  })
 })
 
 // Funções
 const voltarParaRelatorios = () => {
   router.push('/relatorios')
-}
-
-const formatarData = (data: string) => {
-  const date = new Date(data)
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 const visualizarDetalhes = (id: number) => {
@@ -338,138 +312,21 @@ const exportarRelatorio = () => {
   // Implementar exportação para PDF/Excel
 }
 
-// Função para obter profissional principal
-const obterProfissionalPrincipal = (atendimento: any) => {
-  // Se houver array de profissionais, pegar o primeiro (principal)
-  if (atendimento.profissionais && atendimento.profissionais.length > 0) {
-    return atendimento.profissionais[0].nome || 'N/A'
-  }
-  // Fallback para estrutura antiga
-  return atendimento.profissional?.nome || 'N/A'
-}
-
-// Função para obter especialidade principal
-const obterEspecialidadePrincipal = (atendimento: any) => {
-  // Se houver array de profissionais, pegar a especialidade do primeiro
-  if (atendimento.profissionais && atendimento.profissionais.length > 0) {
-    return atendimento.profissionais[0].especialidade || 'N/A'
-  }
-  // Fallback para estrutura antiga
-  return atendimento.profissional?.especialidade || 'N/A'
-}
-
 // Buscar atendimentos do banco
 const buscarAtendimentos = async () => {
   carregando.value = true
   try {
-    // Buscar atendimentos básicos com clientes
-    const { data, error } = await supabase
-      .from('afaas_atendimentos')
-      .select(`
-        *,
-        cliente:afaas_clientes(*)
-      `)
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Erro ao buscar atendimentos:', error)
-      return
-    }
-
-    if (!data || data.length === 0) {
-      atendimentos.value = []
-      return
-    }
-
-    // Para cada atendimento, buscar profissionais e plantas
-    const atendimentosCompletos = await Promise.all(
-      data.map(async (atendimento: any) => {
-        // Buscar profissionais
-        const { data: profissionaisData } = await supabase
-          .from('afaas_atendimento_profissionais')
-          .select(`
-            id,
-            funcao,
-            afaas_profissionais(
-              id,
-              afaas_profiles(nome),
-              afaas_especialidades(especialidade)
-            )
-          `)
-          .eq('atendimento_id', atendimento.id)
-          .order('funcao', { ascending: true }) // Principal primeiro
-
-        // Buscar plantas
-        const { data: plantasData } = await supabase
-          .from('afaas_atendimento_plantas')
-          .select(`
-            id,
-            afaas_plantas_medicinais(
-              id,
-              nome_popular
-            )
-          `)
-          .eq('atendimento_id', atendimento.id)
-
-        return {
-          ...atendimento,
-          profissionais: (profissionaisData || []).map((ap: any) => ({
-            id: ap.afaas_profissionais?.id,
-            nome: ap.afaas_profissionais?.afaas_profiles?.nome || 'Nome não disponível',
-            especialidade: ap.afaas_profissionais?.afaas_especialidades?.especialidade || 'Especialidade não disponível',
-            funcao: ap.funcao
-          })),
-          plantas: (plantasData || []).map((ap: any) => ({
-            id: ap.afaas_plantas_medicinais?.id,
-            nome_popular: ap.afaas_plantas_medicinais?.nome_popular || ''
-          }))
-        }
-      })
-    )
-
-    atendimentos.value = atendimentosCompletos
+    const dados = await buscarAtendimentosCompletos()
+    atendimentos.value = dados
     
     // Atualizar estatísticas
-    calcularEstatisticas()
+    const stats = calcularEstatisticasAtendimentos(dados)
+    Object.assign(estatisticas, stats)
   } catch (error) {
     console.error('Erro ao buscar atendimentos:', error)
   } finally {
     carregando.value = false
   }
-}
-
-// Calcular estatísticas
-const calcularEstatisticas = () => {
-  estatisticas.total = atendimentos.value.length
-  
-  const hoje = new Date()
-  const mesAtual = hoje.getMonth()
-  const anoAtual = hoje.getFullYear()
-  
-  const atendimentosMesAtual = atendimentos.value.filter((a: any) => {
-    const data = new Date(a.created_at)
-    return data.getMonth() === mesAtual && data.getFullYear() === anoAtual
-  })
-  
-  estatisticas.esteMes = atendimentosMesAtual.length
-  
-  // Calcular média diária (últimos 30 dias)
-  const trintaDiasAtras = new Date()
-  trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30)
-  
-  const atendimentosUltimos30Dias = atendimentos.value.filter((a: any) => {
-    const data = new Date(a.created_at)
-    return data >= trintaDiasAtras
-  })
-  
-  estatisticas.mediaDiaria = Math.round(atendimentosUltimos30Dias.length / 30)
-  
-  // Clientes únicos
-  const clientesUnicos = new Set(atendimentos.value.map((a: any) => a.cliente_id))
-  estatisticas.clientesUnicos = clientesUnicos.size
-  
-  // Calcular crescimento (simplificado)
-  estatisticas.crescimento = 12
 }
 
 // Buscar dados ao montar

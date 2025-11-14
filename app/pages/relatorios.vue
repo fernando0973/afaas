@@ -59,7 +59,6 @@ import {
   UserGroupIcon,
   BeakerIcon,
   AcademicCapIcon,
-  CurrencyDollarIcon,
   ChartBarIcon
 } from '@heroicons/vue/24/solid'
 import { computed, type Component } from 'vue'
@@ -160,16 +159,6 @@ const relatoriosCards: RelatorioCardConfig[] = [
     ctaColorClass: 'text-indigo-600',
     ctaHoverClass: 'group-hover:text-indigo-700',
     route: 'especialidades'
-  },
-  {
-    title: 'Financeiro',
-    description: 'Visão geral financeira, receitas, despesas, faturamento por período e análise de crescimento da instituição.',
-    icon: CurrencyDollarIcon,
-    iconBgClass: 'bg-gradient-to-br from-amber-500 to-amber-600',
-    borderHoverClass: 'hover:border-amber-300',
-    ctaColorClass: 'text-amber-600',
-    ctaHoverClass: 'group-hover:text-amber-700',
-    route: 'financeiro'
   }
 ]
 

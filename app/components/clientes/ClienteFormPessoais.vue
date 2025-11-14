@@ -210,13 +210,13 @@ interface Props {
   errors: ClienteFormErrors
 }
 
-defineProps<Props>()
-
 const emit = defineEmits<{
   'update:modelValue': [value: ClienteFormData]
   'blur': [field: keyof ClienteFormData]
   'clearError': [field: keyof ClienteFormData]
 }>()
+
+const props = defineProps<Props>()
 
 const updateField = (field: keyof ClienteFormData, value: any) => {
   emit('update:modelValue', { ...props.modelValue, [field]: value } as ClienteFormData)
@@ -229,6 +229,4 @@ const handleCPFInput = (value: string) => {
 const handleTelefoneInput = (value: string) => {
   updateField('telefone', formatTelefone(value))
 }
-
-const props = defineProps<Props>()
 </script>

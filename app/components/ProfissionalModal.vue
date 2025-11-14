@@ -10,7 +10,7 @@
     :confirm-disabled="!isFormValid"
     :loading="props.carregando"
   >
-    <form @submit.prevent="handleSave" class="space-y-6">
+    <form class="space-y-6">
       <!-- Dropdown para Perfil/Usuário -->
       <div class="space-y-2">
         <label class="block text-sm font-medium text-neutral-700">
@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { InformationCircleIcon } from '@heroicons/vue/24/outline'
-import { useToastNotification as useToast } from '~/composables/useToastNotification'
+import { useToastNotification } from '~/composables/useToastNotification'
 import type { Especialidade } from '~/types/especialidade'
 import type { PerfilRPC } from '~/types/database.types'
 import type { ProfissionalRPC } from '~/types/user'
@@ -104,7 +104,7 @@ const emit = defineEmits<{
 
 // Composables
 const { editarProfissional } = useProfissionais()
-const toast = useToast()
+const toast = useToastNotification()
 
 // Estado do formulário
 const form = ref({
@@ -164,6 +164,10 @@ const resetForm = () => {
 }
 
 const handleSave = async () => {
+  console.log('handleSave chamada no ProfissionalModal')
+  console.log('Validação do formulário:', validateForm())
+  console.log('Valores do formulário:', form.value)
+  
   if (!validateForm()) return
 
   const perfil_id = parseInt(form.value.perfil_id)

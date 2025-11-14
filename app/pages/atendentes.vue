@@ -1,59 +1,35 @@
 <template>
-  <div class="h-[95dvh] flex flex-col bg-neutral-50">
-    <!-- Cabeçalho da página -->
-    <header class="bg-white border-b border-neutral-200 px-6 py-4 flex-shrink-0">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-neutral-900">Profissionais</h1>
-          <p class="text-sm text-neutral-600 mt-1">
-            Gerencie os profissionais e suas especialidades
-          </p>
-        </div>
-        
-        <div class="flex items-center space-x-3">
-          <BaseButton 
-            variant="outline"
-            @click="filtrarProfissionais"
-          >
-            <template #iconLeft>
-              <UserGroupIcon class="w-4 h-4" />
-            </template>
-            Filtrar
-          </BaseButton>
-          <BaseButton 
-            variant="primary"
-            :disabled="!isAdmin || carregandoDados"
+  <div class="container mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Gestão de Profissionais</h1>
+    
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-medium text-gray-900">Lista de Profissionais</h2>
+          <button
             @click="abrirModalCriar"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <template #iconLeft>
-              <PlusIcon class="w-4 h-4" />
-            </template>
-            Novo Profissional
-          </BaseButton>
+            <PlusIcon class="h-5 w-5 mr-2" />
+            Adicionar Profissional
+          </button>
         </div>
       </div>
-    </header>
 
-    <!-- Conteúdo principal -->
-    <main class="flex-1 min-h-0 overflow-hidden p-6">
+      <!-- Tabela de Profissionais -->
       <TabelaProfissionais
-        ref="tabelaRef"
-        :is-admin="isAdmin"
+        :profissionais="profissionais"
+        @visualizar="handleVisualizar"
         @editar="handleEditar"
         @remover="handleRemover"
-        @recarregar="handleRecarregar"
-        @adicionar="handleAdicionar"
       />
-    </main>
+    </div>
 
-    <!-- Modal de confirmação de remoção -->
+    <!-- Modal de Confirmação de Remoção -->
     <BaseConfirmModal
       v-model="showConfirmModal"
-      type="danger"
-      title="Excluir profissional"
-      :message="`Tem certeza que deseja excluir '${profissionalParaRemover?.nome_profissional}'? Esta ação não pode ser desfeita.`"
-      confirm-text="Sim, excluir"
-      cancel-text="Cancelar"
+      title="Confirmar Remoção"
+      message="Tem certeza que deseja remover este profissional? Esta ação não pode ser desfeita."
       @confirm="handleConfirmRemocao"
       @cancel="handleCancelRemocao"
       @close="handleCancelRemocao"
@@ -64,9 +40,8 @@
       v-model="showModal"
       :is-edicao="modalIsEdicao"
       :profissional="profissionalParaEditar"
-      :perfis="perfis"
       :especialidades="especialidades"
-      :carregando="carregandoDados"
+      :perfis="perfis"
       @salvar="aoSalvarProfissional"
       @cancelar="fecharModal"
       @fechar="fecharModal"
@@ -75,109 +50,57 @@
 </template>
 
 <script setup lang="ts">
-import { UserGroupIcon, PlusIcon } from '@heroicons/vue/24/outline'
-import type { ProfissionalRPC } from '~/types/user'
-import type { PerfilRPC } from '~/types/database.types'
-import type { Especialidade } from '~/types/especialidade'
-import { useToastNotification as useToast } from '~/composables/useToastNotification'
+import { ref, onMounted } from 'vue'
+import { PlusIcon } from '@heroicons/vue/24/solid'
 
-// Meta da página
-definePageMeta({
-  title: 'Profissionais',
-  description: 'Gerencie os profissionais e suas especialidades'
-})
+// Tipos
+interface ProfissionalTabela {
+  profissional_id: string
+  nome_profissional: string
+  especialidade: string
+  totalAtendimentos?: number
+}
 
-// Título da página
-useHead({
-  title: 'Profissionais - AFAAS'
-})
-
-// Store do usuário para verificar permissões
-const userStore = useUserStore()
-
-// Hidratação segura para evitar mismatches
-const { safeValue } = useSafeHydration()
+// Estado reativo
+const profissionais = ref<ProfissionalTabela[]>([])
+const showModal = ref(false)
+const showConfirmModal = ref(false)
+const modalIsEdicao = ref(false)
+const profissionalParaEditar = ref<any>(null)
+const profissionalParaRemover = ref<any>(null)
+const especialidades = ref<any[]>([])
+const perfis = ref<any[]>([])
 
 // Composables
-const { buscarPerfis, buscarEspecialidades, removerProfissional, inserirProfissional } = useProfissionais()
+const { buscarProfissionais, buscarEspecialidades, buscarPerfis, inserirProfissional, removerProfissional } = useProfissionais()
+const toast = useToastNotification()
 
-// Referência para o componente da tabela
-const tabelaRef = ref()
-
-// Computed para verificar se é admin (com fallback seguro para SSR)
-const isAdmin = computed(() => safeValue(userStore.isAdmin, false))
-
-// Estados para os dados do modal
-const perfis = ref([] as PerfilRPC[])
-const especialidades = ref([] as Especialidade[])
-const carregandoDados = ref(false)
-
-// Estados do modal de profissional
-const showModal = ref(false)
-const modalIsEdicao = ref(false)
-const profissionalParaEditar = ref<ProfissionalRPC | null>(null)
-
-// Estados do modal de confirmação
-const showConfirmModal = ref(false)
-const profissionalParaRemover = ref<ProfissionalRPC | null>(null)
-
-// Toast
-const toast = useToast()
-
-// Funções para carregar dados
-const carregarPerfis = async () => {
+// Função para carregar profissionais
+const carregarProfissionais = async () => {
   try {
-    const resultado = await buscarPerfis()
-    if (resultado.success) {
-      perfis.value = resultado.data
+    const resultado = await buscarProfissionais()
+
+    if (resultado.success && resultado.data) {
+      // Converter de ProfissionalRPC para ProfissionalTabela
+      const profissionaisConvertidos: ProfissionalTabela[] = resultado.data.map((prof: any) => ({
+        profissional_id: String(prof.id),
+        nome_profissional: prof.nome_profissional || 'Sem nome',
+        especialidade: prof.especialidade || 'Sem especialidade'
+      }))
+
+      profissionais.value = profissionaisConvertidos
     } else {
-      toast.error('Erro ao carregar usuários/perfis')
+      console.error('Erro ao carregar profissionais:', resultado.error)
     }
   } catch (error) {
-    toast.error('Erro ao carregar usuários/perfis')
+    console.error('Erro inesperado ao carregar profissionais:', error)
   }
 }
 
-const carregarEspecialidades = async () => {
-  try {
-    const resultado = await buscarEspecialidades()
-    if (resultado.success) {
-      especialidades.value = resultado.data
-    } else {
-      toast.error('Erro ao carregar especialidades')
-    }
-  } catch (error) {
-    toast.error('Erro ao carregar especialidades')
-  }
-}
-
-const carregarDadosModal = async () => {
-  if (carregandoDados.value) return // Evita múltiplas chamadas simultâneas
-  
-  carregandoDados.value = true
-  try {
-    await Promise.all([
-      carregarPerfis(),
-      carregarEspecialidades()
-    ])
-  } catch (error) {
-    toast.error('Erro ao carregar dados necessários')
-  } finally {
-    carregandoDados.value = false
-  }
-}
-
-// Funções do modal de profissional
+// Funções do modal
 const abrirModalCriar = async () => {
   modalIsEdicao.value = false
   profissionalParaEditar.value = null
-  await carregarDadosModal()
-  showModal.value = true
-}
-
-const abrirModalEditar = async (profissional: ProfissionalRPC) => {
-  modalIsEdicao.value = true
-  profissionalParaEditar.value = profissional
   await carregarDadosModal()
   showModal.value = true
 }
@@ -186,42 +109,38 @@ const fecharModal = () => {
   showModal.value = false
   modalIsEdicao.value = false
   profissionalParaEditar.value = null
-  perfis.value = []
-  especialidades.value = []
 }
 
-const aoSalvarProfissional = async (dadosProfissional: any) => {
-  
+const carregarDadosModal = async () => {
+  // Carregar especialidades e perfis para o modal
   try {
-    const resultado = await inserirProfissional(dadosProfissional.profile_id, dadosProfissional.especialidade_id)
+    const [resultEsp, resultPerfis] = await Promise.all([
+      buscarEspecialidades(),
+      buscarPerfis()
+    ])
     
-    if (resultado.success) {
-      toast.success(resultado.message)
-      fecharModal()
-      
-      // Recarregar a tabela de profissionais
-      if (tabelaRef.value && typeof tabelaRef.value.recarregarDados === 'function') {
-        await tabelaRef.value.recarregarDados()
-      }
-    } else {
-      toast.error(resultado.message || 'Erro ao adicionar profissional')
-    }
-  } catch (error: any) {
-    toast.error('Erro interno ao adicionar profissional')
+    if (resultEsp.success) especialidades.value = resultEsp.data
+    if (resultPerfis.success) perfis.value = resultPerfis.data
+  } catch (error) {
+    console.error('Erro ao carregar dados do modal:', error)
   }
 }
 
-// Handlers para os eventos da tabela
-const handleEditar = (profissional: ProfissionalRPC) => {
-  abrirModalEditar(profissional)
+// Handlers da tabela
+const handleVisualizar = (profissional: any) => {
+  toast.info('Funcionalidade de visualização em desenvolvimento')
 }
 
-const handleRemover = (profissional: ProfissionalRPC) => {
+const handleEditar = (profissional: any) => {
+  toast.info('Funcionalidade de edição em desenvolvimento')
+}
+
+const handleRemover = (profissional: any) => {
   profissionalParaRemover.value = profissional
   showConfirmModal.value = true
 }
 
-// Handler para confirmação de remoção
+// Confirmação de remoção
 const handleConfirmRemocao = async () => {
   if (!profissionalParaRemover.value) return
 
@@ -230,48 +149,46 @@ const handleConfirmRemocao = async () => {
     
     if (resultado.success) {
       toast.success(resultado.message)
-      
-      // Recarregar a tabela
-      if (tabelaRef.value && typeof tabelaRef.value.recarregarDados === 'function') {
-        await tabelaRef.value.recarregarDados()
-      }
+      await carregarProfissionais()
     } else {
       toast.error(resultado.message)
     }
   } catch (error) {
     toast.error('Erro inesperado ao remover profissional')
   } finally {
-    // Fechar modal e limpar estado
     showConfirmModal.value = false
     profissionalParaRemover.value = null
   }
 }
 
-// Handler para cancelar remoção
 const handleCancelRemocao = () => {
   showConfirmModal.value = false
   profissionalParaRemover.value = null
 }
 
-const handleRecarregar = () => {
-  // TODO: Implementar feedback de sucesso se necessário
+// Salvar profissional
+const aoSalvarProfissional = async (dadosProfissional: any) => {
+  console.log('aoSalvarProfissional chamada com:', dadosProfissional)
+  try {
+    const resultado = await inserirProfissional(dadosProfissional.profile_id, dadosProfissional.especialidade_id)
+    console.log('Resultado inserirProfissional:', resultado)
+    
+    if (resultado.success) {
+      toast.success(resultado.message)
+      fecharModal()
+      await carregarProfissionais()
+    } else {
+      console.log('Erro - success é false:', resultado)
+      toast.error(resultado.message || 'Erro ao adicionar profissional')
+    }
+  } catch (error: any) {
+    console.log('Erro capturado no catch:', error)
+    toast.error('Erro interno ao adicionar profissional')
+  }
 }
 
-const handleAdicionar = () => {
-  abrirModalCriar()
-}
-
-// Handlers para os botões do cabeçalho
-const filtrarProfissionais = () => {
-  // TODO: Implementar filtros
-  toast.info('Funcionalidade de filtro em desenvolvimento')
-}
-
-const adicionarProfissional = () => {
-  // TODO: Implementar modal de adição
-  toast.info('Funcionalidade de adição em desenvolvimento')
-}
-
-// Perfil do usuário já carregado pelo plugin auth.client.ts
-// Removido userStore.fetchProfile() duplicado
+// Carregar dados ao montar
+onMounted(() => {
+  carregarProfissionais()
+})
 </script>

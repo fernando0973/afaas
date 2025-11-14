@@ -108,10 +108,13 @@ interface ProfissionalTabela {
   totalAtendimentos?: number
 }
 
-defineProps<{
+withDefaults(defineProps<{
   profissionais: ProfissionalTabela[]
   carregando?: boolean
-}>()
+}>(), {
+  profissionais: () => [],
+  carregando: false
+})
 
 defineEmits<{
   visualizar: [profissionalId: string]

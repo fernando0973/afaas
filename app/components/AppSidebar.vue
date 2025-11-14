@@ -118,20 +118,24 @@
         />
       </ClientOnly>
       
+      <!-- Configurações - Desabilitado -->
       <SidebarMenuItem 
         icon="Cog6ToothIcon"
         :label="isCollapsed ? '' : 'Configurações'"
-        :active="$route.path === '/configuracoes'"
+        :active="false"
         :collapsed="isCollapsed"
-        @click="navigateTo('/configuracoes')"
+        :disabled="true"
+        @click="showDisabledMessage('Configurações')"
       />
       
+      <!-- Ajuda - Desabilitado -->
       <SidebarMenuItem 
         icon="QuestionMarkCircleIcon"
         :label="isCollapsed ? '' : 'Ajuda'"
-        :active="$route.path === '/ajuda'"
+        :active="false"
         :collapsed="isCollapsed"
-        @click="navigateTo('/ajuda')"
+        :disabled="true"
+        @click="showDisabledMessage('Ajuda')"
       />
     </nav>
 
@@ -222,6 +226,42 @@
         </div>
       </div>
     </ClientOnly>
+    
+    <!-- Alerta de funcionalidade desabilitada -->
+    <ClientOnly>
+      <div v-if="showDisabledAlert" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="showDisabledAlert = false">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 shadow-xl" @click.stop>
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-neutral-900">Funcionalidade em Desenvolvimento</h3>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <p class="text-neutral-700">
+              A seção <strong>{{ disabledFeatureName }}</strong> ainda não está disponível.
+            </p>
+            <p class="text-neutral-600 mt-2 text-sm">
+              Esta funcionalidade será desenvolvida em uma versão futura do sistema.
+            </p>
+          </div>
+          
+          <div class="flex justify-end">
+            <button 
+              @click="showDisabledAlert = false"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+    </ClientOnly>
   </aside>
 </template>
 
@@ -232,14 +272,14 @@ import {
   UsersIcon,
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
-  Cog6ToothIcon,
-  QuestionMarkCircleIcon,
   UserIcon,
   ArrowRightOnRectangleIcon,
   ChevronLeftIcon,
   PencilIcon,
   ShieldCheckIcon,
-  AcademicCapIcon
+  AcademicCapIcon,
+  Cog6ToothIcon,
+  QuestionMarkCircleIcon
 // @ts-ignore
 } from '@heroicons/vue/24/outline'
 import { IconLeaf } from '@tabler/icons-vue'
@@ -255,6 +295,10 @@ const newDisplayName = ref('')
 
 // Estado do dropdown de configurações - inicialização segura para SSR
 const showConfigDropdown = ref(false)
+
+// Estado da mensagem de funcionalidade desabilitada
+const showDisabledAlert = ref(false)
+const disabledFeatureName = ref('')
 
 // Função para alternar o estado do sidebar
 const toggleSidebar = () => {
@@ -402,5 +446,16 @@ const handleDropdownItemClick = (item: DropdownItem) => {
     item.action()
   }
   closeDropdown()
+}
+
+// Função para mostrar mensagem de funcionalidade desabilitada
+const showDisabledMessage = (featureName: string) => {
+  disabledFeatureName.value = featureName
+  showDisabledAlert.value = true
+  
+  // Auto-fechar após 3 segundos
+  setTimeout(() => {
+    showDisabledAlert.value = false
+  }, 3000)
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[95dvh] flex flex-col bg-neutral-50">
+  <div class="flex flex-col min-h-0 flex-1 bg-neutral-50">
     <!-- Cabeçalho -->
     <header class="bg-white border-b border-neutral-200 px-6 py-6 flex-shrink-0">
       <div class="max-w-7xl mx-auto">
@@ -69,184 +69,81 @@
         
         <!-- Cards de Estatísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Total de Profissionais</span>
-              <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <UserGroupIcon class="w-5 h-5 text-blue-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">
-              <span v-if="carregando" class="animate-pulse">...</span>
-              <span v-else>{{ estatisticas.total }}</span>
-            </p>
-            <p class="text-xs text-neutral-500 mt-1">profissionais cadastrados</p>
-          </div>
+          <RelatorioEstatisticaCard
+            title="Total de Profissionais"
+            :value="estatisticas.total"
+            description="profissionais cadastrados"
+            :icon="UserGroupIcon"
+            icon-bg-class="bg-blue-100"
+            icon-color-class="text-blue-600"
+            :loading="carregando"
+          />
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Especialidades</span>
-              <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <AcademicCapIcon class="w-5 h-5 text-green-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">
-              <span v-if="carregando" class="animate-pulse">...</span>
-              <span v-else>{{ estatisticas.totalEspecialidades }}</span>
-            </p>
-            <p class="text-xs text-neutral-500 mt-1">diferentes especialidades</p>
-          </div>
+          <RelatorioEstatisticaCard
+            title="Especialidades"
+            :value="estatisticas.totalEspecialidades"
+            description="diferentes especialidades"
+            :icon="AcademicCapIcon"
+            icon-bg-class="bg-green-100"
+            icon-color-class="text-green-600"
+            :loading="carregando"
+          />
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Especialidade Mais Comum</span>
-              <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ChartBarIcon class="w-5 h-5 text-purple-600" />
-              </div>
-            </div>
-            <p class="text-xl font-bold text-neutral-900">
-              <span v-if="carregando" class="animate-pulse">...</span>
-              <span v-else class="text-base">{{ estatisticas.especialidadeMaisComum || 'N/A' }}</span>
-            </p>
-            <p class="text-xs text-neutral-500 mt-1">{{ estatisticas.quantidadeEspecialidadeMaisComum }} profissional(is)</p>
-          </div>
+          <RelatorioEstatisticaCard
+            title="Especialidade Mais Comum"
+            :value="estatisticas.especialidadeMaisComum || 'N/A'"
+            :description="`${estatisticas.quantidadeEspecialidadeMaisComum} profissional(is)`"
+            :icon="ChartBarIcon"
+            icon-bg-class="bg-purple-100"
+            icon-color-class="text-purple-600"
+            value-class="text-xl"
+            :loading="carregando"
+          />
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Profissionais Ativos</span>
-              <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                <ClipboardDocumentCheckIcon class="w-5 h-5 text-amber-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">
-              <span v-if="carregando" class="animate-pulse">...</span>
-              <span v-else>{{ estatisticas.comAtendimentos }}</span>
-            </p>
-            <p class="text-xs text-neutral-500 mt-1">com atendimentos realizados</p>
-          </div>
+          <RelatorioEstatisticaCard
+            title="Profissionais Ativos"
+            :value="estatisticas.comAtendimentos"
+            description="com atendimentos realizados"
+            :icon="ClipboardDocumentCheckIcon"
+            icon-bg-class="bg-amber-100"
+            icon-color-class="text-amber-600"
+            :loading="carregando"
+          />
         </div>
 
         <!-- Tabela de Profissionais -->
-        <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-neutral-200">
-              <thead class="bg-neutral-50">
-                <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Profissional
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Especialidade
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Atendimentos
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-neutral-200">
-                <tr 
-                  v-for="profissional in profissionaisFiltrados" 
-                  :key="profissional.profissional_id"
-                  class="hover:bg-neutral-50 transition-colors"
-                >
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <span class="text-sm font-medium text-indigo-600">
-                            {{ profissional.nome_profissional?.charAt(0)?.toUpperCase() || '?' }}
-                          </span>
-                        </div>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-neutral-900">
-                          {{ profissional.nome_profissional || 'Nome não disponível' }}
-                        </div>
-                        <div class="text-sm text-neutral-500">
-                          Profissional
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {{ profissional.especialidade }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Ativo
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                      {{ profissional.totalAtendimentos || 0 }} atendimento(s)
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      @click="visualizarDetalhes(profissional.profissional_id)"
-                      class="text-blue-600 hover:text-blue-900 transition-colors"
-                    >
-                      Ver detalhes
-                    </button>
-                  </td>
-                </tr>
+        <TabelaProfissionaisRelatorio
+          :profissionais-paginados="isSafeToShow ? profissionaisPaginados : []"
+          :total-profissionais="profissionaisFiltrados.length"
+          :carregando="carregando"
+          :pagina-atual="paginaAtual"
+          :total-paginas="totalPaginas"
+          @visualizar-detalhes="visualizarDetalhes"
+          @pagina-anterior="paginaAtual--"
+          @pagina-posterior="paginaAtual++"
+        />
 
-                <!-- Estado vazio -->
-                <tr v-if="profissionaisFiltrados.length === 0 && !carregando">
-                  <td colspan="5" class="px-6 py-12 text-center">
-                    <div class="flex flex-col items-center justify-center text-neutral-400">
-                      <UserGroupIcon class="w-12 h-12 mb-3" />
-                      <p class="text-sm font-medium">Nenhum profissional encontrado</p>
-                      <p class="text-xs mt-1">Tente ajustar os filtros de busca</p>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Estado de carregamento -->
-                <tr v-if="carregando">
-                  <td colspan="5" class="px-6 py-12 text-center">
-                    <div class="flex flex-col items-center justify-center text-neutral-400">
-                      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3"></div>
-                      <p class="text-sm font-medium">Carregando profissionais...</p>
-                      <p class="text-xs mt-1">Aguarde um momento</p>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Paginação -->
-          <div class="bg-white px-6 py-4 border-t border-neutral-200">
-            <div class="flex items-center justify-between">
-              <div class="text-sm text-neutral-600">
-                Exibindo <span class="font-medium">{{ profissionaisFiltrados.length }}</span> de 
-                <span class="font-medium">{{ profissionais.length }}</span> profissionais
-              </div>
-              <div class="flex gap-2">
-                <button
-                  @click="paginaAtual--"
-                  :disabled="paginaAtual === 1"
-                  class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Anterior
-                </button>
-                <button
-                  @click="paginaAtual++"
-                  :disabled="paginaAtual * itensPorPagina >= profissionais.length"
-                  class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Próxima
-                </button>
-              </div>
+        <div class="bg-white px-6 py-4 border-t border-neutral-200 rounded-b-lg">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-neutral-600">
+              Exibindo <span class="font-medium">{{ isSafeToShow ? profissionaisFiltrados.length : 0 }}</span> de 
+              <span class="font-medium">{{ profissionais.length }}</span> profissionais
+            </div>
+            <div class="flex gap-2" v-if="totalPaginas > 1">
+              <button
+                @click="paginaAtual--"
+                :disabled="paginaAtual === 1"
+                class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Anterior
+              </button>
+              <button
+                @click="paginaAtual++"
+                :disabled="paginaAtual >= totalPaginas"
+                class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Próxima
+              </button>
             </div>
           </div>
         </div>
@@ -268,6 +165,7 @@ import {
 } from '@heroicons/vue/24/solid'
 import type { ProfissionalRPC } from '~/types/user'
 import type { Especialidade } from '~/types/especialidade'
+import RelatorioEstatisticaCard from '~/components/relatorios/RelatorioEstatisticaCard.vue'
 
 // Interface estendida para incluir dados calculados
 interface ProfissionalComAtendimentos extends ProfissionalRPC {
@@ -291,6 +189,7 @@ const router = useRouter()
 // Composables
 const { buscarProfissionais, buscarEspecialidades } = useProfissionais()
 const { buscarAtendimentosCompletos } = useAtendimentos()
+const { isSafeToShow } = useSafeHydration()
 const toast = useToastNotification()
 
 // Estados reativos
@@ -317,12 +216,6 @@ const estatisticas = reactive({
 const profissionaisFiltrados = computed(() => {
   let resultado = profissionais.value
 
-  console.log('Aplicando filtros profissionais:', {
-    termoBusca: termoBusca.value,
-    filtroEspecialidade: filtroEspecialidade.value,
-    totalProfissionais: profissionais.value.length
-  })
-
   // Filtro por busca
   if (termoBusca.value) {
     const termo = termoBusca.value.toLowerCase()
@@ -341,9 +234,16 @@ const profissionaisFiltrados = computed(() => {
     )
   }
 
-  console.log('Resultado final dos filtros profissionais:', resultado.length)
-
   return resultado
+})
+
+const totalPaginas = computed(() => {
+  return Math.max(1, Math.ceil(profissionaisFiltrados.value.length / itensPorPagina))
+})
+
+const profissionaisPaginados = computed(() => {
+  const inicio = (paginaAtual.value - 1) * itensPorPagina
+  return profissionaisFiltrados.value.slice(inicio, inicio + itensPorPagina)
 })
 
 // Funções
@@ -352,12 +252,10 @@ const voltarParaRelatorios = () => {
 }
 
 const visualizarDetalhes = (profissionalId: number) => {
-  console.log('Visualizar detalhes do profissional:', profissionalId)
   // Navegar para página de detalhes do profissional ou modal
 }
 
 const exportarRelatorio = () => {
-  console.log('Exportar relatório de profissionais')
   // Implementar exportação para PDF/Excel
 }
 
@@ -400,8 +298,6 @@ const carregarDados = async () => {
   carregando.value = true
   
   try {
-    console.log('Carregando profissionais, especialidades e atendimentos...')
-    
     // Carregar dados em paralelo
     const [resultadoProfissionais, resultadoEspecialidades] = await Promise.all([
       buscarProfissionais(),
@@ -413,23 +309,19 @@ const carregarDados = async () => {
         ...prof,
         totalAtendimentos: 0 // Inicializar com 0, será atualizado depois
       }))
-      console.log('Profissionais carregados:', profissionais.value.length)
     } else {
       throw new Error('Erro ao buscar profissionais: ' + resultadoProfissionais.error)
     }
     
     if (resultadoEspecialidades.success && resultadoEspecialidades.data) {
       especialidades.value = resultadoEspecialidades.data
-      console.log('Especialidades carregadas:', especialidades.value.length)
     } else {
-      console.warn('Erro ao carregar especialidades:', resultadoEspecialidades.error)
       especialidades.value = []
     }
     
     // Buscar atendimentos e contar por profissional
     try {
       const atendimentos = await buscarAtendimentosCompletos()
-      console.log('Atendimentos carregados:', atendimentos.length)
       
       // Contar atendimentos por profissional
       const contadorAtendimentos: { [key: number]: number } = {}
@@ -451,11 +343,7 @@ const carregarDados = async () => {
         totalAtendimentos: contadorAtendimentos[prof.profissional_id] || 0
       }))
       
-      console.log('Contagem de atendimentos atualizada:', contadorAtendimentos)
-      
     } catch (atendimentosError: any) {
-      console.warn('Erro ao carregar atendimentos, usando valores simulados:', atendimentosError)
-      
       // Em caso de erro, usar valores mais realistas (alguns com 0, outros com números variados)
       profissionais.value = profissionais.value.map((prof, index) => ({
         ...prof,
@@ -466,10 +354,7 @@ const carregarDados = async () => {
     // Calcular estatísticas após carregar os dados
     calcularEstatisticas()
     
-    console.log('Carregamento concluído com sucesso')
-    
   } catch (error: any) {
-    console.error('Erro ao carregar dados:', error)
     toast.error(`Erro ao carregar dados dos profissionais: ${error.message}`)
   } finally {
     carregando.value = false
@@ -479,14 +364,5 @@ const carregarDados = async () => {
 // Buscar dados ao montar
 onMounted(() => {
   carregarDados()
-})
-
-// Watchers para debug
-watch(filtroEspecialidade, (novoValor, valorAnterior) => {
-  console.log('Filtro especialidade mudou:', {
-    anterior: valorAnterior,
-    novo: novoValor,
-    totalProfissionais: profissionais.value.length
-  })
 })
 </script>

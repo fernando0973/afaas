@@ -146,124 +146,23 @@
           </div>
 
           <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-            <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-neutral-200">
-              <thead class="bg-neutral-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Ranking
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Planta
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Nome científico
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Partes utilizadas
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Indicações (resumo)
-                  </th>
-                  <th class="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Total de indicações
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    RENISUS
-                  </th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-neutral-200">
-                <tr
-                  v-for="(planta, index) in plantasTop10"
-                  :key="planta.id"
-                  class="hover:bg-neutral-50 transition-colors"
-                >
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-neutral-100 text-neutral-700 font-semibold">
-                      {{ index + 1 }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex flex-col">
-                      <span class="text-sm font-semibold text-neutral-900">
-                        {{ planta.nome_popular }}
-                      </span>
-                      <span class="text-xs text-neutral-500">
-                        Cadastrada em {{ formatarDataCurta(planta.created_at) }}
-                      </span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-700">
-                    {{ planta.nome_cientifico || 'Não informado' }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-700">
-                    {{ formatarPartesUsadas(planta.partes_usadas) }}
-                  </td>
-                  <td class="px-6 py-4 text-sm text-neutral-700 max-w-xs">
-                    {{ resumirTexto(planta.indicacoes || planta.acao_terapeutica, 90) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                      {{ obterPontuacaoIndicacoes(planta) }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      v-if="planta.renisus"
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                    >
-                      RENISUS
-                    </span>
-                    <span v-else class="text-xs text-neutral-400">-</span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      @click="abrirDetalhes(planta)"
-                      class="text-blue-600 hover:text-blue-900 transition-colors"
-                    >
-                      Ver detalhes
-                    </button>
-                  </td>
-                </tr>
+            <TabelaPlantasRelatorio
+              :plantas="plantasTop10"
+              :carregando="carregando"
+              @abrir-detalhes="abrirDetalhes"
+            />
 
-                <tr v-if="!carregando && plantasTop10.length === 0">
-                  <td colspan="8" class="px-6 py-12 text-center">
-                    <div class="flex flex-col items-center justify-center text-neutral-400">
-                      <ClipboardDocumentListIcon class="w-12 h-12 mb-3" />
-                      <p class="text-sm font-medium">Nenhuma planta encontrada</p>
-                      <p class="text-xs mt-1">Ajuste sua busca ou filtros para visualizar outros resultados</p>
-                    </div>
-                  </td>
-                </tr>
-
-                <tr v-if="carregando">
-                  <td colspan="8" class="px-6 py-12 text-center">
-                    <div class="flex flex-col items-center justify-center text-neutral-400">
-                      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3"></div>
-                      <p class="text-sm font-medium">Carregando plantas...</p>
-                      <p class="text-xs mt-1">Aguarde enquanto buscamos os dados</p>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="bg-white px-6 py-4 border-t border-neutral-200">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <p class="text-sm text-neutral-600">
-                Exibindo as {{ Math.min(10, plantasTop10.length) }} plantas com maior número de indicações dentre {{ plantasFiltradas.length }} resultados filtrados ({{ plantas.length }} cadastros totais)
-              </p>
-              <p class="text-xs text-neutral-400">
-                Critério de desempate: ordem alfabética por nome popular
-              </p>
+            <div class="bg-white px-6 py-4 border-t border-neutral-200">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <p class="text-sm text-neutral-600">
+                  Exibindo as {{ Math.min(10, plantasTop10.length) }} plantas com maior número de indicações dentre {{ plantasFiltradas.length }} resultados filtrados ({{ plantas.length }} cadastros totais)
+                </p>
+                <p class="text-xs text-neutral-400">
+                  Critério de desempate: ordem alfabética por nome popular
+                </p>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </main>
@@ -368,11 +267,11 @@ import {
   SparklesIcon,
   ShieldExclamationIcon,
   Squares2X2Icon,
-  ClockIcon,
-  ClipboardDocumentListIcon
+  ClockIcon
 } from '@heroicons/vue/24/solid'
 import BaseCard from '~/components/BaseCard.vue'
 import BaseModal from '~/components/BaseModal.vue'
+import TabelaPlantasRelatorio from '~/components/relatorios/TabelaPlantasRelatorio.vue'
 import { useRelatorios } from '~/composables/useRelatorios'
 
 definePageMeta({
@@ -391,7 +290,20 @@ const {
   formatarData
 } = useRelatorios()
 
-type PlantaRelatorio = Awaited<ReturnType<typeof buscarPlantasRelatorio>>[number]
+type PlantaRelatorio = {
+  id: number
+  nome_popular: string
+  nome_cientifico?: string | null
+  partes_usadas?: string[] | null
+  indicacoes?: string | null
+  acao_terapeutica?: string | null
+  created_at: string | null
+  renisus?: boolean | null
+  deleted_at?: string | null
+  sabor_propriedade?: string[] | null
+  meridianos?: string[] | null
+  contraindicacoes?: string | null
+}
 type FiltroRenisus = 'todas' | 'renisus' | 'nao-renisus'
 
 const plantas = ref<PlantaRelatorio[]>([])

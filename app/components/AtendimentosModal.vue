@@ -143,7 +143,7 @@
             type="number"
             min="0"
             max="300"
-            placeholder="Ex: 72"
+            placeholder="Ex: 65"
             class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -172,7 +172,7 @@
           <input
             v-model.number="form.energia_vital"
             type="number"
-            min="0"
+            min="10"
             max="100"
             placeholder="Ex: 75"
             class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -198,9 +198,11 @@
             class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option :value="null">Selecione...</option>
+            <option value="alta">Muito Alta</option>
             <option value="alta">Alta</option>
             <option value="media">Média</option>
             <option value="baixa">Baixa</option>
+            <option value="baixa">Muito Baixa</option>
           </select>
         </div>
 
@@ -211,21 +213,12 @@
           </label>
           <select
             v-model="form.meridiano"
-            class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option :value="null">Selecione...</option>
-            <option value="pulmao">Pulmão</option>
-            <option value="intestino_grosso">Intestino Grosso</option>
-            <option value="estomago">Estômago</option>
-            <option value="baco_pancreas">Baço/Pâncreas</option>
-            <option value="coracao">Coração</option>
-            <option value="intestino_delgado">Intestino Delgado</option>
-            <option value="bexiga">Bexiga</option>
-            <option value="rim">Rim</option>
-            <option value="circulacao_sexo">Circulação/Sexo</option>
-            <option value="triplo_aquecedor">Triplo Aquecedor</option>
-            <option value="vesicula_biliar">Vesícula Biliar</option>
-            <option value="figado">Fígado</option>
+            <option value="norte">Norte</option>
+            <option value="sul">Sul</option>
+            <option value="leste">Leste</option>
+            <option value="oeste">Oeste</option>
           </select>
         </div>
       </div>
@@ -245,7 +238,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_coronario" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Coronário
+              Coronário
             </label>
           </div>
 
@@ -257,7 +250,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_frontal" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Frontal
+              Frontal
             </label>
           </div>
 
@@ -269,7 +262,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_laringeo" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Laríngeo
+              Laríngeo
             </label>
           </div>
 
@@ -281,7 +274,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_cardiaco" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Cardíaco
+              Cardíaco
             </label>
           </div>
 
@@ -293,7 +286,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_plexo_solar" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Plexo Solar
+              Plexo Solar
             </label>
           </div>
 
@@ -305,7 +298,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_umbilical" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Umbilical
+              Umbilical
             </label>
           </div>
 
@@ -317,7 +310,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="centro_base" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Centro Base
+              Base
             </label>
           </div>
         </div>
@@ -338,7 +331,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_virus" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Vírus
+              Vírus
             </label>
           </div>
 
@@ -350,7 +343,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_bacteria" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Bactérias
+              Bactérias
             </label>
           </div>
 
@@ -362,7 +355,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_fungos" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Fungos
+              Fungos
             </label>
           </div>
 
@@ -374,7 +367,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_parasitas" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Parasitas
+              Parasitas
             </label>
           </div>
 
@@ -386,7 +379,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_micoplasma" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Micoplasma
+              Micoplasma
             </label>
           </div>
 
@@ -398,7 +391,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_bacilos" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Bacilos
+              Bacilos
             </label>
           </div>
 
@@ -410,7 +403,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_artrites" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Artrites
+              Artrites
             </label>
           </div>
 
@@ -422,7 +415,7 @@
               class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
             />
             <label for="caderno_doencas" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-              Caderno de Doenças
+              Doenças
             </label>
           </div>
         </div>

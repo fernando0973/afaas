@@ -63,8 +63,8 @@ import {
   ChartBarIcon
 } from '@heroicons/vue/24/solid'
 import { computed, type Component } from 'vue'
-import RelatorioCard from '~/components/RelatorioCard.vue'
-import ResumoEstatisticaCard from '~/components/ResumoEstatisticaCard.vue'
+import RelatorioCard from '~/components/relatorios/RelatorioCard.vue'
+import ResumoEstatisticaCard from '~/components/relatorios/ResumoEstatisticaCard.vue'
 
 // Meta da página
 definePageMeta({

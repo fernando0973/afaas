@@ -23,7 +23,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-neutral-200">
           <tr 
-            v-for="profissional in profissionais" 
+            v-for="profissional in profissionaisPaginados" 
             :key="profissional.profissional_id"
             class="hover:bg-neutral-50 transition-colors"
           >
@@ -63,7 +63,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <button
-                @click="$emit('visualizar', profissional.profissional_id)"
+                @click="$emit('visualizar-detalhes', profissional.profissional_id)"
                 class="text-blue-600 hover:text-blue-900 transition-colors"
               >
                 Ver detalhes
@@ -72,7 +72,7 @@
           </tr>
 
           <!-- Estado vazio -->
-          <tr v-if="profissionais.length === 0 && !carregando">
+          <tr v-if="!carregando && profissionaisPaginados.length === 0">
             <td colspan="5" class="px-6 py-12 text-center">
               <div class="flex flex-col items-center justify-center text-neutral-400">
                 <UserGroupIcon class="w-12 h-12 mb-3" />
@@ -95,25 +95,59 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Paginação -->
+    <div class="bg-white px-6 py-4 border-t border-neutral-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-neutral-600">
+          Exibindo <span class="font-medium">{{ profissionaisPaginados.length }}</span> de 
+          <span class="font-medium">{{ totalProfissionais }}</span> profissionais
+        </div>
+        <div class="flex gap-2">
+          <button
+            @click="$emit('pagina-anterior')"
+            :disabled="paginaAtual === 1"
+            class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+          <span class="text-sm text-neutral-500">
+            Página {{ paginaAtual }} de {{ totalPaginas }}
+          </span>
+          <button
+            @click="$emit('pagina-proxima')"
+            :disabled="paginaAtual >= totalPaginas"
+            class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Próxima
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { UserGroupIcon } from '@heroicons/vue/24/solid'
 
-interface ProfissionalTabela {
-  profissional_id: string
-  nome_profissional: string
-  especialidade: string
+interface ProfissionalRelatorio {
+  profissional_id: number
+  nome_profissional?: string | null
+  especialidade?: string | null
   totalAtendimentos?: number
 }
 
 defineProps<{
-  profissionais: ProfissionalTabela[]
-  carregando?: boolean
+  profissionaisPaginados: ProfissionalRelatorio[]
+  totalProfissionais: number
+  carregando: boolean
+  paginaAtual: number
+  totalPaginas: number
 }>()
 
 defineEmits<{
-  visualizar: [profissionalId: string]
+  (event: 'visualizar-detalhes', id: number): void
+  (event: 'pagina-anterior'): void
+  (event: 'pagina-proxima'): void
 }>()
 </script>

@@ -446,6 +446,141 @@ export function useRelatorios() {
     return resultado
   }
 
+  /**
+   * Busca especialidades e agrega dados de profissionais e atendimentos para o relatório
+   */
+  const buscarEspecialidadesRelatorio = async () => {
+    type EspecialidadeRow = {
+      id: number
+      especialidade: string
+      created_at: string
+    }
+    type EspecialidadeRelatorio = EspecialidadeRow & {
+      totalProfissionais: number
+      totalAtendimentos: number
+    }
+
+    try {
+      console.log('Iniciando busca de especialidades...')
+      
+      // Primeiro, buscar todas as especialidades
+      const { data: especialidadesData, error: especialidadesError } = await supabase
+        .from('afaas_especialidades')
+        .select('id, especialidade, created_at')
+        .order('especialidade', { ascending: true })
+
+      if (especialidadesError) {
+        console.error('Erro ao buscar especialidades:', especialidadesError)
+        throw especialidadesError
+      }
+
+      console.log('Especialidades encontradas:', especialidadesData)
+      const especialidades = (especialidadesData || []) as EspecialidadeRow[]
+      
+      if (especialidades.length === 0) {
+        console.log('Nenhuma especialidade encontrada')
+        return []
+      }
+      
+      // Para cada especialidade, buscar dados de profissionais e atendimentos
+      const especialidadesComDados = await Promise.all(
+        especialidades.map(async (especialidade: EspecialidadeRow) => {
+          console.log(`Processando especialidade: ${especialidade.especialidade} (ID: ${especialidade.id})`)
+          
+          // Contar profissionais desta especialidade
+          const { count: totalProfissionais, error: profError } = await supabase
+            .from('afaas_profissionais')
+            .select('*', { count: 'exact', head: true })
+            .eq('especialidade_id', especialidade.id)
+
+          if (profError) {
+            console.error(`Erro ao buscar profissionais da especialidade ${especialidade.especialidade}:`, profError)
+          }
+
+          console.log(`Especialidade ${especialidade.especialidade}: ${totalProfissionais || 0} profissionais`)
+
+          // Buscar IDs dos profissionais desta especialidade
+          const { data: profissionaisIds, error: profIdsError } = await supabase
+            .from('afaas_profissionais')
+            .select('id')
+            .eq('especialidade_id', especialidade.id)
+
+          if (profIdsError) {
+            console.error(`Erro ao buscar IDs dos profissionais da especialidade ${especialidade.especialidade}:`, profIdsError)
+          }
+
+          let totalAtendimentos = 0
+          if (profissionaisIds && profissionaisIds.length > 0) {
+            // Contar atendimentos onde estes profissionais foram os principais
+            const ids = profissionaisIds.map((p: any) => p.id)
+            console.log(`IDs dos profissionais da especialidade ${especialidade.especialidade}:`, ids)
+            
+            const { count, error: atendError } = await supabase
+              .from('afaas_atendimentos')
+              .select('*', { count: 'exact', head: true })
+              .in('profissional_principal_id', ids)
+
+            if (atendError) {
+              console.error(`Erro ao buscar atendimentos da especialidade ${especialidade.especialidade}:`, atendError)
+            }
+
+            totalAtendimentos = count || 0
+            console.log(`Especialidade ${especialidade.especialidade}: ${totalAtendimentos} atendimentos`)
+          }
+
+          const resultado = {
+            id: especialidade.id,
+            especialidade: especialidade.especialidade,
+            created_at: especialidade.created_at,
+            totalProfissionais: totalProfissionais || 0,
+            totalAtendimentos
+          } as EspecialidadeRelatorio
+
+          console.log(`Resultado para especialidade ${especialidade.especialidade}:`, resultado)
+          return resultado
+        })
+      )
+
+      console.log('Especialidades carregadas:', especialidadesComDados)
+      return especialidadesComDados
+    } catch (error) {
+      console.error('Erro ao buscar especialidades para relatório:', error)
+      return []
+    }
+  }
+
+  /**
+   * Busca estatísticas simples das especialidades
+   */
+  const buscarEstatisticasEspecialidades = async () => {
+    try {
+      const { count: totalEspecialidades } = await supabase
+        .from('afaas_especialidades')
+        .select('*', { count: 'exact', head: true })
+
+      const { count: totalProfissionais } = await supabase
+        .from('afaas_profissionais')
+        .select('*', { count: 'exact', head: true })
+
+      const { count: totalAtendimentos } = await supabase
+        .from('afaas_atendimentos')
+        .select('*', { count: 'exact', head: true })
+
+      return {
+        totalEspecialidades: totalEspecialidades || 0,
+        totalProfissionais: totalProfissionais || 0,
+        totalAtendimentos: totalAtendimentos || 0
+      }
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas das especialidades:', error)
+      return {
+        totalEspecialidades: 0,
+        totalProfissionais: 0,
+        totalAtendimentos: 0
+      }
+    }
+  }
+
   return {
     buscarEstatisticasGerais,
     buscarClientesRelatorio,
@@ -464,6 +599,8 @@ export function useRelatorios() {
     filtrarAtendimentosPorBusca,
     filtrarAtendimentosPorMes,
     filtrarAtendimentosPorAno,
-    filtrarAtendimentos
+    filtrarAtendimentos,
+    buscarEspecialidadesRelatorio,
+    buscarEstatisticasEspecialidades
   }
 }

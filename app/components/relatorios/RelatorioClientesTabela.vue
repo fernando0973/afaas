@@ -1,0 +1,176 @@
+<template>
+  <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-neutral-200">
+        <thead class="bg-neutral-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Cliente
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              CPF
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Localização
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Atendimentos
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Último Atendimento
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              Ações
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-neutral-200">
+          <tr
+            v-for="cliente in clientesPaginados"
+            :key="cliente.id"
+            class="hover:bg-neutral-50 transition-colors"
+          >
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10">
+                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="text-sm font-medium text-blue-600">
+                      {{ cliente.nome_completo?.charAt(0)?.toUpperCase() || '?' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-neutral-900">
+                    {{ cliente.nome_completo || 'Nome não disponível' }}
+                  </div>
+                  <div class="text-xs text-neutral-500">
+                    Cadastrado em {{ formatarDataCurta(cliente.created_at) }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+              {{ formatarCPF(cliente.cpf) || 'Não informado' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+              <div class="flex items-center gap-2">
+                <MapPinIcon class="w-4 h-4 text-neutral-400" />
+                <span>
+                  {{ cliente.cidade || 'Cidade não informada' }}
+                  <template v-if="cliente.estado">
+                    / {{ cliente.estado }}
+                  </template>
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                :class="cliente.totalAtendimentos > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-100 text-neutral-600'"
+              >
+                {{ cliente.totalAtendimentos }} atendimento(s)
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
+              {{ formatarUltimoAtendimento(cliente.ultimoAtendimento) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button
+                @click="$emit('visualizar-detalhes', cliente.id)"
+                class="text-blue-600 hover:text-blue-900 transition-colors"
+              >
+                Ver detalhes
+              </button>
+            </td>
+          </tr>
+
+          <tr v-if="!carregando && clientesPaginados.length === 0">
+            <td colspan="6" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center text-neutral-400">
+                <ClipboardDocumentListIcon class="w-12 h-12 mb-3" />
+                <p class="text-sm font-medium">Nenhum cliente encontrado</p>
+                <p class="text-xs mt-1">Tente ajustar os filtros de busca</p>
+              </div>
+            </td>
+          </tr>
+
+          <tr v-if="carregando">
+            <td colspan="6" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center text-neutral-400">
+                <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-3"></div>
+                <p class="text-sm font-medium">Carregando clientes...</p>
+                <p class="text-xs mt-1">Aguarde um momento</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-white px-6 py-4 border-t border-neutral-200">
+      <div class="flex items-center justify-between flex-col gap-3 md:flex-row">
+        <div class="text-sm text-neutral-600">
+          Exibindo
+          <span class="font-medium">{{ clientesPaginados.length }}</span>
+          de
+          <span class="font-medium">{{ clientesFiltradosCount }}</span>
+          clientes filtrados ({{ totalClientes }} no total)
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            @click="$emit('pagina-anterior')"
+            :disabled="paginaAtual === 1"
+            class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+          <span class="text-sm text-neutral-500">
+            Página {{ paginaAtual }} de {{ totalPaginas }}
+          </span>
+          <button
+            @click="$emit('pagina-proxima')"
+            :disabled="paginaAtual >= totalPaginas"
+            class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Próxima
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { MapPinIcon, ClipboardDocumentListIcon } from '@heroicons/vue/24/solid'
+
+interface ClienteRelatorio {
+  id: number
+  nome_completo?: string | null
+  cpf?: string | null
+  cidade?: string | null
+  estado?: string | null
+  created_at?: string | null
+  totalAtendimentos: number
+  ultimoAtendimento: string | null
+}
+
+type FormatFn = (value: string | null | undefined) => string
+
+defineProps<{
+  clientesPaginados: ClienteRelatorio[]
+  clientesFiltradosCount: number
+  totalClientes: number
+  carregando: boolean
+  paginaAtual: number
+  totalPaginas: number
+  formatarCPF: FormatFn
+  formatarDataCurta: FormatFn
+  formatarUltimoAtendimento: FormatFn
+}>()
+
+defineEmits<{
+  (event: 'visualizar-detalhes', id: number): void
+  (event: 'pagina-anterior'): void
+  (event: 'pagina-proxima'): void
+}>()
+</script>

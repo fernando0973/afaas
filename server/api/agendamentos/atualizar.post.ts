@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import type { Database } from '~/types/database.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     if (cor) cor = cor.trim()
 
     // Usar service role para contornar RLS
-    const supabase = serverSupabaseServiceRole(event)
+    const supabase = serverSupabaseServiceRole(event) as any
 
     // Primeiro verificar se o agendamento existe
     const { data: existingRecord, error: selectError } = await supabase

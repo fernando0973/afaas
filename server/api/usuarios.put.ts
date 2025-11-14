@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import type { Database } from '~/types/database.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const supabase = serverSupabaseServiceRole(event)
+    const supabase = serverSupabaseServiceRole(event) as any
 
     // 1. Verificar se o usuário existe na tabela afaas_profiles
     const { data: perfilExistente, error: erroVerificacao } = await supabase

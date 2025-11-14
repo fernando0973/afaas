@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import type { Database } from '~/types/database.types'
 
 interface DeletarUsuarioRequest {
   user_id: string
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event): Promise<DeletarUsuarioResponse>
     }
 
     // Obter cliente Supabase com privilégios de admin
-    const supabase = await serverSupabaseServiceRole(event)
+    const supabase = serverSupabaseServiceRole(event) as any
 
     // 1. Verificar se o perfil existe antes de deletar
     const { data: perfilExistente, error: perfilError } = await supabase

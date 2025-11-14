@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import type { Database } from '~/types/database.types'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,11 +13,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Usar service role para contornar RLS (método correto do guia Supabase)
-    const supabase = await serverSupabaseServiceRole(event)
+    const supabase = serverSupabaseServiceRole(event) as any
 
     console.log('API Server - Cancelando agendamento:', body.id)
     
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('afaas_agendamentos')
       .update({
         cancelado: true,

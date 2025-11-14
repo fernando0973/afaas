@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import type { Database } from '~/types/database.types'
 
 interface CriarUsuarioRequest {
   nome: string
@@ -71,7 +72,7 @@ export default defineEventHandler(async (event): Promise<CriarUsuarioResponse> =
     }
 
     // Obter cliente Supabase com privilégios de admin
-    const supabase = await serverSupabaseServiceRole(event)
+    const supabase = serverSupabaseServiceRole(event) as any
 
     // 1. Criar usuário na autenticação do Supabase
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({

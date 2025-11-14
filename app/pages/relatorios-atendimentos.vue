@@ -2,7 +2,7 @@
   <div class="h-[95dvh] flex flex-col bg-neutral-50">
     <!-- Cabeçalho -->
     <header class="bg-white border-b border-neutral-200 px-6 py-6 flex-shrink-0">
-      <div class="max-w-7xl mx-auto">
+      <div class="w-full max-w-[1600px] mx-auto">
         <div class="flex items-center gap-3 mb-4">
           <button 
             @click="voltarParaRelatorios"
@@ -80,154 +80,71 @@
 
     <!-- Conteúdo principal -->
     <main class="flex-1 min-h-0 overflow-y-auto p-6">
-      <div class="max-w-7xl mx-auto space-y-6">
+      <div class="w-full max-w-[1600px] mx-auto space-y-6">
         
         <!-- Cards de Estatísticas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Total</span>
-              <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <ClipboardDocumentListIcon class="w-5 h-5 text-blue-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">{{ estatisticas.total }}</p>
-            <p class="text-xs text-neutral-500 mt-1">atendimentos realizados</p>
-          </div>
+          <BaseCard
+            title="Total"
+            :value="estatisticas.total"
+            caption="atendimentos realizados"
+            icon-wrapper-class="bg-blue-100"
+          >
+            <template #icon>
+              <ClipboardDocumentListIcon class="w-5 h-5 text-blue-600" />
+            </template>
+          </BaseCard>
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Este Mês</span>
-              <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <CalendarIcon class="w-5 h-5 text-green-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">{{ estatisticas.esteMes }}</p>
-            <p class="text-xs text-green-600 mt-1">↑ {{ estatisticas.crescimento }}% vs mês anterior</p>
-          </div>
+          <BaseCard
+            title="Este Mês"
+            :value="estatisticas.esteMes"
+            :caption="`↑ ${estatisticas.crescimento}% vs mês anterior`"
+            caption-class="text-green-600"
+            icon-wrapper-class="bg-green-100"
+          >
+            <template #icon>
+              <CalendarIcon class="w-5 h-5 text-green-600" />
+            </template>
+          </BaseCard>
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Média Diária</span>
-              <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ChartBarIcon class="w-5 h-5 text-purple-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">{{ estatisticas.mediaDiaria }}</p>
-            <p class="text-xs text-neutral-500 mt-1">atendimentos por dia</p>
-          </div>
+          <BaseCard
+            title="Média Diária"
+            :value="estatisticas.mediaDiaria"
+            caption="atendimentos por dia"
+            icon-wrapper-class="bg-purple-100"
+          >
+            <template #icon>
+              <ChartBarIcon class="w-5 h-5 text-purple-600" />
+            </template>
+          </BaseCard>
 
-          <div class="bg-white rounded-lg border border-neutral-200 p-5">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-neutral-600">Clientes Únicos</span>
-              <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                <UsersIcon class="w-5 h-5 text-amber-600" />
-              </div>
-            </div>
-            <p class="text-3xl font-bold text-neutral-900">{{ estatisticas.clientesUnicos }}</p>
-            <p class="text-xs text-neutral-500 mt-1">clientes atendidos</p>
-          </div>
+          <BaseCard
+            title="Clientes Únicos"
+            :value="estatisticas.clientesUnicos"
+            caption="clientes atendidos"
+            icon-wrapper-class="bg-amber-100"
+          >
+            <template #icon>
+              <UsersIcon class="w-5 h-5 text-amber-600" />
+            </template>
+          </BaseCard>
         </div>
 
         <!-- Tabela de Atendimentos -->
-        <div class="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-neutral-200">
-              <thead class="bg-neutral-50">
-                <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Data
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Profissional
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Especialidade
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Plantas
-                  </th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-neutral-200">
-                <tr 
-                  v-for="atendimento in atendimentosFiltrados" 
-                  :key="atendimento.id"
-                  class="hover:bg-neutral-50 transition-colors"
-                >
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {{ formatarData(atendimento.created_at) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
-                    {{ atendimento.cliente?.nome_completo || 'N/A' }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {{ obterProfissionalPrincipal(atendimento) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    {{ obterEspecialidadePrincipal(atendimento) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                      {{ atendimento.plantas?.length || 0 }} planta(s)
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      @click="visualizarDetalhes(atendimento.id)"
-                      class="text-blue-600 hover:text-blue-900 transition-colors"
-                    >
-                      Ver detalhes
-                    </button>
-                  </td>
-                </tr>
-
-                <!-- Estado vazio -->
-                <tr v-if="atendimentosFiltrados.length === 0">
-                  <td colspan="6" class="px-6 py-12 text-center">
-                    <div class="flex flex-col items-center justify-center text-neutral-400">
-                      <ClipboardDocumentListIcon class="w-12 h-12 mb-3" />
-                      <p class="text-sm font-medium">Nenhum atendimento encontrado</p>
-                      <p class="text-xs mt-1">Tente ajustar os filtros de busca</p>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Paginação -->
-          <div class="bg-white px-6 py-4 border-t border-neutral-200">
-            <div class="flex items-center justify-between">
-              <div class="text-sm text-neutral-600">
-                Exibindo <span class="font-medium">{{ atendimentosFiltrados.length }}</span> de 
-                <span class="font-medium">{{ atendimentos.length }}</span> atendimentos
-              </div>
-              <div class="flex gap-2">
-                <button
-                  @click="paginaAtual--"
-                  :disabled="paginaAtual === 1"
-                  class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Anterior
-                </button>
-                <button
-                  @click="paginaAtual++"
-                  :disabled="paginaAtual * itensPorPagina >= atendimentos.length"
-                  class="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Próxima
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TabelaAtendimentos
+          :atendimentos="atendimentosFiltrados"
+          :total-atendimentos="atendimentos.length"
+          :pagina-atual="paginaAtual"
+          :itens-por-pagina="itensPorPagina"
+          :formatar-data="formatarData"
+          :obter-profissional-principal="obterProfissionalPrincipal"
+          :obter-especialidade-principal="obterEspecialidadePrincipal"
+          :obter-profissional-auxiliar="obterProfissionalAuxiliar"
+          :obter-especialidade-auxiliar="obterEspecialidadeAuxiliar"
+          @ver-detalhes="visualizarDetalhes"
+          @pagina-anterior="paginaAnterior"
+          @pagina-proxima="paginaProxima"
+        />
 
       </div>
     </main>
@@ -244,6 +161,8 @@ import {
   ChartBarIcon,
   UsersIcon
 } from '@heroicons/vue/24/solid'
+import BaseCard from '~/components/BaseCard.vue'
+import TabelaAtendimentos from '~/components/TabelaAtendimentos.vue'
 
 // Meta da página
 definePageMeta({
@@ -263,7 +182,9 @@ const {
   buscarAtendimentosCompletos,
   calcularEstatisticasAtendimentos,
   obterProfissionalPrincipal,
+  obterProfissionalAuxiliar,
   obterEspecialidadePrincipal,
+  obterEspecialidadeAuxiliar,
   formatarData,
   filtrarAtendimentos
 } = useRelatorios()
@@ -296,6 +217,18 @@ const atendimentosFiltrados = computed(() => {
     ano: filtroAno.value
   })
 })
+
+const paginaAnterior = () => {
+  if (paginaAtual.value > 1) {
+    paginaAtual.value--
+  }
+}
+
+const paginaProxima = () => {
+  if (paginaAtual.value * itensPorPagina < atendimentos.value.length) {
+    paginaAtual.value++
+  }
+}
 
 // Funções
 const voltarParaRelatorios = () => {

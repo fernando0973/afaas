@@ -44,71 +44,8 @@ export function useRelatorios() {
    */
   const buscarAtendimentosCompletos = async () => {
     try {
-      // Buscar atendimentos básicos com clientes
-      const { data, error } = await supabase
-        .from('afaas_atendimentos')
-        .select(`
-          *,
-          cliente:afaas_clientes(*)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.error('Erro ao buscar atendimentos:', error)
-        return []
-      }
-
-      if (!data || data.length === 0) {
-        return []
-      }
-
-      // Para cada atendimento, buscar profissionais e plantas
-      const atendimentosCompletos = await Promise.all(
-        data.map(async (atendimento: any) => {
-          // Buscar profissionais
-          const { data: profissionaisData } = await supabase
-            .from('afaas_atendimento_profissionais')
-            .select(`
-              id,
-              funcao,
-              afaas_profissionais(
-                id,
-                afaas_profiles(nome),
-                afaas_especialidades(especialidade)
-              )
-            `)
-            .eq('atendimento_id', atendimento.id)
-            .order('funcao', { ascending: true }) // Principal primeiro
-
-          // Buscar plantas
-          const { data: plantasData } = await supabase
-            .from('afaas_atendimento_plantas')
-            .select(`
-              id,
-              afaas_plantas_medicinais(
-                id,
-                nome_popular
-              )
-            `)
-            .eq('atendimento_id', atendimento.id)
-
-          return {
-            ...atendimento,
-            profissionais: (profissionaisData || []).map((ap: any) => ({
-              id: ap.afaas_profissionais?.id,
-              nome: ap.afaas_profissionais?.afaas_profiles?.nome || 'Nome não disponível',
-              especialidade: ap.afaas_profissionais?.afaas_especialidades?.especialidade || 'Especialidade não disponível',
-              funcao: ap.funcao
-            })),
-            plantas: (plantasData || []).map((ap: any) => ({
-              id: ap.afaas_plantas_medicinais?.id,
-              nome_popular: ap.afaas_plantas_medicinais?.nome_popular || ''
-            }))
-          }
-        })
-      )
-
-      return atendimentosCompletos
+      const dados = await $fetch<any[]>('/api/relatorios/atendimentos')
+      return dados || []
     } catch (error) {
       console.error('Erro ao buscar atendimentos completos:', error)
       return []
@@ -177,20 +114,81 @@ export function useRelatorios() {
   /**
    * Obtém o profissional principal de um atendimento
    */
+  const obterProfissionalPorFuncao = (atendimento: any, funcao: string) => {
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 0) {
+      const encontrado = atendimento.profissionais.find((prof: any) => prof.funcao === funcao)
+      if (encontrado) {
+        return encontrado.nome || 'N/A'
+      }
+    }
+    return 'N/A'
+  }
+
+  const obterProfissionalAuxiliar = (atendimento: any) => {
+    const porFuncao = obterProfissionalPorFuncao(atendimento, 'auxiliar')
+    if (porFuncao !== 'N/A') {
+      return porFuncao
+    }
+
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 1) {
+      return atendimento.profissionais[1].nome || 'N/A'
+    }
+
+    return 'N/A'
+  }
+
+  /**
+   * Obtém o profissional principal de um atendimento
+   */
   const obterProfissionalPrincipal = (atendimento: any) => {
-    if (atendimento.profissionais && atendimento.profissionais.length > 0) {
+    const principal = obterProfissionalPorFuncao(atendimento, 'principal')
+    if (principal !== 'N/A') {
+      return principal
+    }
+
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 0) {
       return atendimento.profissionais[0].nome || 'N/A'
     }
+
     return atendimento.profissional?.nome || 'N/A'
+  }
+
+  const obterEspecialidadePorFuncao = (atendimento: any, funcao: string) => {
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 0) {
+      const encontrado = atendimento.profissionais.find((prof: any) => prof.funcao === funcao)
+      if (encontrado) {
+        return encontrado.especialidade || 'N/A'
+      }
+    }
+    return 'N/A'
+  }
+
+  const obterEspecialidadeAuxiliar = (atendimento: any) => {
+    const porFuncao = obterEspecialidadePorFuncao(atendimento, 'auxiliar')
+    if (porFuncao !== 'N/A') {
+      return porFuncao
+    }
+
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 1) {
+      return atendimento.profissionais[1].especialidade || 'N/A'
+    }
+
+    return 'N/A'
   }
 
   /**
    * Obtém a especialidade principal de um atendimento
    */
   const obterEspecialidadePrincipal = (atendimento: any) => {
-    if (atendimento.profissionais && atendimento.profissionais.length > 0) {
+    const principal = obterEspecialidadePorFuncao(atendimento, 'principal')
+    if (principal !== 'N/A') {
+      return principal
+    }
+
+    if (Array.isArray(atendimento.profissionais) && atendimento.profissionais.length > 0) {
       return atendimento.profissionais[0].especialidade || 'N/A'
     }
+
     return atendimento.profissional?.especialidade || 'N/A'
   }
 
@@ -273,9 +271,13 @@ export function useRelatorios() {
   return {
     buscarEstatisticasGerais,
     buscarAtendimentosCompletos,
-    calcularEstatisticasAtendimentos,
-    obterProfissionalPrincipal,
-    obterEspecialidadePrincipal,
+  calcularEstatisticasAtendimentos,
+  obterProfissionalPorFuncao,
+  obterProfissionalPrincipal,
+  obterProfissionalAuxiliar,
+  obterEspecialidadePorFuncao,
+  obterEspecialidadePrincipal,
+  obterEspecialidadeAuxiliar,
     formatarData,
     filtrarAtendimentosPorBusca,
     filtrarAtendimentosPorMes,

@@ -15,242 +15,36 @@
       <div class="max-w-7xl mx-auto">
         <!-- Grid de Cards de Relatórios -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
-          <!-- Card 1: Relatório de Agendamentos -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('agendamentos')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <ClipboardDocumentListIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Agendamentos</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Visualize estatísticas completas dos agendamentos realizados, incluindo dados de clientes, profissionais e plantas medicinais utilizadas.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-blue-600 group-hover:text-blue-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 2: Relatório de Atendimentos -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-cyan-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('atendimentos')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <ClipboardDocumentListIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Atendimentos</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Análise completa dos atendimentos concluídos, histórico de consultas, evolução de pacientes e resultados dos tratamentos.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-cyan-600 group-hover:text-cyan-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-cyan-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 4: Relatório de Clientes -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-green-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('clientes')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <UsersIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Clientes</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Análise detalhada da base de clientes, histórico de atendimentos, dados demográficos e estatísticas de frequência.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-green-600 group-hover:text-green-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-green-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 5: Relatório de Profissionais -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-purple-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('profissionais')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <UserGroupIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Profissionais</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Desempenho e estatísticas dos profissionais, quantidade de atendimentos realizados e especialidades mais procuradas.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-purple-600 group-hover:text-purple-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-purple-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 6: Relatório de Plantas Medicinais -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-emerald-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('plantas')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <BeakerIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Plantas Medicinais</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Estatísticas de uso das plantas medicinais, eficácia dos tratamentos e plantas mais prescritas nos atendimentos.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-emerald-600 group-hover:text-emerald-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 7: Relatório de Especialidades -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-indigo-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('especialidades')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <AcademicCapIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Especialidades</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Análise das especialidades oferecidas, demanda por tipo de atendimento e distribuição de profissionais por área.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-indigo-600 group-hover:text-indigo-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
-          <!-- Card 8: Relatório Financeiro -->
-          <div 
-            class="group bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg hover:border-amber-300 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-            @click="navegarParaRelatorio('financeiro')"
-          >
-            <div class="flex items-center mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <CurrencyDollarIcon class="w-7 h-7 text-white" />
-              </div>
-              <h3 class="text-lg font-semibold text-neutral-900 ml-4">Financeiro</h3>
-            </div>
-            
-            <p class="text-neutral-600 text-sm mb-4 leading-relaxed">
-              Visão geral financeira, receitas, despesas, faturamento por período e análise de crescimento da instituição.
-            </p>
-            
-            <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-              <span class="text-xs font-medium text-amber-600 group-hover:text-amber-700">
-                Ver relatório
-              </span>
-              <ArrowRightIcon class="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </div>
-
+          <RelatorioCard
+            v-for="card in relatoriosCards"
+            :key="card.route"
+            :title="card.title"
+            :description="card.description"
+            :icon="card.icon"
+            :icon-bg-class="card.iconBgClass"
+            :border-hover-class="card.borderHoverClass"
+            :cta-color-class="card.ctaColorClass"
+            :cta-hover-class="card.ctaHoverClass"
+            :arrow-color-class="card.arrowColorClass"
+            @click="navegarParaRelatorio(card.route)"
+          />
         </div>
 
         <!-- Seção de Resumo Rápido -->
         <div class="mt-8">
           <h2 class="text-xl font-semibold text-neutral-900 mb-4">Resumo Rápido</h2>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            
-            <!-- Estatística 1 -->
-            <div class="bg-white rounded-lg border border-neutral-200 p-5">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-neutral-600">Total de Atendimentos</span>
-                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <ChartBarIcon class="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-              <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregando" class="inline-block animate-pulse">...</span>
-                <span v-else>{{ quantidadeAtendimentos }}</span>
-              </p>
-              <p class="text-xs text-neutral-500 mt-1">atendimentos realizados</p>
-            </div>
-
-            <!-- Estatística 2 -->
-            <div class="bg-white rounded-lg border border-neutral-200 p-5">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-neutral-600">Clientes Ativos</span>
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <UsersIcon class="w-5 h-5 text-green-600" />
-                </div>
-              </div>
-              <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregando" class="inline-block animate-pulse">...</span>
-                <span v-else>{{ quantidadeClientes }}</span>
-              </p>
-              <p class="text-xs text-neutral-500 mt-1">clientes cadastrados</p>
-            </div>
-
-            <!-- Estatística 3 -->
-            <div class="bg-white rounded-lg border border-neutral-200 p-5">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-neutral-600">Profissionais</span>
-                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <UserGroupIcon class="w-5 h-5 text-purple-600" />
-                </div>
-              </div>
-              <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregando" class="inline-block animate-pulse">...</span>
-                <span v-else>{{ quantidadeProfissionais }}</span>
-              </p>
-              <p class="text-xs text-neutral-500 mt-1">profissionais ativos</p>
-            </div>
-
-            <!-- Estatística 4 -->
-            <div class="bg-white rounded-lg border border-neutral-200 p-5">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-neutral-600">Plantas Cadastradas</span>
-                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <BeakerIcon class="w-5 h-5 text-emerald-600" />
-                </div>
-              </div>
-              <p class="text-2xl font-bold text-neutral-900">
-                <span v-if="carregando" class="inline-block animate-pulse">...</span>
-                <span v-else>{{ quantidadePlantas }}</span>
-              </p>
-              <p class="text-xs text-neutral-500 mt-1">plantas medicinais no sistema</p>
-            </div>
-
+            <ResumoEstatisticaCard
+              v-for="card in resumoRapidoCards"
+              :key="card.title"
+              :title="card.title"
+              :icon="card.icon"
+              :icon-bg-class="card.iconBgClass"
+              :icon-color-class="card.iconColorClass"
+              :value="card.value"
+              :description="card.description"
+              :loading="carregando"
+            />
           </div>
         </div>
       </div>
@@ -266,9 +60,11 @@ import {
   BeakerIcon,
   AcademicCapIcon,
   CurrencyDollarIcon,
-  ArrowRightIcon,
   ChartBarIcon
 } from '@heroicons/vue/24/solid'
+import { computed, type Component } from 'vue'
+import RelatorioCard from '~/components/RelatorioCard.vue'
+import ResumoEstatisticaCard from '~/components/ResumoEstatisticaCard.vue'
 
 // Meta da página
 definePageMeta({
@@ -283,6 +79,101 @@ useHead({
 
 const router = useRouter()
 
+type RelatorioCardConfig = {
+  title: string
+  description: string
+  icon: Component
+  iconBgClass: string
+  borderHoverClass: string
+  ctaColorClass: string
+  ctaHoverClass: string
+  route: string
+  arrowColorClass?: string
+}
+
+type ResumoRapidoCardConfig = {
+  title: string
+  description: string
+  icon: Component
+  iconBgClass: string
+  iconColorClass: string
+  value: number
+}
+
+const relatoriosCards: RelatorioCardConfig[] = [
+  {
+    title: 'Agendamentos',
+    description: 'Visualize estatísticas completas dos agendamentos realizados, incluindo dados de clientes, profissionais e plantas medicinais utilizadas.',
+    icon: ClipboardDocumentListIcon,
+    iconBgClass: 'bg-gradient-to-br from-blue-500 to-blue-600',
+    borderHoverClass: 'hover:border-blue-300',
+    ctaColorClass: 'text-blue-600',
+    ctaHoverClass: 'group-hover:text-blue-700',
+    route: 'agendamentos'
+  },
+  {
+    title: 'Atendimentos',
+    description: 'Análise completa dos atendimentos concluídos, histórico de consultas, evolução de pacientes e resultados dos tratamentos.',
+    icon: ClipboardDocumentListIcon,
+    iconBgClass: 'bg-gradient-to-br from-cyan-500 to-cyan-600',
+    borderHoverClass: 'hover:border-cyan-300',
+    ctaColorClass: 'text-cyan-600',
+    ctaHoverClass: 'group-hover:text-cyan-700',
+    route: 'atendimentos'
+  },
+  {
+    title: 'Clientes',
+    description: 'Análise detalhada da base de clientes, histórico de atendimentos, dados demográficos e estatísticas de frequência.',
+    icon: UsersIcon,
+    iconBgClass: 'bg-gradient-to-br from-green-500 to-green-600',
+    borderHoverClass: 'hover:border-green-300',
+    ctaColorClass: 'text-green-600',
+    ctaHoverClass: 'group-hover:text-green-700',
+    route: 'clientes'
+  },
+  {
+    title: 'Profissionais',
+    description: 'Desempenho e estatísticas dos profissionais, quantidade de atendimentos realizados e especialidades mais procuradas.',
+    icon: UserGroupIcon,
+    iconBgClass: 'bg-gradient-to-br from-purple-500 to-purple-600',
+    borderHoverClass: 'hover:border-purple-300',
+    ctaColorClass: 'text-purple-600',
+    ctaHoverClass: 'group-hover:text-purple-700',
+    route: 'profissionais'
+  },
+  {
+    title: 'Plantas Medicinais',
+    description: 'Estatísticas de uso das plantas medicinais, eficácia dos tratamentos e plantas mais prescritas nos atendimentos.',
+    icon: BeakerIcon,
+    iconBgClass: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+    borderHoverClass: 'hover:border-emerald-300',
+    ctaColorClass: 'text-emerald-600',
+    ctaHoverClass: 'group-hover:text-emerald-700',
+    route: 'plantas'
+  },
+  {
+    title: 'Especialidades',
+    description: 'Análise das especialidades oferecidas, demanda por tipo de atendimento e distribuição de profissionais por área.',
+    icon: AcademicCapIcon,
+    iconBgClass: 'bg-gradient-to-br from-indigo-500 to-indigo-600',
+    borderHoverClass: 'hover:border-indigo-300',
+    ctaColorClass: 'text-indigo-600',
+    ctaHoverClass: 'group-hover:text-indigo-700',
+    route: 'especialidades'
+  },
+  {
+    title: 'Financeiro',
+    description: 'Visão geral financeira, receitas, despesas, faturamento por período e análise de crescimento da instituição.',
+    icon: CurrencyDollarIcon,
+    iconBgClass: 'bg-gradient-to-br from-amber-500 to-amber-600',
+    borderHoverClass: 'hover:border-amber-300',
+    ctaColorClass: 'text-amber-600',
+    ctaHoverClass: 'group-hover:text-amber-700',
+    route: 'financeiro'
+  }
+]
+
+
 // Composables
 const { buscarEstatisticasGerais } = useRelatorios()
 
@@ -292,6 +183,41 @@ const quantidadePlantas = ref(0)
 const quantidadeProfissionais = ref(0)
 const quantidadeClientes = ref(0)
 const quantidadeAtendimentos = ref(0)
+
+const resumoRapidoCards = computed<ResumoRapidoCardConfig[]>(() => [
+  {
+    title: 'Total de Atendimentos',
+    description: 'atendimentos realizados',
+    icon: ChartBarIcon,
+    iconBgClass: 'bg-blue-100',
+    iconColorClass: 'text-blue-600',
+    value: quantidadeAtendimentos.value
+  },
+  {
+    title: 'Clientes Ativos',
+    description: 'clientes cadastrados',
+    icon: UsersIcon,
+    iconBgClass: 'bg-green-100',
+    iconColorClass: 'text-green-600',
+    value: quantidadeClientes.value
+  },
+  {
+    title: 'Profissionais',
+    description: 'profissionais ativos',
+    icon: UserGroupIcon,
+    iconBgClass: 'bg-purple-100',
+    iconColorClass: 'text-purple-600',
+    value: quantidadeProfissionais.value
+  },
+  {
+    title: 'Plantas Cadastradas',
+    description: 'plantas medicinais no sistema',
+    icon: BeakerIcon,
+    iconBgClass: 'bg-emerald-100',
+    iconColorClass: 'text-emerald-600',
+    value: quantidadePlantas.value
+  }
+])
 
 // Função para navegar para relatórios específicos
 const navegarParaRelatorio = (tipo: string) => {

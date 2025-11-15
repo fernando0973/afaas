@@ -24,12 +24,12 @@
     <main class="flex-1 min-h-0 overflow-y-auto p-6">
       <form class="max-w-7xl mx-auto space-y-6" @submit.prevent="salvarAtendimento">
         <!-- Seção: Dados Básicos -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">Dados Básicos do Atendimento</h2>
-            <p class="text-sm text-neutral-600">Informações essenciais sobre cliente e profissional</p>
-          </header>
-
+        <BaseSubCard
+          title="Dados Básicos do Atendimento"
+          description="Informações essenciais sobre cliente e profissional"
+          variant="neutral"
+          size="md"
+        >
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Cliente -->
             <BaseSelector
@@ -82,15 +82,15 @@
               container-class="p-3 bg-neutral-50 rounded-lg"
             />
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Seção: Sinais Vitais -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">Sinais Vitais</h2>
-            <p class="text-sm text-neutral-600">Registre os principais indicadores vitais do paciente</p>
-          </header>
-
+        <BaseSubCard
+          title="Sinais Vitais"
+          description="Registre os principais indicadores vitais do paciente"
+          variant="neutral"
+          size="md"
+        >
           <div class="space-y-6">
             <!-- Pressão Arterial -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -170,17 +170,15 @@
               />
             </div>
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Seção: Centros Energéticos -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4 space-y-1">
-            <h2 class="text-lg font-semibold text-neutral-900">Centros Energéticos</h2>
-            <p class="text-sm text-neutral-600">
-              Marque os centros energéticos que apresentam desequilíbrio
-            </p>
-          </header>
-
+        <BaseSubCard
+          title="Centros Energéticos"
+          description="Marque os centros energéticos que apresentam desequilíbrio"
+          variant="neutral"
+          size="md"
+        >
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <BaseCheck
               v-model="form.centro_coronario"
@@ -224,17 +222,15 @@
               container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
             />
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Seção: Cadernos -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4 space-y-1">
-            <h2 class="text-lg font-semibold text-neutral-900">Cadernos, lâminas e tabelas</h2>
-            <p class="text-sm text-neutral-600">
-              Marque os cadernos, lâminas ou tabelas utilizados no atendimento
-            </p>
-          </header>
-
+        <BaseSubCard
+          title="Cadernos, lâminas e tabelas"
+          description="Marque os cadernos, lâminas ou tabelas utilizados no atendimento"
+          variant="neutral"
+          size="md"
+        >
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
             <BaseCheck
               v-model="form.caderno_virus"
@@ -302,15 +298,15 @@
               label="Modificados / Outros"
             />
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Seção: Encaminhamentos -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">Encaminhamentos</h2>
-            <p class="text-sm text-neutral-600">Registre encaminhamentos necessários para o paciente</p>
-          </header>
-
+        <BaseSubCard
+          title="Encaminhamentos"
+          description="Registre encaminhamentos necessários para o paciente"
+          variant="neutral"
+          size="md"
+        >
           <div class="space-y-4">
             <!-- Encaminhamento Médico -->
             <div class="p-4 bg-neutral-50 rounded-lg space-y-3">
@@ -359,15 +355,15 @@
               </div>
             </div>
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Seção: Plano Terapêutico -->
-        <section class="bg-white rounded-lg border border-neutral-200 p-6">
-          <header class="mb-4">
-            <h2 class="text-lg font-semibold text-neutral-900">Plano Terapêutico</h2>
-            <p class="text-sm text-neutral-600">Defina o plano terapêutico e recomendações de plantas medicinais</p>
-          </header>
-
+        <BaseSubCard
+          title="Plano Terapêutico"
+          description="Defina o plano terapêutico e recomendações de plantas medicinais"
+          variant="neutral"
+          size="md"
+        >
           <div class="space-y-6">
             <!-- Plantas Medicinais -->
             <div>
@@ -478,7 +474,7 @@
               label="Observações Gerais do Atendimento"
             />
           </div>
-        </section>
+        </BaseSubCard>
 
         <!-- Botões de ação (fixos no final) -->
         <div class="bg-white rounded-lg border border-neutral-200 p-4">
@@ -510,6 +506,7 @@ import BaseCheck from '~/components/BaseCheck.vue'
 import BaseInput from '~/components/BaseInput.vue'
 import BaseSelector from '~/components/BaseSelector.vue'
 import BaseTextarea from '~/components/BaseTextarea.vue'
+import BaseSubCard from '~/components/BaseSubCard.vue'
 
 definePageMeta({
   title: 'Atendimentos',

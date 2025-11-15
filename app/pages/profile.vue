@@ -24,7 +24,11 @@
     <!-- Conteúdo principal -->
     <main class="flex-1 min-h-0 overflow-y-auto max-w-6xl mx-auto px-6 py-8 w-full">
       <!-- Card de Apresentação -->
-      <div class="bg-white rounded-lg border border-neutral-200 p-6 mb-8">
+      <BaseSubCard
+        variant="neutral"
+        size="md"
+        class="mb-8"
+      >
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <!-- Avatar -->
           <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -54,7 +58,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </BaseSubCard>
 
       <!-- Grid de seções -->
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -63,12 +67,11 @@
         <div class="xl:col-span-2 space-y-8">
           
           <!-- Informações Pessoais -->
-          <div class="bg-white rounded-lg border border-neutral-200 p-6">
-            <div class="flex items-center mb-6">
-              <UserIcon class="w-5 h-5 text-neutral-600 mr-3" />
-              <h3 class="text-lg font-medium text-neutral-900">Informações Pessoais</h3>
-            </div>
-
+          <BaseSubCard
+            title="Informações Pessoais"
+            variant="neutral"
+            size="md"
+          >
             <div class="grid grid-cols-1 gap-6">
               <!-- Nome - Editável -->
               <div>
@@ -151,19 +154,19 @@
                 </p>
               </div>
             </div>
-          </div>
+          </BaseSubCard>
 
           <!-- Segurança -->
-          <div class="bg-white rounded-lg border border-neutral-200 p-6">
-            <div class="flex items-center mb-6">
-              <ShieldCheckIcon class="w-5 h-5 text-neutral-600 mr-3" />
-              <h3 class="text-lg font-medium text-neutral-900">Segurança</h3>
-            </div>
+          <BaseSubCard
+            title="Segurança"
+            variant="neutral"
+            size="md"
+          >
             <ChangePassword 
               @password-changed="handlePasswordChange"
               @cancel="handlePasswordCancel"
             />
-          </div>
+          </BaseSubCard>
 
         </div>
 
@@ -171,11 +174,11 @@
         <div class="space-y-8">
           
           <!-- Configurações rápidas -->
-          <div class="bg-white rounded-lg border border-neutral-200 p-6">
-            <div class="flex items-center mb-6">
-              <Cog6ToothIcon class="w-5 h-5 text-neutral-600 mr-3" />
-              <h3 class="text-lg font-medium text-neutral-900">Configurações</h3>
-            </div>
+          <BaseSubCard
+            title="Configurações"
+            variant="neutral"
+            size="md"
+          >
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <span class="text-sm text-neutral-700">Foto do perfil</span>
@@ -196,15 +199,16 @@
                 </button>
               </div>
             </div>
-          </div>
+          </BaseSubCard>
 
           <!-- Informações de Build (somente administradores) -->
-          <div v-if="isAdmin" class="bg-white rounded-lg border border-neutral-200 p-6">
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center">
-                <ServerIcon class="w-5 h-5 text-neutral-600 mr-3" />
-                <h3 class="text-lg font-medium text-neutral-900">Build Info</h3>
-              </div>
+          <BaseSubCard
+            v-if="isAdmin"
+            title="Build Info"
+            variant="neutral"
+            size="md"
+          >
+            <div class="flex items-center justify-end mb-4">
               <button
                 type="button"
                 class="text-xs font-medium text-primary-600 hover:text-primary-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -259,7 +263,7 @@
                 <p class="mt-1 text-neutral-700">{{ commitAuthorDisplay }}</p>
               </div>
             </div>
-          </div>
+          </BaseSubCard>
 
         </div>
 
@@ -273,6 +277,7 @@ import { ArrowLeftIcon, ArrowPathIcon, UserIcon, EnvelopeIcon, ShieldCheckIcon, 
 import { useToastNotification as useToast } from '~/composables/useToastNotification'
 import { useUserData } from '~/composables/useUserData'
 import { useAuth } from '~/composables/useAuth'
+import BaseSubCard from '~/components/BaseSubCard.vue'
 
 interface BuildInfoResponse {
   commitDate?: string | null

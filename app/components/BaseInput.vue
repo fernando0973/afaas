@@ -22,7 +22,8 @@
         :disabled="disabled"
         :readonly="readonly"
         :required="required"
-        :class="inputClasses"
+  v-bind="inputAttrs"
+  :class="[inputClasses, $attrs.class]"
         @input="handleInput"
         @blur="handleBlur"
         @focus="handleFocus"
@@ -58,10 +59,11 @@
 <script setup lang="ts">
 // @ts-ignore
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
+import { computed, ref, useAttrs, useSlots } from 'vue'
 import { useUniqueId } from '~/composables/useUniqueId'
 
 interface Props {
-  modelValue?: string | number
+  modelValue?: string | number | null
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date'
   label?: string
   placeholder?: string
@@ -82,8 +84,12 @@ const props = withDefaults(defineProps<Props>(), {
   required: false
 })
 
+defineOptions({ inheritAttrs: false })
+
+const attrs = useAttrs()
+
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string | number | null]
   blur: [event: FocusEvent]
   focus: [event: FocusEvent]
 }>()
@@ -91,6 +97,11 @@ const emit = defineEmits<{
 const slots = useSlots()
 const isFocused = ref(false)
 const showPassword = ref(false)
+
+const inputAttrs = computed(() => {
+  const { class: _class, ...rest } = attrs as Record<string, unknown>
+  return rest
+})
 
 // Use SSR-safe ID generation
 const generatedId = useUniqueId('input')

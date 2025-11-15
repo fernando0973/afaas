@@ -22,185 +22,125 @@
 
     <!-- Conteúdo principal -->
     <main class="flex-1 min-h-0 overflow-y-auto p-6">
-      <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Abas de navegação -->
-        <div class="bg-white rounded-lg border border-neutral-200 p-1">
-          <nav class="flex space-x-1" aria-label="Tabs">
-            <button
-              v-for="aba in abas"
-              :key="aba.id"
-              type="button"
-              @click="abaAtiva = aba.id"
-              :class="[
-                abaAtiva === aba.id
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50',
-                'px-4 py-2.5 text-sm font-medium rounded-md transition-all border border-transparent'
-              ]"
-            >
-              {{ aba.label }}
-            </button>
-          </nav>
-        </div>
+      <form class="max-w-7xl mx-auto space-y-6" @submit.prevent="salvarAtendimento">
+        <!-- Seção: Dados Básicos -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">Dados Básicos do Atendimento</h2>
+            <p class="text-sm text-neutral-600">Informações essenciais sobre cliente e profissional</p>
+          </header>
 
-        <!-- ABA: Dados Básicos -->
-        <div v-show="abaAtiva === 'basicos'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Dados Básicos do Atendimento</h2>
-          
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Cliente -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Cliente <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.cliente_id"
-                required
-                :disabled="carregando"
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-neutral-100 disabled:cursor-not-allowed"
+            <BaseSelector
+              v-model="form.cliente_id"
+              label="Cliente"
+              placeholder="Selecione um cliente"
+              required
+              :disabled="carregando"
+              value-type="number"
+            >
+              <option
+                v-for="cliente in clientes"
+                :key="cliente.id"
+                :value="cliente.id"
               >
-                <option :value="null" disabled>Selecione um cliente</option>
-                <option
-                  v-for="cliente in clientes"
-                  :key="cliente.id"
-                  :value="cliente.id"
-                >
-                  {{ cliente.nome_completo }} - {{ formatarCPF(cliente.cpf) }}
-                </option>
-              </select>
-            </div>
+                {{ cliente.nome_completo }} - {{ formatarCPF(cliente.cpf) }}
+              </option>
+            </BaseSelector>
 
             <!-- Profissional -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Profissional <span class="text-red-500">*</span>
-              </label>
-              <select
-                v-model="form.profissional_id"
-                required
-                :disabled="carregando"
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-neutral-100 disabled:cursor-not-allowed"
+            <BaseSelector
+              v-model="form.profissional_id"
+              label="Profissional"
+              placeholder="Selecione um profissional"
+              required
+              :disabled="carregando"
+              value-type="number"
+            >
+              <option
+                v-for="profissional in profissionais"
+                :key="profissional.profissional_id"
+                :value="profissional.profissional_id"
               >
-                <option :value="null" disabled>Selecione um profissional</option>
-                <option
-                  v-for="profissional in profissionais"
-                  :key="profissional.profissional_id"
-                  :value="profissional.profissional_id"
-                >
-                  {{ profissional.nome_profissional }} - {{ profissional.especialidade }}
-                </option>
-              </select>
-            </div>
+                {{ profissional.nome_profissional }} - {{ profissional.especialidade }}
+              </option>
+            </BaseSelector>
           </div>
 
           <!-- Divino Auxiliar e Pode Auxiliar -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg">
-              <input
-                id="eh_divino_auxiliar"
-                v-model="form.eh_divino_auxiliar"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="eh_divino_auxiliar" class="text-sm font-medium text-neutral-700 cursor-pointer">
-                É Divino Auxiliar
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.eh_divino_auxiliar"
+              label="É Divino Auxiliar"
+              container-class="p-3 bg-neutral-50 rounded-lg"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg">
-              <input
-                id="pode_auxiliar"
-                v-model="form.pode_auxiliar"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="pode_auxiliar" class="text-sm font-medium text-neutral-700 cursor-pointer">
-                Pode Auxiliar
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.pode_auxiliar"
+              label="Pode Auxiliar"
+              container-class="p-3 bg-neutral-50 rounded-lg"
+            />
           </div>
-        </div>
+        </section>
 
-        <!-- ABA: Sinais Vitais -->
-        <div v-show="abaAtiva === 'vitais'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Sinais Vitais</h2>
-          
+        <!-- Seção: Sinais Vitais -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">Sinais Vitais</h2>
+            <p class="text-sm text-neutral-600">Registre os principais indicadores vitais do paciente</p>
+          </header>
+
           <div class="space-y-6">
             <!-- Pressão Arterial -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Pressão Sistólica (mmHg)
-                </label>
-                <input
-                  v-model.number="form.pressao_sistolica"
-                  type="number"
-                  min="0"
-                  max="300"
-                  placeholder="Ex: 120"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.pressao_sistolica"
+                type="number"
+                :min="0"
+                :max="300"
+                placeholder="Ex: 120"
+                label="Pressão Sistólica (mmHg)"
+              />
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Pressão Diastólica (mmHg)
-                </label>
-                <input
-                  v-model.number="form.pressao_diastolica"
-                  type="number"
-                  min="0"
-                  max="200"
-                  placeholder="Ex: 80"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.pressao_diastolica"
+                type="number"
+                :min="0"
+                :max="200"
+                placeholder="Ex: 80"
+                label="Pressão Diastólica (mmHg)"
+              />
             </div>
 
             <!-- Batimento Cardíaco e Status -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Batimento Cardíaco (bpm)
-                </label>
-                <input
-                  v-model.number="form.batimento_cardiaco"
-                  type="number"
-                  min="0"
-                  max="300"
-                  placeholder="Ex: 65"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.batimento_cardiaco"
+                type="number"
+                :min="0"
+                :max="300"
+                placeholder="Ex: 65"
+                label="Batimento Cardíaco (bpm)"
+              />
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Status Cardíaco
-                </label>
-                <select
-                  v-model="form.status_cardiaco"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option :value="null">Selecione...</option>
-                  <option value="normal">Normal</option>
-                  <option value="alterado">Alterado</option>
-                  <option value="critico">Crítico</option>
-                </select>
-              </div>
+              <BaseSelector
+                v-model="form.status_cardiaco"
+                label="Status Cardíaco"
+                placeholder="Selecione..."
+                :options="statusCardiacoOptions"
+              />
             </div>
 
             <!-- Energia Vital -->
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Energia Vital (10-100)
-              </label>
-              <input
+              <BaseInput
                 v-model.number="form.energia_vital"
                 type="number"
-                min="10"
-                max="100"
+                :min="10"
+                :max="100"
                 placeholder="Ex: 75"
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                label="Energia Vital (10-100)"
               />
               <div v-if="form.energia_vital !== null" class="mt-3">
                 <div class="w-full bg-neutral-200 rounded-full h-3">
@@ -215,312 +155,186 @@
 
             <!-- Imunidade e Meridiano -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Imunidade
-                </label>
-                <select
-                  v-model="form.imunidade"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option :value="null">Selecione...</option>
-                  <option value="alta">Alta</option>
-                  <option value="media">Média</option>
-                  <option value="baixa">Baixa</option>
-                  <option value="muito_baixa">Muito Baixa</option>
-                </select>
-              </div>
+              <BaseSelector
+                v-model="form.imunidade"
+                label="Imunidade"
+                placeholder="Selecione..."
+                :options="imunidadeOptions"
+              />
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Meridiano
-                </label>
-                <select
-                  v-model="form.meridiano"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option :value="null">Selecione...</option>
-                  <option value="norte">Norte</option>
-                  <option value="sul">Sul</option>
-                  <option value="leste">Leste</option>
-                  <option value="oeste">Oeste</option>
-                </select>
-              </div>
+              <BaseSelector
+                v-model="form.meridiano"
+                label="Meridiano"
+                placeholder="Selecione..."
+                :options="meridianoOptions"
+              />
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- ABA: Centros Energéticos -->
-        <div v-show="abaAtiva === 'centros'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Centros Energéticos</h2>
-          <p class="text-sm text-neutral-600 mb-4">
-            Marque os centros energéticos que apresentam desequilíbrio
-          </p>
+        <!-- Seção: Centros Energéticos -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4 space-y-1">
+            <h2 class="text-lg font-semibold text-neutral-900">Centros Energéticos</h2>
+            <p class="text-sm text-neutral-600">
+              Marque os centros energéticos que apresentam desequilíbrio
+            </p>
+          </header>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_coronario"
-                v-model="form.centro_coronario"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_coronario" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Coronário
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_coronario"
+              label="Coronário"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_frontal"
-                v-model="form.centro_frontal"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_frontal" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Frontal
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_frontal"
+              label="Frontal"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_laringeo"
-                v-model="form.centro_laringeo"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_laringeo" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Laríngeo
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_laringeo"
+              label="Laríngeo"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_cardiaco"
-                v-model="form.centro_cardiaco"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_cardiaco" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Cardíaco
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_cardiaco"
+              label="Cardíaco"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_plexo_solar"
-                v-model="form.centro_plexo_solar"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_plexo_solar" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Plexo Solar
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_plexo_solar"
+              label="Plexo Solar"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_umbilical"
-                v-model="form.centro_umbilical"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_umbilical" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Umbilical
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_umbilical"
+              label="Umbilical"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="centro_base"
-                v-model="form.centro_base"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="centro_base" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Base
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.centro_base"
+              label="Base"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
           </div>
-        </div>
+        </section>
 
-        <!-- ABA: Cadernos -->
-        <div v-show="abaAtiva === 'cadernos'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Cadernos, lâminas e tabelas</h2>
-          <p class="text-sm text-neutral-600 mb-4">
-            Marque os cadernos, lâminas ou tabelas utilizados no atendimento
-          </p>
+        <!-- Seção: Cadernos -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4 space-y-1">
+            <h2 class="text-lg font-semibold text-neutral-900">Cadernos, lâminas e tabelas</h2>
+            <p class="text-sm text-neutral-600">
+              Marque os cadernos, lâminas ou tabelas utilizados no atendimento
+            </p>
+          </header>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_virus"
-                v-model="form.caderno_virus"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_virus" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Vírus
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_virus"
+              label="Vírus"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_bacteria"
-                v-model="form.caderno_bacteria"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_bacteria" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Bactérias
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_bacteria"
+              label="Bactérias"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_fungos"
-                v-model="form.caderno_fungos"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_fungos" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Fungos
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_fungos"
+              label="Fungos"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_parasitas"
-                v-model="form.caderno_parasitas"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_parasitas" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Parasitas
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_parasitas"
+              label="Parasitas"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_micoplasma"
-                v-model="form.caderno_micoplasma"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_micoplasma" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Micoplasma
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_micoplasma"
+              label="Micoplasma"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_bacilos"
-                v-model="form.caderno_bacilos"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_bacilos" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Bacilos
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_bacilos"
+              label="Bacilos"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_artrites"
-                v-model="form.caderno_artrites"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_artrites" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Artrites
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_artrites"
+              label="Artrites"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
 
-            <div class="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
-              <input
-                id="caderno_doencas"
-                v-model="form.caderno_doencas"
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-              />
-              <label for="caderno_doencas" class="text-sm font-medium text-neutral-700 cursor-pointer flex-1">
-                Doenças
-              </label>
-            </div>
+            <BaseCheck
+              v-model="form.caderno_doencas"
+              label="Doenças"
+              container-class="p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+            />
           </div>
 
           <div class="space-y-4">
             <!-- Causas e Desalinhamentos -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Causas de Desalinhamentos/Desequilíbrios
-              </label>
-              <textarea
-                v-model="form.causas_desalinhamentos"
-                rows="3"
-                placeholder="Descreva as causas identificadas..."
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
+            <BaseTextarea
+              v-model="form.causas_desalinhamentos"
+              :rows="3"
+              placeholder="Descreva as causas identificadas..."
+              label="Causas de Desalinhamentos/Desequilíbrios"
+            />
 
             <!-- Modificados / Outros -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Modificados / Outros
-              </label>
-              <textarea
-                v-model="form.modificados_outros"
-                rows="3"
-                placeholder="Informações adicionais..."
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
+            <BaseTextarea
+              v-model="form.modificados_outros"
+              :rows="3"
+              placeholder="Informações adicionais..."
+              label="Modificados / Outros"
+            />
           </div>
-        </div>
+        </section>
 
-        <!-- ABA: Encaminhamentos -->
-        <div v-show="abaAtiva === 'encaminhamentos'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Encaminhamentos</h2>
-          
+        <!-- Seção: Encaminhamentos -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">Encaminhamentos</h2>
+            <p class="text-sm text-neutral-600">Registre encaminhamentos necessários para o paciente</p>
+          </header>
+
           <div class="space-y-4">
             <!-- Encaminhamento Médico -->
             <div class="p-4 bg-neutral-50 rounded-lg space-y-3">
-              <div class="flex items-center space-x-3">
-                <input
-                  id="enc_medico"
-                  v-model="form.enc_medico"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-                />
-                <label for="enc_medico" class="text-sm font-semibold text-neutral-900 cursor-pointer">
-                  Encaminhamento Médico
-                </label>
-              </div>
+              <BaseCheck
+                v-model="form.enc_medico"
+                label="Encaminhamento Médico"
+                container-class="flex"
+                label-class="font-semibold text-neutral-900"
+              />
 
               <div v-if="form.enc_medico" class="space-y-3 pl-7">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-2">
-                    Tipo de Médico
-                  </label>
-                  <select
-                    v-model="form.enc_medico_tipo"
-                    class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option :value="null">Selecione...</option>
-                    <option value="clinico_geral">Clínico Geral</option>
-                    <option value="especialista">Especialista</option>
-                  </select>
-                </div>
+                <BaseSelector
+                  v-model="form.enc_medico_tipo"
+                  label="Tipo de Médico"
+                  placeholder="Selecione..."
+                  :options="encaminhamentoMedicoOptions"
+                />
 
                 <div v-if="form.enc_medico_tipo === 'especialista'">
-                  <label class="block text-sm font-medium text-neutral-700 mb-2">
-                    Especialista
-                  </label>
-                  <input
+                  <BaseInput
                     v-model="form.enc_medico_especialista"
                     type="text"
                     placeholder="Digite a especialidade..."
-                    class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    label="Especialista"
                   />
                 </div>
               </div>
@@ -528,65 +342,55 @@
 
             <!-- Encaminhamento Terapeuta -->
             <div class="p-4 bg-neutral-50 rounded-lg space-y-3">
-              <div class="flex items-center space-x-3">
-                <input
-                  id="enc_terapeuta"
-                  v-model="form.enc_terapeuta"
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 border-neutral-300 rounded focus:ring-blue-500"
-                />
-                <label for="enc_terapeuta" class="text-sm font-semibold text-neutral-900 cursor-pointer">
-                  Encaminhamento para Terapeuta
-                </label>
-              </div>
+              <BaseCheck
+                v-model="form.enc_terapeuta"
+                label="Encaminhamento para Terapeuta"
+                container-class="flex"
+                label-class="font-semibold text-neutral-900"
+              />
 
               <div v-if="form.enc_terapeuta" class="pl-7">
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Especialista/Terapeuta
-                </label>
-                <input
+                <BaseInput
                   v-model="form.enc_terapeuta_especialista"
                   type="text"
                   placeholder="Digite o tipo de terapeuta..."
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  label="Especialista/Terapeuta"
                 />
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- ABA: Plano Terapêutico -->
-        <div v-show="abaAtiva === 'plano'" class="bg-white rounded-lg border border-neutral-200 p-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Plano Terapêutico</h2>
-          
+        <!-- Seção: Plano Terapêutico -->
+        <section class="bg-white rounded-lg border border-neutral-200 p-6">
+          <header class="mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">Plano Terapêutico</h2>
+            <p class="text-sm text-neutral-600">Defina o plano terapêutico e recomendações de plantas medicinais</p>
+          </header>
+
           <div class="space-y-6">
             <!-- Plantas Medicinais -->
             <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Plantas Medicinais (Chás)
-              </label>
-              
-              <!-- Dropdown para adicionar plantas -->
-              <div class="mb-3">
-                <select
-                  v-model="plantaSelecionada"
-                  :disabled="carregando"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-neutral-100 disabled:cursor-not-allowed"
-                  @change="adicionarPlanta"
+              <BaseSelector
+                v-model="plantaSelecionada"
+                label="Plantas Medicinais (Chás)"
+                placeholder="Selecione uma planta para adicionar"
+                :disabled="carregando"
+                container-class="mb-3"
+                value-type="number"
+                @change="adicionarPlanta"
+              >
+                <option
+                  v-for="planta in plantasDisponiveis"
+                  :key="planta.id"
+                  :value="planta.id"
                 >
-                  <option :value="null">Selecione uma planta para adicionar</option>
-                  <option
-                    v-for="planta in plantasDisponiveis"
-                    :key="planta.id"
-                    :value="planta.id"
-                  >
-                    {{ planta.nome_popular }}
-                    <template v-if="planta.nome_cientifico">
-                      ({{ planta.nome_cientifico }})
-                    </template>
-                  </option>
-                </select>
-              </div>
+                  {{ planta.nome_popular }}
+                  <template v-if="planta.nome_cientifico">
+                    ({{ planta.nome_cientifico }})
+                  </template>
+                </option>
+              </BaseSelector>
 
               <!-- Lista de plantas adicionadas -->
               <div v-if="form.plantas.length > 0" class="space-y-2">
@@ -599,11 +403,12 @@
                     <div class="font-medium text-sm text-neutral-900">
                       {{ obterNomePlanta(planta.planta_id) }}
                     </div>
-                    <textarea
+                    <BaseTextarea
                       v-model="planta.observacao_planta"
+                      :rows="2"
                       placeholder="Observações sobre esta planta (opcional)"
-                      rows="2"
-                      class="mt-2 w-full px-2 py-1.5 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      size="sm"
+                      class="mt-2"
                     />
                   </div>
                   <button
@@ -623,87 +428,57 @@
             </div>
 
             <!-- Instruções Gerais -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Sugestões Terapêuticas
-              </label>
-              <textarea
-                v-model="form.plano_instrucoes_gerais"
-                rows="4"
-                placeholder="Digite as instruções gerais para o paciente..."
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
+            <BaseTextarea
+              v-model="form.plano_instrucoes_gerais"
+              :rows="4"
+              placeholder="Digite as instruções gerais para o paciente..."
+              label="Sugestões Terapêuticas"
+            />
 
             <!-- Dosagem e Período -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Dosagem (ml)
-                </label>
-                <input
-                  v-model.number="form.plano_dosagem_ml"
-                  type="number"
-                  min="0"
-                  placeholder="Ex: 50"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.plano_dosagem_ml"
+                type="number"
+                :min="0"
+                placeholder="Ex: 50"
+                label="Dosagem (ml)"
+              />
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Período (horas)
-                </label>
-                <input
-                  v-model.number="form.plano_periodo_horas"
-                  type="number"
-                  min="0"
-                  placeholder="Ex: 8"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.plano_periodo_horas"
+                type="number"
+                :min="0"
+                placeholder="Ex: 8"
+                label="Período (horas)"
+              />
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">
-                  Duração (dias)
-                </label>
-                <input
-                  v-model.number="form.plano_duracao_dias"
-                  type="number"
-                  min="0"
-                  placeholder="Ex: 30"
-                  class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+              <BaseInput
+                v-model.number="form.plano_duracao_dias"
+                type="number"
+                :min="0"
+                placeholder="Ex: 30"
+                label="Duração (dias)"
+              />
             </div>
 
             <!-- Frequência de Sessões -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Frequência de Sessões
-              </label>
-              <input
-                v-model="form.plano_sessoes_frequencia"
-                type="text"
-                placeholder="Ex: 2x por semana"
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            <BaseInput
+              v-model="form.plano_sessoes_frequencia"
+              type="text"
+              placeholder="Ex: 2x por semana"
+              label="Frequência de Sessões"
+            />
 
             <!-- Observações -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-2">
-                Observações Gerais do Atendimento
-              </label>
-              <textarea
-                v-model="form.observacoes"
-                placeholder="Digite observações gerais sobre o atendimento..."
-                rows="4"
-                class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
+            <BaseTextarea
+              v-model="form.observacoes"
+              :rows="4"
+              placeholder="Digite observações gerais sobre o atendimento..."
+              label="Observações Gerais do Atendimento"
+            />
           </div>
-        </div>
+        </section>
 
         <!-- Botões de ação (fixos no final) -->
         <div class="bg-white rounded-lg border border-neutral-200 p-4">
@@ -716,22 +491,25 @@
               Cancelar
             </BaseButton>
             <BaseButton
-              type="button"
+              type="submit"
               variant="primary"
               :disabled="!formularioValido || carregando"
-              @click="salvarAtendimento"
             >
               {{ isEdicao ? 'Salvar Alterações' : 'Criar Atendimento' }}
             </BaseButton>
           </div>
         </div>
-      </div>
+      </form>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import BaseCheck from '~/components/BaseCheck.vue'
+import BaseInput from '~/components/BaseInput.vue'
+import BaseSelector from '~/components/BaseSelector.vue'
+import BaseTextarea from '~/components/BaseTextarea.vue'
 
 definePageMeta({
   title: 'Atendimentos',
@@ -742,6 +520,33 @@ definePageMeta({
 useHead({
   title: 'Atendimentos - AFAAS'
 })
+
+type SelectorOption = { value: string; label: string }
+
+const statusCardiacoOptions: SelectorOption[] = [
+  { value: 'normal', label: 'Normal' },
+  { value: 'alterado', label: 'Alterado' },
+  { value: 'critico', label: 'Crítico' }
+]
+
+const imunidadeOptions: SelectorOption[] = [
+  { value: 'alta', label: 'Alta' },
+  { value: 'media', label: 'Média' },
+  { value: 'baixa', label: 'Baixa' },
+  { value: 'muito_baixa', label: 'Muito Baixa' }
+]
+
+const meridianoOptions: SelectorOption[] = [
+  { value: 'norte', label: 'Norte' },
+  { value: 'sul', label: 'Sul' },
+  { value: 'leste', label: 'Leste' },
+  { value: 'oeste', label: 'Oeste' }
+]
+
+const encaminhamentoMedicoOptions: SelectorOption[] = [
+  { value: 'clinico_geral', label: 'Clínico Geral' },
+  { value: 'especialista', label: 'Especialista' }
+]
 
 // Composables
 const { buscarProfissionais } = useProfissionais()
@@ -754,21 +559,10 @@ const router = useRouter()
 // Estado
 const carregando = ref(false)
 const isEdicao = ref(false)
-const abaAtiva = ref('basicos')
 const clientes = ref<any[]>([])
 const profissionais = ref<any[]>([])
 const plantas = ref<any[]>([])
 const plantaSelecionada = ref<number | null>(null)
-
-// Abas
-const abas = [
-  { id: 'basicos', label: 'Dados Básicos' },
-  { id: 'vitais', label: 'Sinais Vitais' },
-  { id: 'centros', label: 'Centros Energéticos' },
-  { id: 'cadernos', label: 'Cadernos' },
-  { id: 'encaminhamentos', label: 'Encaminhamentos' },
-  { id: 'plano', label: 'Plano Terapêutico' }
-]
 
 // Formulário
 const form = reactive({
@@ -930,9 +724,6 @@ const resetarFormulario = () => {
   // Plantas
   form.plantas = []
   plantaSelecionada.value = null
-  
-  // Resetar aba ativa
-  abaAtiva.value = 'basicos'
 }
 
 // Handlers
